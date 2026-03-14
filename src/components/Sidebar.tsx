@@ -107,9 +107,9 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         `}
       >
         {/* Header / Logo */}
-        <div className={`flex items-center h-24 shrink-0 transition-all duration-300 ${isMobile ? 'px-6 mt-16' : 'px-5 justify-center group-hover:justify-start group-hover:px-6'}`}>
-          <div className="w-10 h-10 shrink-0 rounded-2xl bg-gradient-to-tr from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg relative">
-             <span className="text-white font-bold text-xl">V</span>
+        <div className={`flex items-center h-28 shrink-0 transition-all duration-300 ${isMobile ? 'px-6 mt-16' : 'w-full px-5 justify-center group-hover:justify-start group-hover:px-6'}`}>
+          <div className="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-tr from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg relative group-hover:w-10 group-hover:h-10 transition-all duration-300">
+             <span className="text-white font-bold text-2xl group-hover:text-xl transition-all">V</span>
           </div>
           <h1 
             className={`whitespace-nowrap ml-4 text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-800 to-gray-500 dark:from-white dark:to-gray-300 transition-all duration-300 ${isMobile ? 'opacity-100' : 'opacity-0 translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 group-hover:delay-100'} overflow-hidden`}
@@ -119,8 +119,8 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         </div>
 
         {/* Navigation List */}
-        <nav className="flex-1 overflow-y-auto scrollbar-hide px-3 pb-6 flex flex-col mt-2">
-          <ul className="space-y-2 flex flex-col items-center lg:items-start group-hover:items-stretch lg:px-2 flex-grow">
+        <nav className="flex-1 overflow-y-auto scrollbar-hide px-3 pb-6 flex flex-col mt-4">
+          <ul className="space-y-3 flex flex-col items-center group-hover:items-stretch lg:px-2 flex-grow">
             {MODULES.map((module, mIdx) => {
               const isOpenMenu = openMenus[module.title];
               return (
