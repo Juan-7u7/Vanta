@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  /* Tooltip logic: when sidebar is not hovered (collapsed), show tooltip on item hover */
+  aside:not(:hover) .sidebar-tooltip-container:hover .sidebar-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(10px);
+  }
+}
