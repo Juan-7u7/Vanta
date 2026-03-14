@@ -107,7 +107,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         `}
       >
         {/* Header / Logo */}
-        <div className={`flex items-center h-28 shrink-0 transition-all duration-300 ${isMobile ? 'px-6 mt-16' : 'w-full px-5 justify-center group-hover:justify-start group-hover:px-6'}`}>
+        <div className={`flex items-center h-28 shrink-0 transition-all duration-300 ${isMobile ? 'px-6 mt-16' : 'w-full justify-center group-hover:justify-start group-hover:px-6'}`}>
           <div className="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-tr from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg relative group-hover:w-10 group-hover:h-10 transition-all duration-300">
              <span className="text-white font-bold text-2xl group-hover:text-xl transition-all">V</span>
           </div>
