@@ -112,7 +112,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
              <span className="text-white font-bold text-2xl group-hover:text-xl transition-all">V</span>
           </div>
           <h1 
-            className={`whitespace-nowrap ml-4 text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-800 to-gray-500 dark:from-white dark:to-gray-300 transition-all duration-300 ${isMobile ? 'opacity-100' : 'opacity-0 translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 group-hover:delay-100'} overflow-hidden`}
+            className={`whitespace-nowrap text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-800 to-gray-500 dark:from-white dark:to-gray-300 transition-all duration-300 ${isMobile ? 'opacity-100 ml-4' : 'w-0 opacity-0 overflow-hidden group-hover:w-auto group-hover:opacity-100 group-hover:ml-4 group-hover:delay-100'}`}
           >
             Vanta Media
           </h1>
