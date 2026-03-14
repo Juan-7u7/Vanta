@@ -57,7 +57,7 @@ export default function Login() {
         
         {/* Header Section */}
         <div className="p-8 text-center pb-6">
-          <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg mb-4">
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg mb-4">
              <span className="text-white font-bold text-3xl">V</span>
           </div>
           <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-800 to-gray-500 dark:from-white dark:to-gray-300">
@@ -87,7 +87,7 @@ export default function Login() {
                     setUsername(e.target.value);
                     if (error) setError('');
                   }}
-                  className={`block w-full pl-11 pr-4 py-3.5 bg-white/50 dark:bg-black/20 border rounded-2xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 dark:focus:ring-indigo-400/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 backdrop-blur-sm transition-all outline-none ${
+                  className={`block w-full pl-11 pr-4 py-3.5 bg-white/50 dark:bg-black/20 border rounded-2xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 dark:focus:ring-blue-400/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 backdrop-blur-sm transition-all outline-none ${
                     attemptedSubmit && !username 
                       ? 'border-red-500/50 bg-red-500/5' 
                       : 'border-gray-200 dark:border-white/10'
@@ -118,7 +118,7 @@ export default function Login() {
                     setPassword(e.target.value);
                     if (error) setError('');
                   }}
-                  className={`block w-full pl-11 pr-12 py-3.5 bg-white/50 dark:bg-black/20 border rounded-2xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 dark:focus:ring-indigo-400/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 backdrop-blur-sm transition-all outline-none ${
+                  className={`block w-full pl-11 pr-12 py-3.5 bg-white/50 dark:bg-black/20 border rounded-2xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 dark:focus:ring-blue-400/50 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 backdrop-blur-sm transition-all outline-none ${
                     attemptedSubmit && !password 
                       ? 'border-red-500/50 bg-red-500/5' 
                       : 'border-gray-200 dark:border-white/10'
@@ -128,7 +128,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-indigo-500 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-500 transition-colors"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -158,7 +158,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="mt-6 w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-2xl shadow-md text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-75 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500/50 dark:focus:ring-offset-black transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:active:scale-100"
+              className="mt-6 w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-2xl shadow-md text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 disabled:opacity-75 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500/50 dark:focus:ring-offset-black transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100 disabled:active:scale-100"
             >
               {isLoading ? (
                 <>

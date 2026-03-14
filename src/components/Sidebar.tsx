@@ -108,7 +108,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
       >
         {/* Header / Logo */}
         <div className={`flex items-center h-24 shrink-0 transition-all duration-300 ${isMobile ? 'px-6 mt-16' : 'px-5 justify-center group-hover:justify-start group-hover:px-6'}`}>
-          <div className="w-10 h-10 shrink-0 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg relative">
+          <div className="w-10 h-10 shrink-0 rounded-2xl bg-gradient-to-tr from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg relative">
              <span className="text-white font-bold text-xl">V</span>
           </div>
           <h1 
@@ -127,7 +127,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                 <li key={mIdx} className="relative w-full sidebar-tooltip-container">
                   <button 
                     onClick={(e) => toggleSubmenu(module.title, e)}
-                    className={`flex items-center justify-between p-3 rounded-2xl text-gray-600 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-white/10 hover:text-indigo-600 dark:hover:text-white hover:shadow-sm transition-all duration-200 ${isMobile ? 'w-full' : 'w-12 group-hover:w-full'} outline-none`}
+                    className={`flex items-center justify-between p-3 rounded-2xl text-gray-600 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-white/10 hover:text-blue-600 dark:hover:text-white hover:shadow-sm transition-all duration-200 ${isMobile ? 'w-full' : 'w-12 group-hover:w-full'} outline-none`}
                   >
                     <div className={`flex items-center ${isMobile ? 'w-full' : 'justify-center group-hover:justify-start'}`}>
                       <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
@@ -154,7 +154,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                           <li key={iIdx}>
                             <a 
                               href="#" 
-                              className={`block py-2 px-3 rounded-xl text-sm transition-colors ${'disabled' in opt && opt.disabled ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5'}`}
+                              className={`block py-2 px-3 rounded-xl text-sm transition-colors ${'disabled' in opt && opt.disabled ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5'}`}
                               onClick={e => ('disabled' in opt && opt.disabled) && e.preventDefault()}
                             >
                               {opt.name}
@@ -181,7 +181,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
             <div className="relative w-full sidebar-tooltip-container mb-1">
               <button 
                 onClick={() => setShowAlerts(true)}
-                className={`flex items-center justify-center lg:justify-start w-full p-3 rounded-2xl text-gray-600 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-white/10 hover:text-indigo-600 dark:hover:text-white hover:shadow-sm transition-all duration-200 outline-none ${isMobile ? 'justify-start' : 'group-hover:justify-start'}`}
+                className={`flex items-center justify-center lg:justify-start w-full p-3 rounded-2xl text-gray-600 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-white/10 hover:text-blue-600 dark:hover:text-white hover:shadow-sm transition-all duration-200 outline-none ${isMobile ? 'justify-start' : 'group-hover:justify-start'}`}
               >
                 <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
                   <Bell size={22} strokeWidth={1.5} />
@@ -234,8 +234,8 @@ export default function Sidebar({ onLogout }: SidebarProps) {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center">
-                    <Bell className="w-5 h-5 text-indigo-500" />
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                    <Bell className="w-5 h-5 text-blue-500" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-800 dark:text-white">Alertas</h3>
                 </div>
