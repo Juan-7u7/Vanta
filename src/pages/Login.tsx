@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Lock, User, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -11,6 +11,10 @@ export default function Login() {
   const [showErrorAnim, setShowErrorAnim] = useState(false);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    document.title = 'Avanta Media - Iniciar sesión';
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +65,7 @@ export default function Login() {
              <span className="text-white font-bold text-3xl">V</span>
           </div>
           <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-800 to-gray-500 dark:from-white dark:to-gray-300">
-            Bienvenido a Vanta Media
+            Bienvenido a Avanta Media
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 font-medium">
             Ingresa tus credenciales para continuar

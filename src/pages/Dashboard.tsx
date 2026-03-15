@@ -1,8 +1,13 @@
+import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
 
 export default function Dashboard() {
   const { signOut } = useAuth();
+
+  useEffect(() => {
+    document.title = 'Avanta Media - Panel de Control';
+  }, []);
 
   return (
     <div className="min-h-screen relative z-0 flex">

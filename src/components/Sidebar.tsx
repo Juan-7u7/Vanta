@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Menu, X, ChevronDown, CircleDollarSign, 
   TrendingUp, Settings, FileText, Bell, LogOut
@@ -108,13 +109,16 @@ export default function Sidebar({ onLogout }: SidebarProps) {
       >
         {/* Logo y Encabezado */}
         <div className={`flex items-center h-28 shrink-0 transition-all duration-300 ${isMobile ? 'px-6 mt-16' : 'w-full justify-center group-hover:justify-start group-hover:px-6'}`}>
-          <div className="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-tr from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg relative group-hover:w-10 group-hover:h-10 transition-all duration-300">
-             <span className="text-white font-bold text-2xl group-hover:text-xl transition-all">V</span>
-          </div>
+          <Link 
+            to="/dashboard"
+            className="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-tr from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg relative group-hover:w-10 group-hover:h-10 transition-all duration-300 overflow-hidden p-2 hover:scale-105 active:scale-95 transition-transform"
+          >
+            <img src="/logo-avalanz-blanco.png" alt="Logo" className="w-full h-full object-contain transition-all" />
+          </Link>
           <h1 
             className={`whitespace-nowrap text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-800 to-gray-500 dark:from-white dark:to-gray-300 transition-all duration-300 ${isMobile ? 'opacity-100 ml-4' : 'w-0 opacity-0 overflow-hidden group-hover:w-auto group-hover:opacity-100 group-hover:ml-4 group-hover:delay-100'}`}
           >
-            Vanta Media
+            Avanta Media
           </h1>
         </div>
 
