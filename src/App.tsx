@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Sidebar from './components/Sidebar';
-import Login from './components/Login';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
 import './App.css';
 
 function AppContent() {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
@@ -27,18 +27,7 @@ function AppContent() {
       
       <Route 
         path="/dashboard" 
-        element={
-          user ? (
-            <div className="min-h-screen relative z-0 flex">
-              <Sidebar onLogout={signOut} />
-              <main className="flex-1 transition-all duration-[400ms] lg:pl-[120px] p-6 lg:py-10 lg:pr-10">
-                {/* El card de Panel de Control ha sido removido. Aquí irá el contenido de los módulos. */}
-              </main>
-            </div>
-          ) : (
-            <Navigate to="/login" />
-          )
-        } 
+        element={user ? <Dashboard /> : <Navigate to="/login" />} 
       />
 
       <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />

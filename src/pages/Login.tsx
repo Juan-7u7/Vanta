@@ -47,7 +47,7 @@ export default function Login() {
   const triggerError = (msg: string) => {
     setError(msg);
     setShowErrorAnim(true);
-    // Reset animation after a moment to allow re-trigger
+    // Reinicia la animación después de un momento para permitir que se active de nuevo
     setTimeout(() => setShowErrorAnim(false), 500);
   };
 
@@ -55,7 +55,7 @@ export default function Login() {
     <div className="min-h-[100dvh] w-full flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white/10 dark:bg-black/25 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.4)] rounded-[32px] transform transition-all">
         
-        {/* Header Section */}
+        {/* Sección del Encabezado */}
         <div className="p-8 text-center pb-6">
           <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg mb-4">
              <span className="text-white font-bold text-3xl">V</span>
@@ -71,7 +71,7 @@ export default function Login() {
         <div className="px-8 pb-8 pt-2">
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
             
-            {/* Username Field */}
+            {/* Campo de Correo Electrónico */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 ml-1">
                 Correo electrónico
@@ -102,7 +102,7 @@ export default function Login() {
               )}
             </div>
 
-            {/* Password Field */}
+            {/* Campo de Contraseña */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 ml-1">
                 Contraseña

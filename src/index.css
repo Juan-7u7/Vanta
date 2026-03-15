@@ -9,7 +9,7 @@
     scrollbar-width: none; /* Firefox */
   }
 
-  /* Tooltip logic: when sidebar is not hovered (collapsed), show tooltip on item hover */
+  /* Lógica de Tooltip: cuando el sidebar no está en hover (colapsado), muestra el tooltip al pasar el mouse por el ítem */
   aside:not(:hover) .sidebar-tooltip-container:hover .sidebar-tooltip {
     opacity: 1;
     visibility: visible;

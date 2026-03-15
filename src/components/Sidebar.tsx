@@ -78,7 +78,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile Toggle Button */}
+      {/* Botón de menú móvil */}
       {isMobile && (
         <button 
           onClick={toggleMobile}
@@ -88,7 +88,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         </button>
       )}
 
-      {/* Overlay for mobile */}
+      {/* Capa de fondo para móvil */}
       {isMobile && isOpen && (
         <div 
           className="fixed inset-0 z-40 bg-black/10 backdrop-blur-sm transition-opacity duration-300"
@@ -96,7 +96,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         />
       )}
 
-      {/* Glassmorphism Sidebar Container */}
+      {/* Contenedor principal del Sidebar con glassmorphism */}
       <aside 
         onMouseLeave={() => !isMobile && setOpenMenus({})}
         className={`fixed top-0 lg:top-4 bottom-0 lg:bottom-4 z-50 transition-all duration-[400ms] ease-out flex flex-col
@@ -106,7 +106,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
           ${isMobile ? 'rounded-r-3xl' : 'rounded-[32px] overflow-hidden'}
         `}
       >
-        {/* Header / Logo */}
+        {/* Logo y Encabezado */}
         <div className={`flex items-center h-28 shrink-0 transition-all duration-300 ${isMobile ? 'px-6 mt-16' : 'w-full justify-center group-hover:justify-start group-hover:px-6'}`}>
           <div className="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-tr from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg relative group-hover:w-10 group-hover:h-10 transition-all duration-300">
              <span className="text-white font-bold text-2xl group-hover:text-xl transition-all">V</span>
@@ -118,7 +118,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
           </h1>
         </div>
 
-        {/* Navigation List */}
+        {/* Lista de Navegación */}
         <nav className="flex-1 overflow-y-auto scrollbar-hide px-3 pb-6 flex flex-col mt-4">
           <ul className="space-y-3 flex flex-col items-center group-hover:items-stretch lg:px-2 flex-grow">
             {MODULES.map((module, mIdx) => {
@@ -137,17 +137,17 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                         {module.title}
                       </span>
                     </div>
-                    {/* Arrow Icon */}
+                    {/* Icono de flecha */}
                     <div className={`flex-shrink-0 transition-all duration-300 ${isMobile ? 'opacity-100' : 'w-0 opacity-0 overflow-hidden group-hover:w-auto group-hover:opacity-100'}`}>
                       <ChevronDown size={18} className={`transition-transform duration-300 ${isOpenMenu ? 'rotate-180' : ''}`} />
                     </div>
                   </button>
 
-                  {/* Submenu Drawer */}
+                  {/* Desplegable de submenú */}
                   <div 
                     className={`overflow-hidden transition-all duration-300 ease-in-out w-full ${isOpenMenu ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0'} ${!isMobile ? 'group-hover:opacity-100 group-hover:pointer-events-auto pointer-events-none' : ''}`}
                   >
-                    {/* Force hide submenu when sidebar is collapsed in desktop to prevent glitches */}
+                    {/* Ocultar submenú al colapsar en escritorio para evitar errores visuales */}
                     <div className={`transition-all duration-300 ${!isMobile ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}>
                       <ul className="ml-[18px] pl-6 py-2 border-l border-gray-300 dark:border-gray-700/50 space-y-1">
                         {module.options.map((opt, iIdx) => (
@@ -165,7 +165,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                     </div>
                   </div>
 
-                  {/* Cool Minimal Tooltip (Desktop only, visible when Sidebar is collapsed) */}
+                  {/* Tooltip minimalista para escritorio */}
                   {!isMobile && (
                     <div className="sidebar-tooltip absolute left-[calc(100%+20px)] top-1/2 -translate-y-1/2 px-4 py-2 bg-white/70 dark:bg-black/70 backdrop-blur-xl border border-white/40 dark:border-white/10 text-gray-800 dark:text-gray-200 text-sm font-semibold rounded-xl opacity-0 invisible pointer-events-none transition-all duration-300 z-50 shadow-xl whitespace-nowrap flex items-center group-hover/aside:hidden">
                       {module.title}
@@ -176,7 +176,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
             })}
           </ul>
 
-          {/* Bottom Actions (Notifications & Logout) */}
+          {/* Acciones inferiores (Alertas y Logout) */}
           <div className={`mt-auto pt-6 pb-2 border-t border-gray-300/50 dark:border-gray-700/50 flex flex-col items-center lg:items-start group-hover:items-stretch lg:px-2 transition-all duration-300 ${isMobile ? 'opacity-100' : 'group-hover:opacity-100'}`}>
             <div className="relative w-full sidebar-tooltip-container mb-1">
               <button 
@@ -191,7 +191,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                 </span>
               </button>
               
-              {/* Tooltip for Alertas */}
+              {/* Tooltip para Alertas */}
               {!isMobile && (
                 <div className="sidebar-tooltip absolute left-[calc(100%+20px)] top-1/2 -translate-y-1/2 px-4 py-2 bg-white/70 dark:bg-black/70 backdrop-blur-xl border border-white/40 dark:border-white/10 text-gray-800 dark:text-gray-200 text-sm font-semibold rounded-xl opacity-0 invisible pointer-events-none transition-all duration-300 z-50 shadow-xl whitespace-nowrap flex items-center group-hover/aside:hidden">
                   Alertas
@@ -212,7 +212,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                 </span>
               </button>
 
-              {/* Tooltip for Cerrar sesión */}
+              {/* Tooltip para Cerrar sesión */}
               {!isMobile && (
                 <div className="sidebar-tooltip absolute left-[calc(100%+20px)] top-1/2 -translate-y-1/2 px-4 py-2 bg-white/70 dark:bg-black/70 backdrop-blur-xl border border-white/40 dark:border-white/10 text-gray-800 dark:text-gray-200 text-sm font-semibold rounded-xl opacity-0 invisible pointer-events-none transition-all duration-300 z-50 shadow-xl whitespace-nowrap flex items-center group-hover/aside:hidden">
                   Cerrar sesión
@@ -223,7 +223,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         </nav>
       </aside>
 
-      {/* Alertas Modal */}
+      {/* Modal de Alertas */}
       {showAlerts && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div 

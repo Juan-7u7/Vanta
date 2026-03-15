@@ -1,21 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
 import type { User } from '@supabase/supabase-js';
-
-interface UserProfile {
-  id: string;
-  nombre: string;
-  perfil_id: number;
-  esta_activo: boolean;
-}
-
-interface AuthContextType {
-  user: User | null;
-  profile: UserProfile | null;
-  loading: boolean;
-  signIn: (email: string, pass: string) => Promise<{ error: any }>;
-  signOut: () => Promise<void>;
-}
+import type { UserProfile, AuthContextType } from '../types/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -33,17 +19,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) throw error;
         if (session?.user && mounted) {
           setUser(session.user);
-          // Opcional: buscar perfil pero no bloquear
+          // Carga el perfil sin bloquear el estado principal del usuario
           fetchProfile(session.user.id);
         }
       } catch (err) {
-        // Silencioso
+        // Error silencioso al verificar sesión inicial
       } finally {
         if (mounted) setLoading(false);
       }
     };
 
-    // Timeout de seguridad muy corto
+    // Tiempo límite de seguridad para detener el estado de carga
     const timer = setTimeout(() => {
       if (mounted) setLoading(false);
     }, 1500);
@@ -78,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (data) setProfile(data);
     } catch (err) {
-      // No hacemos nada, el usuario sigue logueado
+      // Si falla la carga del perfil, el usuario mantiene su sesión de auth
     }
   };
 
