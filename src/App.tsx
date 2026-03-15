@@ -26,7 +26,7 @@ function AppContent() {
       />
       
       <Route 
-        path="/dashboard" 
+        path="/dashboard/*" 
         element={user ? <Dashboard /> : <Navigate to="/login" />} 
       />
 

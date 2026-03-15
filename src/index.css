@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/* Evita scroll horizontal no deseado en todos los dispositivos */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
 @layer utilities {
   .scrollbar-hide::-webkit-scrollbar {
     display: none;

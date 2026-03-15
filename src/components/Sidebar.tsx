@@ -10,38 +10,38 @@ const MODULES = [
     title: 'Módulo de compensaciones',
     icon: CircleDollarSign,
     options: [
-      { name: 'Colaboradores' },
-      { name: 'Indicadores' },
-      { name: 'Salarios' },
-      { name: 'Alcance' },
-      { name: 'Comisiones Directas' },
-      { name: 'Otros Ingresos' },
+      { name: 'Colaboradores', path: '/dashboard/colaboradores' },
+      { name: 'Indicadores', path: '/dashboard/indicadores' },
+      { name: 'Salarios', path: '/dashboard/salarios' },
+      { name: 'Alcance', path: '/dashboard/alcance' },
+      { name: 'Comisiones Directas', path: '/dashboard/comisiones' },
+      { name: 'Otros Ingresos', path: '/dashboard/otros' },
     ],
   },
   {
     title: "Manejo de KPI's",
     icon: TrendingUp,
     options: [
-      { name: 'Opción no disponible', disabled: true },
+      { name: 'Opción no disponible', disabled: true, path: '#' },
     ],
   },
   {
     title: 'Configuración del sistema',
     icon: Settings,
     options: [
-      { name: 'Unidad de Negocio' },
-      { name: 'Perfiles' },
-      { name: 'Usuarios' },
-      { name: 'Bonos' },
-      { name: 'Carga Masiva de Datos' },
+      { name: 'Unidad de Negocio', path: '/dashboard/unidad-negocio' },
+      { name: 'Perfiles', path: '/dashboard/perfiles' },
+      { name: 'Usuarios', path: '/dashboard/usuarios' },
+      { name: 'Bonos', path: '/dashboard/bonos' },
+      { name: 'Carga Masiva de Datos', path: '/dashboard/carga-masiva' },
     ],
   },
   {
     title: 'Consulta de reportes',
     icon: FileText,
     options: [
-      { name: 'COVAS' },
-      { name: 'Libro 2026' },
+      { name: 'COVAS', path: '/dashboard/covas' },
+      { name: 'Libro 2026', path: '/dashboard/libro' },
     ],
   },
 ];
@@ -156,13 +156,13 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                       <ul className="ml-[18px] pl-6 py-2 border-l border-gray-300 dark:border-gray-700/50 space-y-1">
                         {module.options.map((opt, iIdx) => (
                           <li key={iIdx}>
-                            <a 
-                              href="#" 
+                            <Link 
+                              to={'disabled' in opt && opt.disabled ? '#' : (opt as any).path} 
                               className={`block py-2 px-3 rounded-xl text-sm transition-colors ${'disabled' in opt && opt.disabled ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5'}`}
                               onClick={e => ('disabled' in opt && opt.disabled) && e.preventDefault()}
                             >
                               {opt.name}
-                            </a>
+                            </Link>
                           </li>
                         ))}
                       </ul>
