@@ -1,3 +1,4 @@
+/** final 1.0 */
 import type { User } from '@supabase/supabase-js';
 
 export interface UserProfile {

@@ -1,3 +1,4 @@
+/** final 1.0 */
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Loader2, Download, FileText, ChevronRight, Filter, AlertCircle } from 'lucide-react';

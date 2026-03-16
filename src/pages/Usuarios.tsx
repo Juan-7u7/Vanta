@@ -1,3 +1,4 @@
+/** final 1.0 */
 import { useState, useEffect } from 'react';
 import { Search, Loader2, ShieldCheck, User, Users, CheckCircle2, XCircle, KeySquare, ChevronDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';

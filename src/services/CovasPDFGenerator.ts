@@ -1,3 +1,4 @@
+/** final 1.0 */
 import jsPDF from 'jspdf';
 
 /**

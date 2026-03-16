@@ -1,3 +1,4 @@
+/** final 1.0 */
 import { X, Loader2, Save } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';

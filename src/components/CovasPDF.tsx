@@ -1,3 +1,4 @@
+/** final 1.0 */
 import { Page, Text, View, Document, StyleSheet, Image, Svg, Defs, LinearGradient, Stop, Rect } from '@react-pdf/renderer';
 import React from 'react';
 

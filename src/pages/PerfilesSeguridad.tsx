@@ -1,3 +1,4 @@
+/** final 1.0 */
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Loader2, X, AlertTriangle, Shield, ShieldAlert, ShieldCheck, Info } from 'lucide-react';
 import { supabase } from '../lib/supabase';

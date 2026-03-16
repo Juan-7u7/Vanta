@@ -1,3 +1,4 @@
+/** final 1.0 */
 import { useState, useEffect } from 'react';
 import { Lock, User, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';

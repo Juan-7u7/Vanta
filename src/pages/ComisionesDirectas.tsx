@@ -1,3 +1,4 @@
+/** final 1.0 */
 import { useState, useEffect } from 'react';
 import { Search, Filter, Loader2, ChevronDown, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { supabase } from '../lib/supabase';

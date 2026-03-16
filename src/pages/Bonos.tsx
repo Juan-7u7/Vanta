@@ -1,3 +1,4 @@
+/** final 1.0 */
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Loader2, Plus, Edit2, XCircle, Tag, CheckCircle2 } from 'lucide-react';

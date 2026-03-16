@@ -1,3 +1,4 @@
+/** final 1.0 */
 import { useState, useEffect } from 'react';
 import { Edit2, Search, Filter, Plus, Loader2, ChevronDown, Tag } from 'lucide-react';
 import { supabase } from '../lib/supabase';

@@ -1,3 +1,4 @@
+/** final 1.0 */
 import { AlertTriangle, X, Loader2, Trash2 } from 'lucide-react';
 
 interface ConfirmDeleteModalProps {

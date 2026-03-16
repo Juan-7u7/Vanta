@@ -1,3 +1,4 @@
+/** final 1.0 */
 import { useEffect } from 'react';
 import { Routes, Route, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';

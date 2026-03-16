@@ -1,3 +1,4 @@
+/** final 1.0 */
 /**
  * Determina el porcentaje de bono basado en el alcance de metas.
  * @param alcance Porcentaje de cumplimiento (ej. 95 para 95%)
