@@ -160,7 +160,13 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                             <Link 
                               to={'disabled' in opt && opt.disabled ? '#' : (opt as any).path} 
                               className={`block py-2 px-3 rounded-xl text-sm transition-colors ${'disabled' in opt && opt.disabled ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5'}`}
-                              onClick={e => ('disabled' in opt && opt.disabled) && e.preventDefault()}
+                              onClick={e => {
+                                if ('disabled' in opt && opt.disabled) {
+                                  e.preventDefault();
+                                } else {
+                                  setIsOpen(false);
+                                }
+                              }}
                             >
                               {opt.name}
                             </Link>

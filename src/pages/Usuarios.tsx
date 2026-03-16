@@ -250,7 +250,10 @@ export default function Usuarios() {
               const unidadNombre = Array.isArray(un) ? (un.length > 0 ? un[0].nombre : 'General') : (un?.nombre || 'General');
 
               return (
-                <div key={u.id} className="bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-2xl p-5 shadow-sm space-y-4">
+                <div 
+                  key={u.id} 
+                  className={`bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-2xl p-5 shadow-sm space-y-4 transition-all ${openDropdown === u.id ? 'z-40 relative shadow-md scale-[1.01]' : 'z-0'}`}
+                >
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
                       <p className="font-bold text-gray-800 dark:text-white text-base">
@@ -352,7 +355,10 @@ export default function Usuarios() {
                     const unidadNombre = Array.isArray(un) ? (un.length > 0 ? un[0].nombre : 'General') : (un?.nombre || 'General');
                     
                     return (
-                      <tr key={u.id} className="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors group">
+                      <tr 
+                        key={u.id} 
+                        className={`hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors group ${openDropdown === u.id ? 'z-40 relative' : ''}`}
+                      >
                         <td className="px-6 py-4 align-middle">
                           <div>
                             <p className="font-bold text-gray-800 dark:text-white text-sm">
