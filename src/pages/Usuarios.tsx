@@ -222,151 +222,220 @@ export default function Usuarios() {
         </div>
       )}
 
-      {/* Tabla */}
+      {/* Contenido (Tabla en Desktop, Cards en Mobile) */}
       {loading ? (
         <div className="flex flex-col items-center justify-center h-64 gap-3">
           <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
           <p className="text-sm text-gray-500">Cargando usuarios...</p>
         </div>
       ) : (
-        <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-3xl overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/10">
-                  <th className="px-4 sm:px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Colaborador</th>
-                  <th className="hidden md:table-cell px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Unidad / Auth</th>
-                  <th className="px-4 sm:px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider sm:min-w-[200px]">Perfil de Seguridad</th>
-                  <th className="px-4 sm:px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider text-center">Estatus</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-                {filteredUsuarios.map((u) => {
-                  const pf: any = u.perfiles_seguridad;
-                  const nivelAcceso = Array.isArray(pf) ? (pf.length > 0 ? pf[0].nivel_acceso : 10) : (pf?.nivel_acceso || 10);
-                  const pfNombre = Array.isArray(pf) ? (pf.length > 0 ? pf[0].nombre_perfil : '') : (pf?.nombre_perfil || '');
-                  const isHighPrivilege = nivelAcceso <= 3;
-                  const hasAccount = !!u.auth_id;
-                  
-                  const un: any = u.unidades_negocio;
-                  const unidadNombre = Array.isArray(un) ? (un.length > 0 ? un[0].nombre : 'General') : (un?.nombre || 'General');
-                  
-                  return (
-                    <tr key={u.id} className="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors group">
-                      
-                      {/* Colaborador */}
-                      <td className="px-4 sm:px-6 py-4 align-middle">
-                        <div>
-                          <p className="font-bold text-gray-800 dark:text-white text-sm">
-                            {u.nombre} {u.apellido_paterno}
-                          </p>
-                          <p className="text-xs text-gray-500 font-mono mt-0.5">{u.email || 'Sin correo'}</p>
-                          
-                          {/* Info adicional para móviles */}
-                          <div className="md:hidden mt-2 flex flex-wrap gap-2">
-                             <span className="px-1.5 py-0.5 bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400 text-[9px] font-bold rounded">
-                               {unidadNombre}
-                             </span>
-                             {hasAccount ? (
-                               <span className="text-[9px] text-emerald-500 font-bold flex items-center gap-1">
-                                 <CheckCircle2 size={10} /> ACTIVO
-                               </span>
-                             ) : (
-                               <span className="text-[9px] text-amber-500 font-bold flex items-center gap-1">
-                                 <KeySquare size={10} /> SIN CUENTA
-                               </span>
-                             )}
-                          </div>
+        <>
+          {/* VISTA MÓVIL (CARDS) */}
+          <div className="md:hidden space-y-4">
+            {filteredUsuarios.map((u) => {
+              const pf: any = u.perfiles_seguridad;
+              const nivelAcceso = Array.isArray(pf) ? (pf.length > 0 ? pf[0].nivel_acceso : 10) : (pf?.nivel_acceso || 10);
+              const pfNombre = Array.isArray(pf) ? (pf.length > 0 ? pf[0].nombre_perfil : '') : (pf?.nombre_perfil || '');
+              const isHighPrivilege = nivelAcceso <= 3;
+              const hasAccount = !!u.auth_id;
+              
+              const un: any = u.unidades_negocio;
+              const unidadNombre = Array.isArray(un) ? (un.length > 0 ? un[0].nombre : 'General') : (un?.nombre || 'General');
+
+              return (
+                <div key={u.id} className="bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-2xl p-5 shadow-sm space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-1">
+                      <p className="font-bold text-gray-800 dark:text-white text-base">
+                        {u.nombre} {u.apellido_paterno}
+                      </p>
+                      <p className="text-xs text-gray-500 font-mono">{u.email || 'Sin correo'}</p>
+                    </div>
+                    
+                    {/* Toggle Estatus */}
+                    <button
+                      disabled={updatingId === u.id}
+                      onClick={() => toggleStatus(u.id, u.esta_activo)}
+                      className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none ${u.esta_activo ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-white/10'}`}
+                    >
+                      <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${u.esta_activo ? 'translate-x-4.5' : 'translate-x-1'}`} />
+                    </button>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-2 py-1 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 text-[10px] font-bold uppercase rounded-md">
+                      {unidadNombre}
+                    </span>
+                    {hasAccount ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase rounded-md">
+                        <CheckCircle2 size={12} /> Cuenta Activa
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold uppercase rounded-md border border-amber-500/20">
+                        <KeySquare size={12} /> Sin Credencial
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Dropdown de Perfil en móvil */}
+                  <div className="relative w-full" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => setOpenDropdown(openDropdown === u.id ? null : u.id)}
+                      disabled={updatingId === u.id}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-[11px] font-bold outline-none border transition-all ${
+                        isHighPrivilege 
+                        ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30' 
+                        : 'bg-white dark:bg-black/20 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {isHighPrivilege ? <ShieldCheck size={14} className="text-indigo-500" /> : <User size={14} className="text-gray-400" />}
+                        <span className="truncate">{pfNombre ? `${pfNombre} (Niv. ${nivelAcceso})` : 'Seleccionar perfil...'}</span>
+                      </div>
+                      <ChevronDown size={14} className={isHighPrivilege ? 'text-indigo-500' : 'text-gray-400'} />
+                    </button>
+
+                    {openDropdown === u.id && (
+                      <div className="absolute z-50 left-0 w-full mt-1 bg-white dark:bg-[#1a1f2e] border border-gray-100 dark:border-white/10 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-1">
+                        <div className="max-h-48 overflow-y-auto py-1">
+                          {perfiles.map(pf => (
+                            <button
+                              key={pf.id}
+                              onClick={() => {
+                                changeProfile(u.id, pf.id);
+                                setOpenDropdown(null);
+                              }}
+                              className={`w-full flex items-center gap-2 px-3 py-2 text-left text-[11px] font-medium transition-colors hover:bg-gray-50 dark:hover:bg-white/5 ${
+                                u.perfil_id === pf.id ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-500/10' : 'text-gray-600 dark:text-gray-300'
+                              }`}
+                            >
+                              <span className="truncate">{pf.nombre_perfil}</span>
+                            </button>
+                          ))}
                         </div>
-                      </td>
-
-                      {/* Unidad y Credencial */}
-                      <td className="hidden md:table-cell px-6 py-4 align-middle">
-                        <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
-                          {unidadNombre}
-                        </p>
-                        {hasAccount ? (
-                          <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase rounded-md">
-                            <CheckCircle2 size={12} />
-                            Cuenta Activa
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold uppercase rounded-md border border-amber-500/20">
-                            <KeySquare size={12} />
-                            Sin Credencial
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Perfil (Dropdown Personalizado) */}
-                      <td className="px-4 sm:px-6 py-4 align-middle">
-                        <div className="relative w-full" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            onClick={() => setOpenDropdown(openDropdown === u.id ? null : u.id)}
-                            disabled={updatingId === u.id}
-                            className={`w-full flex items-center justify-between pr-3 pl-3 py-2 rounded-xl text-[11px] font-bold outline-none border transition-all cursor-pointer ${
-                              isHighPrivilege 
-                              ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30 ring-indigo-500 focus:ring-2' 
-                              : 'bg-white dark:bg-black/20 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10 ring-gray-400 focus:ring-2'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              {isHighPrivilege ? <ShieldCheck size={14} className="text-indigo-500 shrink-0" /> : <User size={14} className="text-gray-400 shrink-0" />}
-                              <span className="truncate">{pfNombre ? `${pfNombre} (Niv. ${nivelAcceso})` : 'Seleccionar perfil...'}</span>
-                            </div>
-                            <ChevronDown size={14} className={isHighPrivilege ? 'text-indigo-500 shrink-0' : 'text-gray-400 shrink-0'} />
-                          </button>
-
-                          {/* Menú Desplegable Flotante */}
-                          {openDropdown === u.id && (
-                            <div className="absolute z-50 left-0 w-full mt-1 bg-white dark:bg-[#1a1f2e] border border-gray-100 dark:border-white/10 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
-                              <div className="max-h-48 overflow-y-auto py-1">
-                                {perfiles.map(pf => (
-                                  <button
-                                    key={pf.id}
-                                    onClick={() => {
-                                      changeProfile(u.id, pf.id);
-                                      setOpenDropdown(null);
-                                    }}
-                                    className={`w-full flex items-center gap-2 px-3 py-2 text-left text-[11px] font-medium transition-colors hover:bg-gray-50 dark:hover:bg-white/5 ${
-                                      u.perfil_id === pf.id ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-500/10' : 'text-gray-600 dark:text-gray-300'
-                                    }`}
-                                  >
-                                    {pf.nivel_acceso <= 3 ? <ShieldCheck size={12} className={u.perfil_id === pf.id ? 'text-indigo-500 shrink-0' : 'text-gray-400 shrink-0'} /> : <User size={12} className={u.perfil_id === pf.id ? 'text-indigo-500 shrink-0' : 'text-gray-400 shrink-0'} />}
-                                    <span className="truncate">{pf.nombre_perfil}</span>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Estatus Toggle */}
-                      <td className="px-4 sm:px-6 py-4 align-middle text-center">
-                        <button
-                          disabled={updatingId === u.id}
-                          onClick={() => toggleStatus(u.id, u.esta_activo)}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${u.esta_activo ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-white/10'}`}
-                        >
-                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${u.esta_activo ? 'translate-x-6' : 'translate-x-1'}`} />
-                        </button>
-                      </td>
-
-                    </tr>
-                  )
-                })}
-                {filteredUsuarios.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="px-6 py-12 text-center text-gray-400">
-                      No se encontraron usuarios activos en esa búsqueda.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        </div>
+
+          {/* VISTA DESKTOP (TABLA) */}
+          <div className="hidden md:block bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-3xl overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/10">
+                    <th className="px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Colaborador</th>
+                    <th className="px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Unidad / Auth</th>
+                    <th className="px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider min-w-[200px]">Perfil de Seguridad</th>
+                    <th className="px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider text-center">Estatus</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+                  {filteredUsuarios.map((u) => {
+                    const pf: any = u.perfiles_seguridad;
+                    const nivelAcceso = Array.isArray(pf) ? (pf.length > 0 ? pf[0].nivel_acceso : 10) : (pf?.nivel_acceso || 10);
+                    const pfNombre = Array.isArray(pf) ? (pf.length > 0 ? pf[0].nombre_perfil : '') : (pf?.nombre_perfil || '');
+                    const isHighPrivilege = nivelAcceso <= 3;
+                    const hasAccount = !!u.auth_id;
+                    
+                    const un: any = u.unidades_negocio;
+                    const unidadNombre = Array.isArray(un) ? (un.length > 0 ? un[0].nombre : 'General') : (un?.nombre || 'General');
+                    
+                    return (
+                      <tr key={u.id} className="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors group">
+                        <td className="px-6 py-4 align-middle">
+                          <div>
+                            <p className="font-bold text-gray-800 dark:text-white text-sm">
+                              {u.nombre} {u.apellido_paterno}
+                            </p>
+                            <p className="text-xs text-gray-500 font-mono mt-0.5">{u.email || 'Sin correo'}</p>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 align-middle">
+                          <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+                            {unidadNombre}
+                          </p>
+                          {hasAccount ? (
+                            <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase rounded-md">
+                              <CheckCircle2 size={12} /> Cuenta Activa
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold uppercase rounded-md border border-amber-500/20">
+                              <KeySquare size={12} /> Sin Credencial
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="px-6 py-4 align-middle">
+                          <div className="relative w-full" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              onClick={() => setOpenDropdown(openDropdown === u.id ? null : u.id)}
+                              disabled={updatingId === u.id}
+                              className={`w-full flex items-center justify-between pr-3 pl-3 py-2 rounded-xl text-[11px] font-bold outline-none border transition-all cursor-pointer ${
+                                isHighPrivilege 
+                                ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30' 
+                                : 'bg-white dark:bg-black/20 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                {isHighPrivilege ? <ShieldCheck size={14} className="text-indigo-500 shrink-0" /> : <User size={14} className="text-gray-400 shrink-0" />}
+                                <span className="truncate">{pfNombre ? `${pfNombre} (Niv. ${nivelAcceso})` : 'Seleccionar perfil...'}</span>
+                              </div>
+                              <ChevronDown size={14} className={isHighPrivilege ? 'text-indigo-500 shrink-0' : 'text-gray-400 shrink-0'} />
+                            </button>
+
+                            {openDropdown === u.id && (
+                              <div className="absolute z-50 left-0 w-full mt-1 bg-white dark:bg-[#1a1f2e] border border-gray-100 dark:border-white/10 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+                                <div className="max-h-48 overflow-y-auto py-1">
+                                  {perfiles.map(pf => (
+                                    <button
+                                      key={pf.id}
+                                      onClick={() => {
+                                        changeProfile(u.id, pf.id);
+                                        setOpenDropdown(null);
+                                      }}
+                                      className={`w-full flex items-center gap-2 px-3 py-2 text-left text-[11px] font-medium transition-colors hover:bg-gray-50 dark:hover:bg-white/5 ${
+                                        u.perfil_id === pf.id ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-500/10' : 'text-gray-600 dark:text-gray-300'
+                                      }`}
+                                    >
+                                      {pf.nivel_acceso <= 3 ? <ShieldCheck size={12} className={u.perfil_id === pf.id ? 'text-indigo-500 shrink-0' : 'text-gray-400 shrink-0'} /> : <User size={12} className={u.perfil_id === pf.id ? 'text-indigo-500 shrink-0' : 'text-gray-400 shrink-0'} />}
+                                      <span className="truncate">{pf.nombre_perfil}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 align-middle text-center">
+                          <button
+                            disabled={updatingId === u.id}
+                            onClick={() => toggleStatus(u.id, u.esta_activo)}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${u.esta_activo ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-white/10'}`}
+                          >
+                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${u.esta_activo ? 'translate-x-6' : 'translate-x-1'}`} />
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {filteredUsuarios.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-12 text-center text-gray-400">
+                        No se encontraron usuarios activos en esa búsqueda.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
