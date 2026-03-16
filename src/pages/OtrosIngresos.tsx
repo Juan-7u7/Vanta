@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Edit2, Search, Filter, Plus, Loader2, ChevronDown, ChevronRight, Tag } from 'lucide-react';
+import { Edit2, Search, Filter, Plus, Loader2, ChevronDown, Tag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import OtrosIngresosModal from '../components/OtrosIngresosModal';
 
