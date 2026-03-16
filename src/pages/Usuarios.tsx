@@ -22,6 +22,12 @@ interface ColaboradorUsuario {
   perfiles_seguridad: any;
 }
 
+/**
+ * Vista de Gestión de Usuarios y Accesos.
+ * Permite a los administradores (Nivel 1) gestionar perfiles de seguridad,
+ * activar/desactivar cuentas y visualizar el estado de las credenciales.
+ * Implementa un diseño híbrido: Tabla en desktop y Carjetas en móvil.
+ */
 export default function Usuarios() {
   const { user } = useAuth();
   

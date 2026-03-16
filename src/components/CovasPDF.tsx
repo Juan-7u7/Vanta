@@ -1,6 +1,18 @@
 import { Page, Text, View, Document, StyleSheet, Image, Svg, Defs, LinearGradient, Stop, Rect } from '@react-pdf/renderer';
 import React from 'react';
 
+/**
+ * COMPONENTE VISUAL DE COVAS (REACT-PDF)
+ * --------------------------------------
+ * Hola! Este componente usa @react-pdf/renderer. Funciona de manera declarativa
+ * (como si fuera HTML/CSS).
+ * 
+ * TIPS PARA EL DESARROLLO:
+ * 1. Estilos: Usa `StyleSheet.create`. Ojo: no admite abreviaturas como 'pb' o 'mt'.
+ * 2. Unidades: Todo es en puntos (pt) por defecto. 
+ * 3. Imágenes: Asegúrate que las rutas en `public/` sean accesibles.
+ */
+
 const styles = StyleSheet.create({
   page: {
     fontFamily: 'Helvetica',

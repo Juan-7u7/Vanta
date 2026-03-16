@@ -1,9 +1,15 @@
 import jsPDF from 'jspdf';
 
-
 /**
- * Generador Modular de COVAS 2026
- * Enfoque: Limpio, profesional y optimizado para impresión.
+ * SERVICIO DE GENERACIÓN DE PDF (JS-PDF)
+ * --------------------------------------
+ * Hola compañero! Este servicio está diseñado para generar PDFs de forma imperativa
+ * usando jsPDF. Es ideal para reportes rápidos o el "Libro" completo.
+ * 
+ * ESTRUCTURA SUGERIDA:
+ * 1. Usa `generarPortada` como template para nuevas páginas.
+ * 2. `nuevaPagina()` prepara el documento para el siguiente bloque de contenido.
+ * 3. Si necesitas tablas complejas, puedes re-importar 'jspdf-autotable'.
  */
 
 export interface PDFData {
@@ -18,6 +24,10 @@ export interface PDFData {
   };
 }
 
+/**
+ * Servicio encargado de la generación técnica de documentos PDF.
+ * Sigue un patrón de Builder para permitir la construcción secuencial de páginas.
+ */
 export class CovasPDFService {
   private doc: jsPDF;
 

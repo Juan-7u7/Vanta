@@ -1,3 +1,8 @@
+/**
+ * Determina el porcentaje de bono basado en el alcance de metas.
+ * @param alcance Porcentaje de cumplimiento (ej. 95 para 95%)
+ * @returns Multiplicador de bono (ej. 0.80 para 80% de bono)
+ */
 export function calculateBonoPercent(alcance: number): number {
   const pct = alcance;
   if (pct < 90) return 0;
@@ -13,6 +18,7 @@ export function calculateBonoPercent(alcance: number): number {
 
 /**
  * Lógica de Brackets Vanta Media 2026
+ * Calcula el monto final del bono basado en el alcance.
  * @param alcance - Porcentaje de cumplimiento (0-200+)
  * @param bonoObjetivo - Monto base del bono pactado
  */
@@ -21,6 +27,10 @@ export function calculateBono(alcance: number, bonoObjetivo: number): number {
   return bonoObjetivo * percent;
 }
 
+/**
+ * Formatea un número a moneda mexicana (MXN).
+ * @param amount Cantidad numérica
+ */
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('es-MX', {
     style: 'currency',
@@ -28,3 +38,4 @@ export function formatCurrency(amount: number): string {
     minimumFractionDigits: 2
   }).format(amount);
 }
+
