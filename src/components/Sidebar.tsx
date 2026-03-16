@@ -68,7 +68,10 @@ export default function Sidebar({ onLogout }: SidebarProps) {
   }, []);
 
   const toggleMobile = () => {
-    if (isMobile) setIsOpen(!isOpen);
+    if (isMobile) {
+      if (isOpen) setOpenMenus({});
+      setIsOpen(!isOpen);
+    }
   };
 
   const toggleSubmenu = (title: string, e: React.MouseEvent) => {
@@ -165,6 +168,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                                   e.preventDefault();
                                 } else {
                                   setIsOpen(false);
+                                  setOpenMenus({});
                                 }
                               }}
                             >
