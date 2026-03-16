@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+
 
 /**
  * Generador Modular de COVAS 2026
@@ -39,7 +39,7 @@ export class CovasPDFService {
   public async generarPortada(data: PDFData) {
     const pageWidth = this.doc.internal.pageSize.getWidth();
     const pageHeight = this.doc.internal.pageSize.getHeight();
-    const margin = 20;
+
 
     // 1. Logo Centrado Superior
     const logoW = 60;

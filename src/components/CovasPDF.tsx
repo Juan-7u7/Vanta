@@ -188,7 +188,7 @@ export function CovasPDF({ colaboradores, anio }: any) {
       <Page size="A4" style={styles.indexPage}>
         <Text style={styles.indexTitle}>Índice de Colaboradores</Text>
         
-        <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#000', pb: 2 }}>
+        <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#000', paddingBottom: 2 }}>
           <Text style={[styles.indexCol1, styles.indexHeaderText]}>Unidad</Text>
           <Text style={[styles.indexCol2, styles.indexHeaderText]}>Colaborador</Text>
           <Text style={[styles.indexCol3, styles.indexHeaderText]}>Puesto</Text>
