@@ -14,8 +14,8 @@ const MODULES = [
       { name: 'Indicadores', path: '/dashboard/indicadores' },
       { name: 'Salarios', path: '/dashboard/salarios' },
       { name: 'Alcance', path: '/dashboard/alcance' },
-      { name: 'Comisiones Directas', path: '/dashboard/comisiones' },
-      { name: 'Otros Ingresos', path: '/dashboard/otros' },
+      { name: 'Comisiones Directas', path: '/dashboard/comisiones-directas' },
+      { name: 'Otros Ingresos', path: '/dashboard/otros-ingresos' },
     ],
   },
   {

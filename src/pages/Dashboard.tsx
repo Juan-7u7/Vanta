@@ -6,6 +6,8 @@ import Colaboradores from './Colaboradores';
 import Indicadores from './Indicadores';
 import Salarios from './Salarios';
 import Alcance from './Alcance';
+import ComisionesDirectas from './ComisionesDirectas';
+import OtrosIngresos from './OtrosIngresos';
 
 export default function Dashboard() {
   const { signOut } = useAuth();
@@ -23,6 +25,8 @@ export default function Dashboard() {
           <Route path="indicadores" element={<Indicadores />} />
           <Route path="salarios" element={<Salarios />} />
           <Route path="alcance" element={<Alcance />} />
+          <Route path="comisiones-directas" element={<ComisionesDirectas />} />
+          <Route path="otros-ingresos" element={<OtrosIngresos />} />
           <Route path="/" element={
             <div className="flex items-center justify-center h-full">
               <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Bienvenido al Panel de Control</h1>
