@@ -137,7 +137,7 @@ function ColaboradorSection({
   onEdit: (item: OtroIngreso) => void;
   onAddConcepto: (colaborador_id: string) => void;
 }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const totalColaborador = group.items.reduce((s, i) => s + calcTotal(i), 0);
 
   return (
