@@ -40,7 +40,7 @@ const MODULES = [
     title: 'Consulta de reportes',
     icon: FileText,
     options: [
-      { name: 'COVAS', path: '/dashboard/covas' },
+      { name: 'Imprimir COVAS', path: '/dashboard/covas' },
       { name: 'Libro 2026', path: '/dashboard/libro' },
     ],
   },

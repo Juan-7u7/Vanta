@@ -34,6 +34,7 @@ export default function OtrosIngresosModal({ isOpen, onClose, onSuccess, initial
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [colaboradores, setColaboradores] = useState<{ id: string; nombre: string; apellido_paterno: string }[]>([]);
+  const [bonos, setBonos] = useState<{ id: number; nombre_bono: string; }[]>([]);
 
   const emptyForm = {
     colaborador_id: '',
@@ -58,7 +59,21 @@ export default function OtrosIngresosModal({ isOpen, onClose, onSuccess, initial
       setColaboradores(data || []);
     };
 
+    const fetchBonos = async () => {
+      try {
+        const { data } = await supabase
+          .from('cat_bonos')
+          .select('id, nombre_bono')
+          .eq('esta_activo', true)
+          .order('nombre_bono');
+        setBonos(data || []);
+      } catch (err) {
+        setBonos([]); // En caso de que la tabla aún no exista no rompe el form
+      }
+    };
+
     fetchColaboradores();
+    fetchBonos();
 
     if (initialData) {
       setFormData({
@@ -176,14 +191,19 @@ export default function OtrosIngresosModal({ isOpen, onClose, onSuccess, initial
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Concepto del Ingreso</label>
-              <input
-                type="text"
+              <select
                 required
                 value={formData.nombre_concepto}
                 onChange={(e) => setFormData({ ...formData, nombre_concepto: e.target.value })}
-                placeholder="Ej. Bono Mensual, Fondo de Ahorro"
                 className={inputClass}
-              />
+              >
+                <option value="" className="bg-white dark:bg-[#1a1f2e]">Seleccionar concepto...</option>
+                {bonos.map(b => (
+                  <option key={b.id} value={b.nombre_bono} className="bg-white dark:bg-[#1a1f2e]">
+                    {b.nombre_bono}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className={labelClass}>Año</label>

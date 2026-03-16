@@ -1,7 +1,8 @@
-import { Edit2, Search, Filter, Plus, Loader2 } from 'lucide-react';
+import { Edit2, Search, Filter, Plus, Loader2, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import ColaboradorModal from '../components/ColaboradorModal';
+import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 
 interface Colaborador {
   id: string;
@@ -24,6 +25,9 @@ export default function Colaboradores() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedColaborador, setSelectedColaborador] = useState<any>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [colaboradorToDelete, setColaboradorToDelete] = useState<Colaborador | null>(null);
+  const [deleting, setDeleting] = useState(false);
   
   // Estados para filtros
   const [showFilters, setShowFilters] = useState(false);
@@ -55,6 +59,38 @@ export default function Colaboradores() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = async () => {
+    if (!colaboradorToDelete) return;
+    
+    try {
+      setDeleting(true);
+      const { error: err } = await supabase
+        .from('colaboradores')
+        .delete()
+        .eq('id', colaboradorToDelete.id);
+
+      if (err) {
+        if (err.code === '23503') {
+          throw new Error("No se puede eliminar al colaborador porque tiene registros vinculados (ingresos, historial, etc). Se recomienda cambiar su estatus a 'Baja' en lugar de eliminarlo.");
+        }
+        throw err;
+      }
+
+      setIsDeleteModalOpen(false);
+      setColaboradorToDelete(null);
+      fetchColaboradores();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const openDeleteConfirm = (col: Colaborador) => {
+    setColaboradorToDelete(col);
+    setIsDeleteModalOpen(true);
   };
 
   const filteredData = colaboradores.filter(col => {
@@ -241,6 +277,12 @@ export default function Colaboradores() {
                       >
                         <Edit2 size={16} />
                       </button>
+                      <button
+                        onClick={() => openDeleteConfirm(col)}
+                        className="p-2 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </div>
                   </div>
                   {/* Fila 2: Detalles en grid */}
@@ -334,16 +376,31 @@ export default function Colaboradores() {
                         </div>
                       </td>
                       <td className="px-4 py-4 text-center">
-                        <div className="relative flex justify-center group/btn">
-                          <button
-                            onClick={() => { setSelectedColaborador(col); setIsModalOpen(true); }}
-                            className="p-2 rounded-xl text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all"
-                          >
-                            <Edit2 size={16} />
-                          </button>
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-[10px] font-bold rounded-lg opacity-0 invisible group-hover/btn:opacity-100 group-hover/btn:visible transition-all whitespace-nowrap shadow-xl z-10">
-                            Editar información
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+                        <div className="flex justify-center gap-1 group/actions">
+                          <div className="relative group/edit">
+                            <button
+                              onClick={() => { setSelectedColaborador(col); setIsModalOpen(true); }}
+                              className="p-2 rounded-xl text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all"
+                            >
+                              <Edit2 size={16} />
+                            </button>
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-[10px] font-bold rounded-lg opacity-0 invisible group-hover/edit:opacity-100 group-hover/edit:visible transition-all whitespace-nowrap shadow-xl z-20">
+                              Editar
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+                            </div>
+                          </div>
+
+                          <div className="relative group/delete">
+                            <button
+                              onClick={() => openDeleteConfirm(col)}
+                              className="p-2 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-red-600 text-white text-[10px] font-bold rounded-lg opacity-0 invisible group-hover/delete:opacity-100 group-hover/delete:visible transition-all whitespace-nowrap shadow-xl z-20">
+                              Eliminar
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-red-600" />
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -364,6 +421,15 @@ export default function Colaboradores() {
         }}
         onSuccess={fetchColaboradores}
         initialData={selectedColaborador}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        loading={deleting}
+        title="¿Eliminar Colaborador?"
+        message={`Esta acción eliminará a ${colaboradorToDelete?.nombre} ${colaboradorToDelete?.apellido_paterno} permanentemente. Asegúrate de que no tenga registros financieros activos vinculados.`}
       />
     </div>
   );

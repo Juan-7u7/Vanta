@@ -8,6 +8,12 @@ import Salarios from './Salarios';
 import Alcance from './Alcance';
 import ComisionesDirectas from './ComisionesDirectas';
 import OtrosIngresos from './OtrosIngresos';
+import UnidadesNegocio from './UnidadesNegocio';
+import PerfilesSeguridad from './PerfilesSeguridad';
+import Usuarios from './Usuarios';
+import Bonos from './Bonos';
+import CargaMasiva from './CargaMasiva';
+import ImprimirCovas from './ImprimirCovas';
 
 export default function Dashboard() {
   const { signOut } = useAuth();
@@ -27,6 +33,12 @@ export default function Dashboard() {
           <Route path="alcance" element={<Alcance />} />
           <Route path="comisiones-directas" element={<ComisionesDirectas />} />
           <Route path="otros-ingresos" element={<OtrosIngresos />} />
+          <Route path="unidad-negocio" element={<UnidadesNegocio />} />
+          <Route path="perfiles" element={<PerfilesSeguridad />} />
+          <Route path="usuarios" element={<Usuarios />} />
+          <Route path="bonos" element={<Bonos />} />
+          <Route path="carga-masiva" element={<CargaMasiva />} />
+          <Route path="covas" element={<ImprimirCovas />} />
           <Route path="/" element={
             <div className="flex items-center justify-center h-full">
               <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Bienvenido al Panel de Control</h1>
