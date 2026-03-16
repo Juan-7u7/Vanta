@@ -115,6 +115,10 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         <div className={`flex items-center h-28 shrink-0 transition-all duration-300 ${isMobile ? 'px-6 mt-16' : 'w-full justify-center group-hover:justify-start group-hover:px-6'}`}>
           <Link 
             to="/dashboard"
+            onClick={() => {
+              setIsOpen(false);
+              setOpenMenus({});
+            }}
             className="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-tr from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg relative group-hover:w-10 group-hover:h-10 transition-all duration-300 overflow-hidden p-2 hover:scale-105 active:scale-95 transition-transform"
           >
             <img src="/logo-avalanz-blanco.png" alt="Logo" className="w-full h-full object-contain transition-all" />
