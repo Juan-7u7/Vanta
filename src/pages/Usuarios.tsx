@@ -234,10 +234,10 @@ export default function Usuarios() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/10">
-                  <th className="px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Colaborador</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Unidad / Auth</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider min-w-[200px]">Perfil de Seguridad</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider text-center">Estatus</th>
+                  <th className="px-4 sm:px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Colaborador</th>
+                  <th className="hidden md:table-cell px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Unidad / Auth</th>
+                  <th className="px-4 sm:px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider sm:min-w-[200px]">Perfil de Seguridad</th>
+                  <th className="px-4 sm:px-6 py-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider text-center">Estatus</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-white/5">
@@ -255,17 +255,33 @@ export default function Usuarios() {
                     <tr key={u.id} className="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors group">
                       
                       {/* Colaborador */}
-                      <td className="px-6 py-4 align-middle">
+                      <td className="px-4 sm:px-6 py-4 align-middle">
                         <div>
                           <p className="font-bold text-gray-800 dark:text-white text-sm">
                             {u.nombre} {u.apellido_paterno}
                           </p>
                           <p className="text-xs text-gray-500 font-mono mt-0.5">{u.email || 'Sin correo'}</p>
+                          
+                          {/* Info adicional para móviles */}
+                          <div className="md:hidden mt-2 flex flex-wrap gap-2">
+                             <span className="px-1.5 py-0.5 bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400 text-[9px] font-bold rounded">
+                               {unidadNombre}
+                             </span>
+                             {hasAccount ? (
+                               <span className="text-[9px] text-emerald-500 font-bold flex items-center gap-1">
+                                 <CheckCircle2 size={10} /> ACTIVO
+                               </span>
+                             ) : (
+                               <span className="text-[9px] text-amber-500 font-bold flex items-center gap-1">
+                                 <KeySquare size={10} /> SIN CUENTA
+                               </span>
+                             )}
+                          </div>
                         </div>
                       </td>
 
                       {/* Unidad y Credencial */}
-                      <td className="px-6 py-4 align-middle">
+                      <td className="hidden md:table-cell px-6 py-4 align-middle">
                         <p className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
                           {unidadNombre}
                         </p>
@@ -283,7 +299,7 @@ export default function Usuarios() {
                       </td>
 
                       {/* Perfil (Dropdown Personalizado) */}
-                      <td className="px-6 py-4 align-middle">
+                      <td className="px-4 sm:px-6 py-4 align-middle">
                         <div className="relative w-full" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => setOpenDropdown(openDropdown === u.id ? null : u.id)}
@@ -327,7 +343,7 @@ export default function Usuarios() {
                       </td>
 
                       {/* Estatus Toggle */}
-                      <td className="px-6 py-4 align-middle text-center">
+                      <td className="px-4 sm:px-6 py-4 align-middle text-center">
                         <button
                           disabled={updatingId === u.id}
                           onClick={() => toggleStatus(u.id, u.esta_activo)}
