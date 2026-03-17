@@ -185,7 +185,7 @@ export default function Login() {
               ) : (
                 <>
                   Verificar Identidad
-                  <ChevronRight size={14} lg:size={16} className="group-hover:translate-x-1 transition-transform" />
+                  <ChevronRight className="w-3.5 h-3.5 lg:w-4 lg:h-4 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
