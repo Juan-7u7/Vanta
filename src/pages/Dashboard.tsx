@@ -405,7 +405,7 @@ const DashboardOverview = () => {
             </div>
          </GlassCard>
 
-         <GlassCard title="Monitor del Corte" icon={ShieldCheck} className="lg:col-span-4 h-full">
+         <GlassCard title="Monitor del Corte" icon={ShieldCheck} className="lg:col-span-4 h-full flex flex-col">
             <div className="relative flex flex-col gap-10 pl-6">
                {/* Línea conectora visual */}
                <div className="absolute left-[54px] top-12 bottom-12 w-0.5 bg-gradient-to-b from-indigo-500/20 via-indigo-500/10 to-transparent lg:block hidden" />
@@ -441,6 +441,17 @@ const DashboardOverview = () => {
                    </div>
                  );
                })}
+            </div>
+            
+            <div className="mt-auto pt-10 border-t border-gray-100 dark:border-white/5">
+               <div className="mb-4">
+                 <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Contexto Operativo</p>
+               </div>
+               <div className="p-6 bg-indigo-50/50 dark:bg-black/40 rounded-[32px] border border-indigo-500/10 shadow-inner">
+                 <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 leading-relaxed italic">
+                   Este panel muestra el <span className="text-indigo-500 dark:text-indigo-400">pipeline de validación</span> de nómina para <span className="text-gray-900 dark:text-white uppercase font-black tracking-wider">{MES_ACTUAL}</span>. Cada etapa representa un filtro obligatorio para garantizar la precisión, transparencia y autorización final del pago a colaboradores.
+                 </p>
+               </div>
             </div>
           </GlassCard>
       </div>
