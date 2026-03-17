@@ -1,12 +1,13 @@
 /** final 1.0 */
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Loader2, X, AlertTriangle } from 'lucide-react';
+import { Plus, Edit2, Trash2, Loader2, X, AlertTriangle, Image as ImageIcon, Upload, Trash } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface UnidadNegocio {
   id: number;
   nombre: string;
   color_hex: string;
+  logo_url?: string;
   colaboradores?: { count: number }[];
 }
 
@@ -55,18 +56,20 @@ const PREDEFINED_COLORS = [
 
 function UnidadModal({ isOpen, onClose, onSuccess, initialData }: any) {
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ id: 0, nombre: '', color_hex: '#3B82F6' });
+  const [formData, setFormData] = useState({ id: 0, nombre: '', color_hex: '#3B82F6', logo_url: '' });
 
   useEffect(() => {
     if (initialData) {
       setFormData({
         id: initialData.id,
         nombre: initialData.nombre,
-        color_hex: initialData.color_hex || '#3B82F6'
+        color_hex: initialData.color_hex || '#3B82F6',
+        logo_url: initialData.logo_url || ''
       });
     } else {
-      setFormData({ id: 0, nombre: '', color_hex: '#3B82F6' });
+      setFormData({ id: 0, nombre: '', color_hex: '#3B82F6', logo_url: '' });
     }
     setError(null);
   }, [initialData, isOpen]);
@@ -81,7 +84,8 @@ function UnidadModal({ isOpen, onClose, onSuccess, initialData }: any) {
 
     const payload = {
       nombre: formData.nombre.trim(),
-      color_hex: formData.color_hex
+      color_hex: formData.color_hex,
+      logo_url: formData.logo_url
     };
 
     try {
@@ -98,6 +102,39 @@ function UnidadModal({ isOpen, onClose, onSuccess, initialData }: any) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      setUploading(true);
+      setError(null);
+
+      // 1. Sanitize file name
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `logos/${fileName}`;
+
+      // 2. Upload to 'imagenes' bucket
+      const { error: uploadError } = await supabase.storage
+        .from('imagenes')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // 3. Get Public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('imagenes')
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({ ...prev, logo_url: publicUrl }));
+    } catch (err: any) {
+      setError("Error al subir imagen: " + err.message);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -162,6 +199,40 @@ function UnidadModal({ isOpen, onClose, onSuccess, initialData }: any) {
               </div>
             </div>
           </div>
+          <div className="space-y-3">
+            <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">Logo de la Empresa</label>
+            <div className="flex items-center gap-4">
+              <div className="relative w-24 h-24 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden flex items-center justify-center group/logo">
+                {formData.logo_url ? (
+                  <>
+                    <img src={formData.logo_url} alt="Preview" className="w-full h-full object-contain p-2" />
+                    <button 
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, logo_url: '' }))}
+                      className="absolute inset-0 bg-black/40 opacity-0 group-hover/logo:opacity-100 transition-opacity flex items-center justify-center text-white"
+                    >
+                      <Trash size={20} />
+                    </button>
+                  </>
+                ) : (
+                  <ImageIcon size={32} className="text-gray-300 dark:text-gray-600" />
+                )}
+                {uploading && (
+                  <div className="absolute inset-0 bg-white/60 dark:bg-black/60 flex items-center justify-center">
+                    <Loader2 size={18} className="animate-spin text-blue-500" />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1">
+                <label className="inline-flex cursor-pointer items-center gap-2 px-4 py-2.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 font-bold rounded-xl transition-all text-xs">
+                  <Upload size={14} />
+                  {uploading ? 'Subiendo...' : 'Elegir Imagen'}
+                  <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
+                </label>
+                <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">Formatos: PNG, JPG o WEBP. Tamaño recomendado 512x512px.</p>
+              </div>
+            </div>
+          </div>
 
           {error && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-500/10 p-3 rounded-xl">{error}</p>}
 
@@ -200,7 +271,7 @@ export default function UnidadesNegocio() {
       const { data, error: err } = await supabase
         .from('unidades_negocio')
         .select(`
-          id, nombre, color_hex,
+          id, nombre, color_hex, logo_url,
           colaboradores (count)
         `)
         .order('nombre');
@@ -248,9 +319,15 @@ export default function UnidadesNegocio() {
           <div className="absolute left-0 top-0 bottom-0 w-1.5" style={{ backgroundColor: u.color_hex || '#3B82F6' }} />
           
           <div className="flex justify-between items-start pl-2 mb-8">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner" style={{ backgroundColor: `${u.color_hex}15`, color: u.color_hex }}>
-                <span className="text-xl font-bold">{u.nombre?.charAt(0).toUpperCase()}</span>
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 shadow-inner flex items-center justify-center overflow-hidden">
+                {u.logo_url ? (
+                  <img src={u.logo_url} alt={u.nombre} className="w-full h-full object-contain p-2" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center font-bold text-xl" style={{ backgroundColor: `${u.color_hex}15`, color: u.color_hex }}>
+                    {u.nombre?.charAt(0).toUpperCase()}
+                  </div>
+                )}
               </div>
               <div>
                 <h3 className="text-lg font-bold text-gray-800 dark:text-white leading-tight">{u.nombre}</h3>

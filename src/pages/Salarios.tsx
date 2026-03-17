@@ -18,7 +18,7 @@ interface Salario {
     nombre: string;
     apellido_paterno: string;
     email: string;
-    unidades_negocio: { nombre: string; color_hex?: string } | null;
+    unidades_negocio: { nombre: string; color_hex?: string; logo_url?: string } | null;
   } | null;
   pasos: {
     paso_captura: boolean;
@@ -59,11 +59,25 @@ function SalarioCard({ sal, onEdit }: { sal: Salario; onEdit: () => void }) {
         className="px-5 py-4 flex items-center cursor-pointer hover:bg-white/40 dark:hover:bg-white/5 transition-colors"
         onClick={() => setExpanded(!expanded)}
       >
-        {/* Avatar */}
-        <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 flex items-center justify-center border border-emerald-500/10 mr-3">
-          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-            {sal.colaborador?.nombre?.[0]}{sal.colaborador?.apellido_paterno?.[0]}
-          </span>
+        {/* Avatar / Logo */}
+        <div className="w-10 h-10 shrink-0 rounded-xl bg-white dark:bg-black/20 flex items-center justify-center border border-gray-100 dark:border-white/10 shadow-inner overflow-hidden mr-3">
+          {sal.colaborador?.unidades_negocio?.logo_url ? (
+            <img 
+              src={sal.colaborador.unidades_negocio.logo_url} 
+              alt={sal.colaborador.unidades_negocio.nombre} 
+              className="w-full h-full object-contain p-1.5"
+            />
+          ) : (
+            <div 
+              className="w-full h-full flex items-center justify-center font-bold text-[10px]"
+              style={{ 
+                backgroundColor: `${sal.colaborador?.unidades_negocio?.color_hex || '#10b981'}15`, 
+                color: sal.colaborador?.unidades_negocio?.color_hex || '#10b981' 
+              }}
+            >
+              {sal.colaborador?.nombre?.[0]}{sal.colaborador?.apellido_paterno?.[0]}
+            </div>
+          )}
         </div>
 
         {/* Info principal */}
@@ -212,7 +226,7 @@ export default function Salarios() {
           *,
           colaborador:colaborador_id(
             nombre, apellido_paterno, email,
-            unidades_negocio:unidad_negocio_id(nombre, color_hex)
+            unidades_negocio:unidad_negocio_id(nombre, color_hex, logo_url)
           )
         `);
 

@@ -15,7 +15,7 @@ interface Colaborador {
   area: string;
   razon_social: string;
   esta_activo: boolean;
-  unidades_negocio: { nombre: string } | null;
+  unidades_negocio: { nombre: string; logo_url?: string } | null;
   jefe: { nombre: string; apellido_paterno: string } | null;
 }
 
@@ -49,7 +49,7 @@ export default function Colaboradores() {
         .from('colaboradores')
         .select(`
           *,
-          unidades_negocio:unidad_negocio_id(nombre),
+          unidades_negocio:unidad_negocio_id(nombre, logo_url),
           jefe:jefe_id(nombre, apellido_paterno)
         `);
 
@@ -255,10 +255,14 @@ export default function Colaboradores() {
                   {/* Fila 1: Avatar + nombre + estado */}
                   <div className="flex items-center gap-2 w-full min-w-0">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-tr from-blue-500/20 to-cyan-500/20 flex items-center justify-center border border-blue-500/20">
-                        <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400">
-                          {col.nombre?.[0]}{col.apellido_paterno?.[0]}
-                        </span>
+                      <div className="w-10 h-10 shrink-0 rounded-xl bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 shadow-inner flex items-center justify-center overflow-hidden">
+                        {col.unidades_negocio?.logo_url ? (
+                          <img src={col.unidades_negocio.logo_url} alt="Logo" className="w-full h-full object-contain p-1.5" />
+                        ) : (
+                          <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400">
+                            {col.nombre?.[0]}{col.apellido_paterno?.[0]}
+                          </span>
+                        )}
                       </div>
                       <div className="flex flex-col min-w-0">
                         <span className="text-sm font-bold text-gray-800 dark:text-white truncate">
@@ -335,10 +339,14 @@ export default function Colaboradores() {
                     <tr key={col.id} className="hover:bg-white/50 dark:hover:bg-white/5 transition-colors group">
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 shrink-0 rounded-xl bg-gradient-to-tr from-blue-500/20 to-cyan-500/20 flex items-center justify-center border border-blue-500/20">
-                            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400">
-                              {col.nombre?.[0]}{col.apellido_paterno?.[0]}
-                            </span>
+                          <div className="w-9 h-9 shrink-0 rounded-xl bg-white dark:bg-black/20 border border-gray-100 dark:border-white/10 shadow-inner flex items-center justify-center overflow-hidden">
+                            {col.unidades_negocio?.logo_url ? (
+                              <img src={col.unidades_negocio.logo_url} alt="Logo" className="w-full h-full object-contain p-1.5" />
+                            ) : (
+                              <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400">
+                                {col.nombre?.[0]}{col.apellido_paterno?.[0]}
+                              </span>
+                            )}
                           </div>
                           <div className="flex flex-col min-w-0">
                             <span className="text-sm font-bold text-gray-800 dark:text-gray-200 truncate">

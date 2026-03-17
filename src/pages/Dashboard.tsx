@@ -25,19 +25,12 @@ import CargaMasiva from './CargaMasiva';
 import ImprimirCovas from './ImprimirCovas';
 
 // --- TYPES ---
-interface ColabWithUnidad {
-  id: string;
-  nombre: string;
-  unidad_negocio_id: number;
-  unidades_negocio: { nombre: string } | null;
-}
-
 interface DashboardStats {
   totalColab: number;
   alcanceGlobal: number;
   invTotal: string;
   kpisActivos: number;
-  unidades: any[];
+  unidades: { name: string, pct: number, count: number, logo_url?: string, color: string }[];
   distribucion: any[];
   pasos: { total: number, completados: number, label: string }[];
   topPerformers: { nombre: string, pct: number, unidad: string }[];
@@ -116,11 +109,15 @@ const DashboardOverview = () => {
     try {
       setLoading(true);
       
+      // 0. Cargar todas las Unidades de Negocio primero para asegurar su aparición
+      const { data: allUnidades } = await supabase.from('unidades_negocio').select('id, nombre, color_hex, logo_url');
+      const unitsMap = Object.fromEntries((allUnidades || []).map(u => [u.id, u]));
+
       const { count: countColab } = await supabase.from('colaboradores').select('*', { count: 'exact', head: true });
       const { count: countKPIs } = await supabase.from('metas_indicadores').select('*', { count: 'exact', head: true }).eq('anio', 2026);
       
-      const { data: colabsRaw } = await supabase.from('colaboradores').select('id, nombre, unidad_negocio_id, unidades_negocio(nombre)');
-      const colabs = (colabsRaw as unknown as ColabWithUnidad[]) || [];
+      const { data: colabsRaw } = await supabase.from('colaboradores').select('id, nombre, unidad_negocio_id');
+      const colabs = (colabsRaw as unknown as any[]) || [];
 
       // 1. Inversión Detallada
       const [{ data: salReg }, { data: comsReg }, { data: intsReg }] = await Promise.all([
@@ -142,11 +139,21 @@ const DashboardOverview = () => {
       const realesMap = Object.fromEntries((realesRaw || []).map(r => [r.colaborador_id, r[MES_ACTUAL]]));
 
       let totalPct = 0, countMeasured = 0;
-      const unityStats: Record<string, { total: number, count: number }> = {};
+      const unityStats: Record<number, { total: number, count: number, colabsInUnit: number }> = {};
       const calculatedPerformers: any[] = [];
       let riskCount = 0;
+      
+      // Inicializar todas las unidades en 0
+      (allUnidades || []).forEach(u => {
+        unityStats[u.id] = { total: 0, count: 0, colabsInUnit: 0 };
+      });
 
       colabs.forEach(c => {
+        const uId = c.unidad_negocio_id;
+        if (uId && unityStats[uId]) {
+          unityStats[uId].colabsInUnit++;
+        }
+
         const meta = Number(metasMap[c.id] || 0);
         const real = Number(realesMap[c.id] || 0);
         if (meta > 0) {
@@ -156,14 +163,15 @@ const DashboardOverview = () => {
           calculatedPerformers.push({
             nombre: c.nombre,
             pct: pct,
-            unidad: c.unidades_negocio?.nombre || 'General'
+            unidad: unitsMap[c.unidad_negocio_id]?.nombre || 'General'
           });
 
           if (pct < 80) riskCount++;
 
-          const uName = c.unidades_negocio?.nombre || 'General';
-          if (!unityStats[uName]) unityStats[uName] = { total: 0, count: 0 };
-          unityStats[uName].total += pct; unityStats[uName].count++;
+          if (uId && unityStats[uId]) {
+            unityStats[uId].total += pct; 
+            unityStats[uId].count++;
+          }
         }
       });
 
@@ -182,10 +190,17 @@ const DashboardOverview = () => {
         alcanceGlobal: countMeasured > 0 ? totalPct / countMeasured : 0,
         invTotal: '$' + formattedInv,
         kpisActivos: countKPIs || 0,
-        unidades: Object.entries(unityStats).map(([name, s]) => ({ 
-          name, pct: (s.total / s.count).toFixed(0), count: s.count
-        })).sort((a,b) => Number(b.pct) - Number(a.pct)),
-        distribucion: Object.entries(unityStats).map(([name, s]) => ({ name, count: s.count })),
+        unidades: (allUnidades || []).map(u => {
+          const s = unityStats[u.id];
+          return {
+            name: u.nombre,
+            pct: s.count > 0 ? Number((s.total / s.count).toFixed(0)) : 0,
+            count: s.colabsInUnit,
+            logo_url: u.logo_url,
+            color: u.color_hex
+          };
+        }).sort((a,b) => b.pct - a.pct),
+        distribucion: (allUnidades || []).map(u => ({ name: u.nombre, count: unityStats[u.id].colabsInUnit })),
         pasos: [
           { label: 'Capturado', completados: stepsCount.cap, total: countColab || 0 },
           { label: 'Revisado', completados: stepsCount.rev, total: countColab || 0 },
@@ -358,12 +373,23 @@ const DashboardOverview = () => {
 
       {/* SECCIÓN INFERIOR: PIPELINE & RANKING UNIDADES */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-         <GlassCard title="Ranking Operativo" icon={Layers} className="lg:col-span-5 h-full">
+         <GlassCard title="Ranking Operativo" icon={Layers} className="lg:col-span-8 h-full">
             <div className="space-y-6">
               {stats.unidades.map((u, i) => (
                 <div key={i} className="flex items-center gap-5 group/u">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs ${i === 0 ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-white/5 text-gray-400'}`}>
-                    {i + 1}
+                  <div className="relative">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xs border border-gray-100 dark:border-white/5 shadow-inner overflow-hidden bg-white dark:bg-black/20`}>
+                      {u.logo_url ? (
+                        <img src={u.logo_url} alt={u.name} className="w-full h-full object-contain p-1.5" />
+                      ) : (
+                        <span style={{ color: u.color }}>{i + 1}</span>
+                      )}
+                    </div>
+                    {u.logo_url && (
+                       <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-indigo-500 rounded-lg flex items-center justify-center text-[8px] font-black text-white border-2 border-white dark:border-[#0f1117] shadow-lg">
+                         {i + 1}
+                       </div>
+                    )}
                   </div>
                   <div className="flex-1">
                     <div className="flex justify-between items-baseline mb-2">
@@ -371,7 +397,7 @@ const DashboardOverview = () => {
                       <span className="text-xs font-black text-gray-800 dark:text-white">{u.pct}%</span>
                     </div>
                     <div className="h-1.5 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full bg-indigo-500 rounded-full transition-all duration-1000" style={{ width: `${u.pct}%` }} />
+                      <div className="h-full bg-indigo-500 rounded-full transition-all duration-1000" style={{ width: `${u.pct}%`, backgroundColor: u.color }} />
                     </div>
                   </div>
                 </div>
@@ -379,22 +405,44 @@ const DashboardOverview = () => {
             </div>
          </GlassCard>
 
-         <GlassCard title="Monitor del Corte" icon={ShieldCheck} className="lg:col-span-7">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+         <GlassCard title="Monitor del Corte" icon={ShieldCheck} className="lg:col-span-4 h-full">
+            <div className="relative flex flex-col gap-10 pl-6">
+               {/* Línea conectora visual */}
+               <div className="absolute left-[54px] top-12 bottom-12 w-0.5 bg-gradient-to-b from-indigo-500/20 via-indigo-500/10 to-transparent lg:block hidden" />
+
                {stats.pasos.map((p, i) => {
                  const pct = (p.completados / (p.total || 1)) * 100;
                  return (
-                   <div key={i} className="flex flex-col items-center gap-4 text-center">
-                      <MiniRing value={pct} color={i === 3 ? "stroke-emerald-500" : "stroke-indigo-500"} />
-                      <div>
-                         <p className="text-[9px] font-black uppercase text-gray-400 tracking-tight mb-1">{p.label}</p>
-                         <p className="text-xl font-black text-gray-800 dark:text-white leading-none">{p.completados}</p>
+                   <div key={i} className="relative flex items-center gap-8 group/step">
+                      <div className="relative shrink-0">
+                         <MiniRing value={pct} color={i === 3 ? "stroke-emerald-500" : "stroke-indigo-500"} size={60} />
+                         {pct === 100 && (
+                           <div className="absolute -right-1 -bottom-1 w-5 h-5 bg-emerald-500 rounded-lg flex items-center justify-center border-2 border-white dark:border-[#0f1117] shadow-lg animate-in zoom-in-0 duration-500">
+                             <ShieldCheck size={10} className="text-white" />
+                           </div>
+                         )}
+                      </div>
+                      <div className="flex-1">
+                         <div className="flex justify-between items-center mb-1">
+                           <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest group-hover/step:text-indigo-500 transition-colors">{p.label}</p>
+                           <span className="text-[10px] font-mono font-bold text-gray-300 dark:text-gray-600">{Math.round(pct)}%</span>
+                         </div>
+                         <div className="flex items-baseline gap-2">
+                           <p className="text-2xl font-black text-gray-800 dark:text-white leading-none tracking-tighter">{p.completados}</p>
+                           <p className="text-[10px] font-bold text-gray-400">/ {p.total}</p>
+                         </div>
+                         <div className="mt-3 h-1 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full transition-all duration-1000 ${i === 3 ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+                              style={{ width: `${pct}%` }} 
+                            />
+                         </div>
                       </div>
                    </div>
                  );
                })}
             </div>
-         </GlassCard>
+          </GlassCard>
       </div>
 
     </div>
