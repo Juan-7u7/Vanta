@@ -87,7 +87,7 @@ export default function Login() {
               Gestión Inteligente de <span className="text-emerald-400">Compensaciones.</span>
             </h1>
             <p className="hidden lg:block text-indigo-100 text-sm lg:text-lg font-medium max-w-md leading-relaxed opacity-80 mb-8 lg:mb-12">
-              Accede a la plataforma líder en análisis estratégico y optimización de capital humano.
+              Accede a la plataforma de análisis estratégico y optimización de capital humano.
             </p>
 
             {/* Business Units Carousel (Desktop only) */}
