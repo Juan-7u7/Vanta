@@ -86,12 +86,13 @@ export async function getColaboradorDataForReport(
     (rawAlcance || []).forEach((a: any) => { alcanceMap[a.indicador_id] = a; });
 
     // 4. Salario base
-    const { data: salarioRow } = await supabase
+    const { data: salarioRow, error: errSal } = await supabase
       .from('salarios_mensuales')
-      .select(columnasMes)
+      .select('*')
       .eq('colaborador_id', colaborador_id)
       .eq('anio', anio)
-      .single();
+      .maybeSingle();
+    const salarioSafe = errSal ? null : salarioRow;
 
     // 5. Aprobaciones del periodo
     const { data: aprobRows } = await supabase
@@ -182,7 +183,7 @@ export async function getColaboradorDataForReport(
       matricula: col.matricula,
       puesto: col.puesto,
       unidades_negocio: (col as any).unidades_negocio || null,
-      sueldoBase: salarioRow ? sumColumns(salarioRow, mesesPeriodo) : 0,
+      sueldoBase: salarioSafe ? sumColumns(salarioSafe, mesesPeriodo) : 0,
       comisiones: resultados,
       otrosIngresos,
       esquema_tipo: (esquemaPago as any)?.tipo || 'porcentaje',

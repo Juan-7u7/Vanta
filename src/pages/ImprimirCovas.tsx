@@ -57,8 +57,8 @@ export default function ImprimirCovas() {
     return 'Q?';
   };
 
-  const openResultsTab = (data: any[], periodo: string, year: number) => {
-    const win = window.open('', '_blank');
+  const openResultsTab = (data: any[], periodo: string, year: number, existingWin?: Window | null) => {
+    const win = existingWin || window.open('', '_blank');
     if (!win) return;
     const rowsHtml = data.map(col => {
       const totalBonos = col.totales?.subtotalBonos || 0;
@@ -69,7 +69,29 @@ export default function ImprimirCovas() {
       const totalPercepcion = sueldoBase + totalBonos + otros - anticipos + saldoArr;
       const qMark = toQuarter(periodo);
       const qCols: Record<string,string> = { Q1:'-',Q2:'-',Q3:'-',Q4:'-',TOTAL: formatCurrency(totalPercepcion) };
-      if (['Q1','Q2','Q3','Q4'].includes(qMark)) qCols[qMark] = formatCurrency(totalPercepcion);
+      if (col.quarterMap) {
+        ['Q1','Q2','Q3','Q4'].forEach((qid: any) => {
+          const qd = (col.quarterMap as any)[qid];
+          if (qd) {
+            const qb = qd.totales?.subtotalBonos || 0;
+            const qo = qd.totales?.totalOtrosIngresos || 0;
+            const qa = qd.anticipos_aplicables || 0;
+            const qs = qd.sueldoBase || 0;
+            const qsa = qd.saldo_pendiente_arrastrado || 0;
+            const tp = qs + qb + qo - qa + qsa;
+            qCols[qid] = formatCurrency(tp);
+          }
+        });
+        qCols.TOTAL = formatCurrency(
+          ['Q1','Q2','Q3','Q4'].reduce((acc, qid: any) => {
+            const val = qCols[qid];
+            const num = typeof val === 'string' && val !== '-' ? Number(val.replace(/[^0-9.-]/g,'')) : 0;
+            return acc + num;
+          }, 0)
+        );
+      } else if (['Q1','Q2','Q3','Q4'].includes(qMark)) {
+        qCols[qMark] = formatCurrency(totalPercepcion);
+      }
 
       const comiRows = (col.comisiones || []).map((c: any, idx: number) => `
         <tr>
@@ -312,6 +334,13 @@ export default function ImprimirCovas() {
 
   const processDataForPDF = async () => {
     try {
+      // abre ventana temprano para evitar bloqueo de popup
+      const winRef = window.open('', '_blank');
+      if (!winRef) {
+        setError('El navegador bloqueó la nueva pestaña. Permite pop-ups para continuar.');
+        return;
+      }
+
       setGenerating(true);
       setError(null);
       setDataReady(false);
@@ -328,13 +357,27 @@ export default function ImprimirCovas() {
       const labelPeriodo = periodoTipo === 'mes' ? mes : selectedQuarter.label;
       setPeriodoLabel(labelPeriodo);
 
-      // 2. Obtener datos detallados usando el servicio centralizado (mes o trimestre)
-      // Esto garantiza que traigamos las firmas, metas y alcances correctamente calculados.
+      // 2. Obtener datos detallados
       const reports = await Promise.all(
-        cols.map(c => periodoTipo === 'mes'
-          ? getColaboradorDataForReport(c.id, mes, anio)
-          : getColaboradorDataForQuarter(c.id, selectedQuarter.months as any, anio)
-        )
+        cols.map(async c => {
+          if (periodoTipo === 'mes') {
+            return await getColaboradorDataForReport(c.id, mes, anio);
+          }
+          // trimestre: calcular quarters hasta el seleccionado (no futuros)
+          const quarterMap: Record<string, any> = {};
+          for (const q of QUARTERS) {
+            quarterMap[q.id] = q;
+          }
+          const currentIdx = QUARTERS.findIndex(q => q.id === selectedQuarter.id);
+          for (let i = 0; i <= currentIdx; i++) {
+            const q = QUARTERS[i];
+            const qr = await getColaboradorDataForQuarter(c.id, q.months as any, anio);
+            quarterMap[q.id] = qr;
+          }
+          const main = quarterMap[selectedQuarter.id] || null;
+          if (main) (main as any).quarterMap = quarterMap;
+          return main;
+        })
       );
 
       // Filtrar los que fallaron (null)
@@ -344,8 +387,8 @@ export default function ImprimirCovas() {
 
       setProcessedData(finalReport);
       setDataReady(true);
-        setPdfRequested(false);
-        openResultsTab(finalReport, labelPeriodo, anio);
+      setPdfRequested(false);
+      openResultsTab(finalReport, labelPeriodo, anio, winRef);
     } catch (err: any) {
       setError(err.message);
     } finally {
