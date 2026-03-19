@@ -123,7 +123,7 @@ export function calculateBono(alcance: number, objective: number): number {
   return objective * calculateBonoPercent(alcance);
 }
 
-export function calcularCierrePeriodo(bonos: number[], anticipos: number, esAnual: boolean) {
+export function calcularCierrePeriodo(bonos: number[], anticipos: number, _esAnual: boolean) {
   const total = bonos.reduce((a, b) => a + b, 0);
   return { montoFinalAPagar: total - anticipos, saldoPendiente: total - anticipos };
 }

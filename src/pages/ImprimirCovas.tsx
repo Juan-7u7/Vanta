@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Loader2, Download, FileText, ChevronRight, Filter, AlertCircle } from 'lucide-react';
-import { calculateBonoPercent, aplicarAjustePorGrupo } from '../utils/covasLogic';
+import { aplicarAjustePorGrupo } from '../utils/covasLogic';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { CovasDocument } from '../services/CovasPDFGenerator';
 import { getColaboradorDataForReport, getColaboradorDataForQuarter } from '../services/CovasGenerator';

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { 
   Plus, Edit2, Trash2, Save, X, Loader2, 
-  Percent, ArrowRight, AlertCircle, Info,
+  Percent, ArrowRight, AlertCircle,
   Layers, Settings2, Calendar, DollarSign
 } from 'lucide-react';
 
@@ -32,7 +32,6 @@ export default function EscalonesBonos() {
   const [selectedEsquemaId, setSelectedEsquemaId] = useState<number | null>(null);
   const [escalones, setEscalones] = useState<Escalon[]>([]);
   
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   

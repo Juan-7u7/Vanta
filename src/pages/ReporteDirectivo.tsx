@@ -1,5 +1,4 @@
-import { useMemo } from 'react';
-import { supabase } from '../lib/supabase';
+// Placeholder static page (sin hooks ni supabase en uso)
 
 const MOCK_COL = {
   puesto: 'DIRECTOR DE PRODUCCIÓN',

@@ -72,7 +72,8 @@ export async function getColaboradorDataForReport(
     if (errInd) throw errInd;
 
     // 3. Alcance real por indicador
-    const indicadorIds = (rawIndicadores || []).map((i: any) => i.id).filter(Boolean);
+    const indicadoresData = (rawIndicadores || []) as any[];
+    const indicadorIds = indicadoresData.map((i: any) => i.id).filter(Boolean);
     const { data: rawAlcance } = indicadorIds.length
       ? await supabase
           .from('alcance_real')
@@ -107,8 +108,9 @@ export async function getColaboradorDataForReport(
       .eq('colaborador_id', colaborador_id)
       .eq('anio', anio);
 
-    const otrosIngresos = (otrosIngresosRows || []).map(oi => ({
-      concepto: oi.nombre_concepto,
+    const otrosIngresosData = (otrosIngresosRows || []) as any[];
+    const otrosIngresos = otrosIngresosData.map(oi => ({
+      concepto: (oi as any).nombre_concepto,
       monto: sumColumns(oi, mesesPeriodo)
     }));
 
@@ -129,7 +131,7 @@ export async function getColaboradorDataForReport(
     const ponderacionDefault = 1 / totalIndicadores;
     const bonoTotalColaborador = 0; // sin monto_base en esquema, fallback se usa más abajo
 
-    for (const mInd of rawIndicadores || []) {
+    for (const mInd of indicadoresData) {
       // escalones por indicador; si no hay esquema_id, usar fallback sin llamar API
       const esquemaId = (mInd as any).esquema_pago_id;
       let escalones = [
@@ -165,7 +167,7 @@ export async function getColaboradorDataForReport(
       });
     }
 
-    const resultados: IndicadorResultado[] = indicadoresEntrada.map((i, idx) => {
+    const resultados: IndicadorResultado[] = indicadoresEntrada.map((i) => {
       const res = calcularBonoBruto(i);
       return {
         ...res,
