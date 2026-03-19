@@ -2,7 +2,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Loader2, Download, FileText, ChevronRight, Filter, AlertCircle } from 'lucide-react';
-import { calculateBonoPercent } from '../utils/covasLogic';
+import { calculateBonoPercent, aplicarAjustePorGrupo } from '../utils/covasLogic';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { CovasDocument } from '../services/CovasPDFGenerator';
+import { getColaboradorDataForReport } from '../services/CovasGenerator';
 
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'] as const;
 
@@ -11,6 +14,7 @@ export default function ImprimirCovas() {
   const [error, setError] = useState<string | null>(null);
   const [dataReady, setDataReady] = useState(false);
   const [processedData, setProcessedData] = useState<any[]>([]);
+  const [pdfRequested, setPdfRequested] = useState(false);
   
   // Filtros
   const [mes, setMes] = useState<typeof MESES[number]>(MESES[new Date().getMonth()]);
@@ -33,104 +37,28 @@ export default function ImprimirCovas() {
       setError(null);
       setDataReady(false);
 
-      // 1. Obtener colaboradores activos
-      let query = supabase
-        .from('colaboradores')
-        .select(`
-          *,
-          unidades_negocio:unidad_negocio_id(nombre)
-        `)
-        .eq('esta_activo', true);
-      
-      if (unidadId) {
-        query = query.eq('unidad_negocio_id', parseInt(unidadId));
-      }
+      // 1. Obtener IDs de colaboradores según filtros
+      let query = supabase.from('colaboradores').select('id').eq('esta_activo', true);
+      if (unidadId) query = query.eq('unidad_negocio_id', parseInt(unidadId));
 
       const { data: cols, error: errCols } = await query;
       if (errCols) throw errCols;
-      if (!cols || cols.length === 0) throw new Error("No hay colaboradores activos que coincidan con los filtros.");
+      if (!cols || cols.length === 0) throw new Error("No hay colaboradores activos.");
 
-      const colIds = cols.map(c => c.id);
+      // 2. Obtener datos detallados usando el servicio centralizado (getColaboradorDataForReport)
+      // Esto garantiza que traigamos las firmas, metas y alcances correctamente calculados.
+      const reports = await Promise.all(
+        cols.map(c => getColaboradorDataForReport(c.id, mes, anio))
+      );
 
-      // 2. Obtener Salarios fijos para el año seleccionado
-      const { data: salariosData } = await supabase
-        .from('salarios_mensuales')
-        .select('*')
-        .in('colaborador_id', colIds)
-        .eq('anio', anio);
+      // Filtrar los que fallaron (null)
+      const finalReport = reports.filter(r => r !== null);
 
-      // 3. Obtener Metas de Indicadores
-      const { data: metasData } = await supabase
-        .from('metas_indicadores')
-        .select('*')
-        .in('colaborador_id', colIds)
-        .eq('anio', anio);
-
-      // 4. Obtener Alcance Real
-      const { data: alcancesData } = await supabase
-        .from('alcance_real')
-        .select('*')
-        .in('colaborador_id', colIds)
-        .eq('anio', anio);
-
-      // 5. Obtener Otros Ingresos (Bonos) para el periodo
-      // Supongamos que otros_ingresos tiene fecha_registro y extraemos mes/anio
-      // O si tiene columnas mes/anio (depende de cómo se implementó antes)
-      // Reviso otros_ingresos structure: id, colaborador_id, bono_id, monto, fecha_pago, anio, mes
-      const { data: bonosData } = await supabase
-        .from('otros_ingresos')
-        .select('*')
-        .in('colaborador_id', colIds)
-        .eq('anio', anio);
-
-      // 6. Cruzar y Procesar
-      const finalReport = cols.map(col => {
-        const salarioRow = salariosData?.find(s => s.colaborador_id === col.id);
-        const sueldoM = salarioRow ? (salarioRow as any)[mes] : 0;
-
-        // Comisiones (Indicadores)
-        const misMetas = metasData?.filter(m => m.colaborador_id === col.id) || [];
-        const misAlcances = alcancesData?.find(a => a.colaborador_id === col.id);
-        
-        const comisiones = misMetas.map(m => {
-          const metaVal = (m as any)[mes] || 0;
-          const alcanceVal = misAlcances ? (misAlcances as any)[mes] : 0;
-          const pct = metaVal > 0 ? (alcanceVal / metaVal) * 100 : 0;
-          
-          // Lógica de Brackets 2026
-          const bonoPct = calculateBonoPercent(pct);
-          // Suponiendo que el bono base es 400 (ejemplificado en la imagen 2) o viene de la meta
-          // Por ahora calcularemos 400 * bonoPct como ejemplo, o si hay un 'monto_bono' en la tabla
-          const comisionCalc = 400 * bonoPct; 
-          
-          return {
-            nombre: m.nombre_indicador,
-            meta: metaVal,
-            alcance: alcanceVal,
-            pct: pct,
-            comision: comisionCalc
-          };
-        });
-
-        // Bonos
-        const misBonos = bonosData?.filter(b => b.colaborador_id === col.id && (b as any)[mes] > 0).map(b => ({
-          nombre: b.nombre_concepto || 'Bono General',
-          monto: (b as any)[mes] || 0
-        })) || [];
-
-        const totalVariable = comisiones.reduce((s, c) => s + c.comision, 0) + misBonos.reduce((s, b) => s + b.monto, 0);
-
-        return {
-          ...col,
-          sueldoMensual: sueldoM,
-          comisiones,
-          bonos: misBonos,
-          totalVariable
-        };
-      });
+      if (finalReport.length === 0) throw new Error("No se pudo obtener información de los colaboradores.");
 
       setProcessedData(finalReport);
       setDataReady(true);
+      setPdfRequested(false);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -212,33 +140,62 @@ export default function ImprimirCovas() {
                       className="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-black rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl"
                     >
                       {generating ? <Loader2 className="animate-spin" /> : <FileText size={20} />}
-                      {generating ? 'Procesando Datos...' : 'Preparar Documento'}
+                      {generating ? 'Calculando Reportes...' : 'Calcular y Validar Datos'}
                     </button>
                   ) : (
                     <div className="space-y-4">
-                      <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl text-green-600 dark:text-green-400">
-                        <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white shrink-0">
-                          <Download size={16} />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold">Documento Listo</p>
-                          <p className="text-[10px] opacity-80">Se procesaron {processedData.length} colaboradores correctamente.</p>
+                      <div className="p-4 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl">
+                        <p className="text-[10px] font-bold text-indigo-500 uppercase mb-3">Resumen de Cálculos</p>
+                        <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                          {processedData.map((col, i) => {
+                            const totalBonos = col.comisiones.reduce((acc: number, c: any) => acc + (c.montoBono || 0), 0);
+                            const totalOtros = (col.otrosIngresos || []).reduce((acc: number, o: any) => acc + (o.monto || 0), 0);
+                            const resAjuste = aplicarAjustePorGrupo(col.comisiones.map((c: any) => ({
+                              montoBono: c.montoBono,
+                              cumplimiento: c.cumplimiento
+                            })));
+                            const totalFinal = col.sueldoBase + totalBonos + totalOtros + resAjuste.ajuste;
+                            
+                            return (
+                              <div key={i} className="flex justify-between items-center text-[10px] border-b border-gray-100 dark:border-white/5 pb-1">
+                                <span className="text-gray-600 dark:text-gray-300 truncate max-w-[120px] font-medium">{col.nombre}</span>
+                                <span className="font-bold text-gray-800 dark:text-white">
+                                  {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(totalFinal)}
+                                </span>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => {}}
-                        className="w-full py-4 bg-indigo-300 dark:bg-indigo-900/50 text-white/50 rounded-2xl font-bold flex items-center justify-center gap-3 cursor-not-allowed shadow-none"
-                      >
-                        <Download size={20} />
-                        Descargar PDF Corporativo (Desactivado)
-                      </button>
+                      {!pdfRequested ? (
+                        <button
+                          onClick={() => setPdfRequested(true)}
+                          className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-indigo-500/20"
+                        >
+                          <Download size={20} />
+                          Preparar PDF para Descarga
+                        </button>
+                      ) : (
+                        <PDFDownloadLink
+                          document={<CovasDocument data={processedData} periodo={{ mes, anio }} />}
+                          fileName={`COVAS_CORPORATIVO_${mes.toUpperCase()}_${anio}.pdf`}
+                          className="w-full py-4 bg-green-600 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-green-500/20"
+                        >
+                          {({ loading }) => (
+                            <>
+                              <Download size={20} />
+                              {loading ? 'Generando Archivo...' : 'Descargar PDF Ahora'}
+                            </>
+                          )}
+                        </PDFDownloadLink>
+                      )}
                       
                       <button 
-                        onClick={() => setDataReady(false)}
+                        onClick={() => { setDataReady(false); setPdfRequested(false); }}
                         className="w-full py-2 text-[10px] font-bold text-gray-400 uppercase hover:text-indigo-500 transition-colors"
                       >
-                        Limpiar y Cambiar Filtros
+                        Recalcular o Cambiar Filtros
                       </button>
                     </div>
                   )}

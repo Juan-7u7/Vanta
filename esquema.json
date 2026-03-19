@@ -1,0 +1,1316 @@
+[
+  {
+    "Tabla": "alcance_real",
+    "Columna": "id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "alcance_real",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "alcance_real",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "colaboradores",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "alcance_real",
+    "Columna": "anio",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "alcance_real",
+    "Columna": "enero",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "alcance_real",
+    "Columna": "febrero",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "alcance_real",
+    "Columna": "marzo",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "alcance_real",
+    "Columna": "abril",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "alcance_real",
+    "Columna": "mayo",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "alcance_real",
+    "Columna": "junio",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "alcance_real",
+    "Columna": "julio",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "alcance_real",
+    "Columna": "agosto",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "alcance_real",
+    "Columna": "septiembre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "alcance_real",
+    "Columna": "octubre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "alcance_real",
+    "Columna": "noviembre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "alcance_real",
+    "Columna": "diciembre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "cat_bonos",
+    "Columna": "id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "cat_bonos",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "cat_bonos",
+    "Columna": "nombre_bono",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "NO",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "cat_bonos",
+    "Columna": "descripcion",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "cat_bonos",
+    "Columna": "esta_activo",
+    "Tipo de Dato": "boolean",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "cat_bonos",
+    "Columna": "created_at",
+    "Tipo de Dato": "timestamp with time zone",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "colaboradores",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "auth_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "colaboradores",
+    "Columna Relacionada": "auth_id"
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "email",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "colaboradores",
+    "Columna Relacionada": "email"
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "nombre",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "apellido_paterno",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "apellido_materno",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "puesto",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "area",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "razon_social",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "unidad_negocio_id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "unidades_negocio",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "perfil_id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "perfiles_seguridad",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "jefe_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "colaboradores",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "esta_activo",
+    "Tipo de Dato": "boolean",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "fecha_ingreso",
+    "Tipo de Dato": "date",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "matricula",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "tipo_colaborador",
+    "Tipo de Dato": "USER-DEFINED",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "colaboradores",
+    "Columna": "esquema_pago_id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "esquemas_pago",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "escalones_bonos",
+    "Columna": "id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "escalones_bonos",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "escalones_bonos",
+    "Columna": "bono_id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "cat_bonos",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "escalones_bonos",
+    "Columna": "limite_inferior",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "NO",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "escalones_bonos",
+    "Columna": "limite_superior",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "NO",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "escalones_bonos",
+    "Columna": "porcentaje_pago",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "NO",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "escalones_bonos",
+    "Columna": "created_at",
+    "Tipo de Dato": "timestamp with time zone",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "escalones_bonos",
+    "Columna": "esquema_id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "esquemas_pago",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "esquemas_pago",
+    "Columna": "id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "esquemas_pago",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "esquemas_pago",
+    "Columna": "nombre",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "NO",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "esquemas_pago",
+    "Columna": "tipo",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "NO",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "esquemas_pago",
+    "Columna": "descripcion",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "esquemas_pago",
+    "Columna": "created_at",
+    "Tipo de Dato": "timestamp with time zone",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "metas_indicadores",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "metas_indicadores",
+    "Columna Relacionada": "colaborador_id"
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "metas_indicadores",
+    "Columna Relacionada": "anio"
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "metas_indicadores",
+    "Columna Relacionada": "nombre_indicador"
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "colaboradores",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "nombre_indicador",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "metas_indicadores",
+    "Columna Relacionada": "colaborador_id"
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "nombre_indicador",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "metas_indicadores",
+    "Columna Relacionada": "nombre_indicador"
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "nombre_indicador",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "metas_indicadores",
+    "Columna Relacionada": "anio"
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "tipo_indicador",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "anio",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "metas_indicadores",
+    "Columna Relacionada": "anio"
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "anio",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "metas_indicadores",
+    "Columna Relacionada": "nombre_indicador"
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "anio",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "metas_indicadores",
+    "Columna Relacionada": "colaborador_id"
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "enero",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "febrero",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "marzo",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "abril",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "mayo",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "junio",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "julio",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "agosto",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "septiembre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "octubre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "noviembre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "diciembre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "metas_indicadores",
+    "Columna": "grupo_id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "otros_ingresos",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "otros_ingresos",
+    "Columna Relacionada": "colaborador_id"
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "otros_ingresos",
+    "Columna Relacionada": "anio"
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "otros_ingresos",
+    "Columna Relacionada": "nombre_concepto"
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "colaboradores",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "nombre_concepto",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "otros_ingresos",
+    "Columna Relacionada": "nombre_concepto"
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "nombre_concepto",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "otros_ingresos",
+    "Columna Relacionada": "anio"
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "nombre_concepto",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "otros_ingresos",
+    "Columna Relacionada": "colaborador_id"
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "anio",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "otros_ingresos",
+    "Columna Relacionada": "nombre_concepto"
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "anio",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "otros_ingresos",
+    "Columna Relacionada": "anio"
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "anio",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "otros_ingresos",
+    "Columna Relacionada": "colaborador_id"
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "enero",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "febrero",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "marzo",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "abril",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "mayo",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "junio",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "julio",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "agosto",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "septiembre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "octubre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "noviembre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "otros_ingresos",
+    "Columna": "diciembre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "pagos_realizados",
+    "Columna": "id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "pagos_realizados",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "pagos_realizados",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "colaboradores",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "pagos_realizados",
+    "Columna": "anio",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "NO",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "pagos_realizados",
+    "Columna": "periodo",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "NO",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "pagos_realizados",
+    "Columna": "monto_bono_calculado",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "pagos_realizados",
+    "Columna": "monto_pagado_anticipo",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "pagos_realizados",
+    "Columna": "es_ajuste_anual",
+    "Tipo de Dato": "boolean",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "pagos_realizados",
+    "Columna": "notas",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "pagos_realizados",
+    "Columna": "created_at",
+    "Tipo de Dato": "timestamp with time zone",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "pasos_aprobacion",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "pasos_aprobacion",
+    "Columna Relacionada": "colaborador_id"
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "pasos_aprobacion",
+    "Columna Relacionada": "anio"
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "pasos_aprobacion",
+    "Columna Relacionada": "mes"
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "colaboradores",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "mes",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "pasos_aprobacion",
+    "Columna Relacionada": "mes"
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "mes",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "pasos_aprobacion",
+    "Columna Relacionada": "colaborador_id"
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "mes",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "pasos_aprobacion",
+    "Columna Relacionada": "anio"
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "anio",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "pasos_aprobacion",
+    "Columna Relacionada": "anio"
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "anio",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "pasos_aprobacion",
+    "Columna Relacionada": "colaborador_id"
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "anio",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "pasos_aprobacion",
+    "Columna Relacionada": "mes"
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "paso_captura",
+    "Tipo de Dato": "boolean",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "paso_validacion",
+    "Tipo de Dato": "boolean",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "paso_autorizacion",
+    "Tipo de Dato": "boolean",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "pasos_aprobacion",
+    "Columna": "paso_direccion",
+    "Tipo de Dato": "boolean",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "perfiles_seguridad",
+    "Columna": "id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "perfiles_seguridad",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "perfiles_seguridad",
+    "Columna": "nombre_perfil",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "NO",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "perfiles_seguridad",
+    "Columna": "nivel_acceso",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "NO",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "salarios_mensuales",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "salarios_mensuales",
+    "Columna Relacionada": "colaborador_id"
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "salarios_mensuales",
+    "Columna Relacionada": "anio"
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "colaborador_id",
+    "Tipo de Dato": "uuid",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "colaboradores",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "anio",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "salarios_mensuales",
+    "Columna Relacionada": "anio"
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "anio",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "YES",
+    "Es FK": "SI",
+    "Tabla Relacionada": "salarios_mensuales",
+    "Columna Relacionada": "colaborador_id"
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "enero",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "febrero",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "marzo",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "abril",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "mayo",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "junio",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "julio",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "agosto",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "septiembre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "octubre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "noviembre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "salarios_mensuales",
+    "Columna": "diciembre",
+    "Tipo de Dato": "numeric",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "unidades_negocio",
+    "Columna": "id",
+    "Tipo de Dato": "integer",
+    "Permite Nulos": "NO",
+    "Es FK": "SI",
+    "Tabla Relacionada": "unidades_negocio",
+    "Columna Relacionada": "id"
+  },
+  {
+    "Tabla": "unidades_negocio",
+    "Columna": "nombre",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "NO",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "unidades_negocio",
+    "Columna": "color_hex",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  },
+  {
+    "Tabla": "unidades_negocio",
+    "Columna": "logo_url",
+    "Tipo de Dato": "text",
+    "Permite Nulos": "YES",
+    "Es FK": "NO",
+    "Tabla Relacionada": null,
+    "Columna Relacionada": null
+  }
+]

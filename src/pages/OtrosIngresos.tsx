@@ -1,6 +1,6 @@
 /** final 1.0 */
 import { useState, useEffect } from 'react';
-import { Edit2, Search, Filter, Plus, Loader2, ChevronDown, Tag } from 'lucide-react';
+import { Edit2, Search, Filter, Plus, Loader2, ChevronDown, Tag, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import OtrosIngresosModal from '../components/OtrosIngresosModal';
 
@@ -37,7 +37,7 @@ const calcTotal = (r: OtroIngreso) =>
   MESES.reduce((s, m) => s + (r[m] || 0), 0);
 
 // ─── Sub-fila de concepto ─────────────────────────────────────────────────────
-function ConceptoRow({ item, onEdit }: { item: OtroIngreso; onEdit: () => void }) {
+function ConceptoRow({ item, onEdit, onDelete }: { item: OtroIngreso; onEdit: () => void; onDelete: () => void }) {
   const [expanded, setExpanded] = useState(false);
   const total = calcTotal(item);
   const mesActual = new Date().getMonth();
@@ -75,12 +75,20 @@ function ConceptoRow({ item, onEdit }: { item: OtroIngreso; onEdit: () => void }
         </div>
 
         {/* Acciones */}
-        <div className="w-16 flex items-center justify-end gap-1 shrink-0">
+        <div className="w-20 flex items-center justify-end gap-1 shrink-0">
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(); }}
             className="p-1.5 rounded-xl text-gray-400 hover:text-sky-600 hover:bg-sky-500/10 transition-all"
+            title="Editar concepto"
           >
             <Edit2 size={13} />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+            className="p-1.5 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-500/10 transition-all"
+            title="Eliminar concepto"
+          >
+            <Trash2 size={13} />
           </button>
           <div className={`p-1 rounded-xl text-gray-400 transition-all duration-200 ${expanded ? 'rotate-180' : ''}`}>
             <ChevronDown size={14} />
@@ -132,10 +140,12 @@ function ConceptoRow({ item, onEdit }: { item: OtroIngreso; onEdit: () => void }
 function ColaboradorSection({
   group,
   onEdit,
+  onDelete,
   onAddConcepto,
 }: {
   group: ColaboradorGroup;
   onEdit: (item: OtroIngreso) => void;
+  onDelete: (item: OtroIngreso) => void;
   onAddConcepto: (colaborador_id: string) => void;
 }) {
   const [collapsed, setCollapsed] = useState(true);
@@ -198,7 +208,12 @@ function ColaboradorSection({
       {!collapsed && (
         <div className="bg-gray-50/30 dark:bg-white/[0.01]">
           {group.items.map(item => (
-            <ConceptoRow key={item.id} item={item} onEdit={() => onEdit(item)} />
+            <ConceptoRow 
+              key={item.id} 
+              item={item} 
+              onEdit={() => onEdit(item)} 
+              onDelete={() => onDelete(item)}
+            />
           ))}
           {/* Botón "agregar concepto" visible en móvil dentro del grupo */}
           <div className="pl-14 pr-5 py-2 sm:hidden">
@@ -297,6 +312,25 @@ export default function OtrosIngresos() {
   const openNew = (colaborador_id?: string) => {
     setSelectedItem(colaborador_id ? { colaborador_id } : null);
     setIsModalOpen(true);
+  };
+
+  const handleDelete = async (item: OtroIngreso) => {
+    const col = Array.isArray(item.colaborador) ? item.colaborador[0] : item.colaborador;
+    const nombre = `${col?.nombre || ''} ${col?.apellido_paterno || ''}`;
+    
+    if (!confirm(`¿Estás seguro de eliminar el concepto "${item.nombre_concepto}" para ${nombre}?`)) return;
+    
+    try {
+      const { error: err } = await supabase
+        .from('otros_ingresos')
+        .delete()
+        .eq('id', item.id);
+      
+      if (err) throw err;
+      fetchData();
+    } catch (err: any) {
+      alert("Error al eliminar el registro: " + err.message);
+    }
   };
 
   return (
@@ -443,6 +477,7 @@ export default function OtrosIngresos() {
                 key={group.colaborador_id}
                 group={group}
                 onEdit={(item) => { setSelectedItem(item); setIsModalOpen(true); }}
+                onDelete={handleDelete}
                 onAddConcepto={(cid) => openNew(cid)}
               />
             ))}

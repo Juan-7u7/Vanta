@@ -32,6 +32,7 @@ const MODULES = [
     options: [
       { name: 'Unidad de Negocio', path: '/dashboard/unidad-negocio' },
       { name: 'Perfiles', path: '/dashboard/perfiles' },
+      { name: 'Escalones', path: '/dashboard/escalones' },
       { name: 'Usuarios', path: '/dashboard/usuarios' },
       { name: 'Bonos', path: '/dashboard/bonos' },
       { name: 'Carga Masiva de Datos', path: '/dashboard/carga-masiva' },

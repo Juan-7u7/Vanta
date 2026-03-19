@@ -1,7 +1,7 @@
 /** final 1.0 */
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Loader2, Plus, Edit2, XCircle, Tag, CheckCircle2 } from 'lucide-react';
+import { Loader2, Plus, Edit2, XCircle, Tag, CheckCircle2, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface Bono {
@@ -141,6 +141,20 @@ export default function Bonos() {
     }
   };
 
+  const handleDelete = async (id: number) => {
+    if (!confirm('¿Estás seguro de eliminar este tipo de bono? Esta acción no se puede deshacer.')) return;
+    try {
+      const { error: err } = await supabase
+        .from('cat_bonos')
+        .delete()
+        .eq('id', id);
+      if (err) throw err;
+      fetchBonos();
+    } catch (err: any) {
+      alert("Error al eliminar bono: " + err.message);
+    }
+  };
+
   if (checkingAccess) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4 mt-20">
@@ -214,6 +228,12 @@ export default function Bonos() {
                     className="p-2 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:text-amber-500 dark:hover:text-amber-400 rounded-xl transition-colors"
                   >
                     <Edit2 size={16} />
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(bono.id)}
+                    className="p-2 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 rounded-xl transition-colors"
+                  >
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>

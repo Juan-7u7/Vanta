@@ -23,6 +23,7 @@ import Usuarios from './Usuarios';
 import Bonos from './Bonos';
 import CargaMasiva from './CargaMasiva';
 import ImprimirCovas from './ImprimirCovas';
+import EscalonesBonos from './EscalonesBonos';
 
 // --- TYPES ---
 interface DashboardStats {
@@ -487,6 +488,7 @@ export default function Dashboard() {
           <Route path="perfiles" element={<PerfilesSeguridad />} />
           <Route path="usuarios" element={<Usuarios />} />
           <Route path="bonos" element={<Bonos />} />
+          <Route path="escalones" element={<EscalonesBonos />} />
           <Route path="carga-masiva" element={<CargaMasiva />} />
           <Route path="covas" element={<ImprimirCovas />} />
           <Route path="/" element={<DashboardOverview />} />
