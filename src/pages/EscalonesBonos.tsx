@@ -33,6 +33,7 @@ export default function EscalonesBonos() {
   const [escalones, setEscalones] = useState<Escalon[]>([]);
   
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   // Modales/Edición
