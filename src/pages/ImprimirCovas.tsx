@@ -145,7 +145,7 @@ export default function ImprimirCovas() {
 
         <div class="footnotes">
           <p><strong>Colaborador:</strong> ${col.nombre} &nbsp;|&nbsp; <strong>Puesto:</strong> ${col.puesto || '-'} &nbsp;|&nbsp; <strong>Matrícula:</strong> ${col.matricula || '-'}</p>
-          <p>Periodo: ${periodo} &nbsp;|&nbsp; Saldo arrastrado: ${formatCurrency(saldoArr)} &nbsp;|&nbsp; Otros ingresos: ${formatCurrency(otros)}</p>
+          <p>Periodo: ${periodo} &nbsp;|&nbsp; Otros ingresos: ${formatCurrency(otros)}</p>
         </div>
 
         <div class="notes">
@@ -164,17 +164,107 @@ export default function ImprimirCovas() {
       `;
     }).join('');
 
+    const indexRows = data.map((col, i) => `
+      <tr>
+        <td class="num">${i + 1}</td>
+        <td>${col.nombre || '-'}</td>
+        <td>${col.puesto || '-'}</td>
+        <td>${col.matricula || '-'}</td>
+        <td>${(col.unidades_negocio && col.unidades_negocio.nombre) || (col.unidad_negocio && col.unidad_negocio.nombre) || col.unidad || '-'}</td>
+      </tr>
+    `).join('');
+
+    const coverHtml = `
+      <section class="sheet cover">
+        <div class="cover-overlay">
+          <div class="brand">vanta <span class="brand-accent">media</span></div>
+          <div class="cover-center">
+            <div class="cover-title">COVAS</div>
+            <div class="cover-year">${year}</div>
+            <div class="cover-periodo">${periodo}</div>
+          </div>
+        </div>
+      </section>
+    `;
+
+    const indexHtml = `
+      <section class="sheet index">
+        <header class="header">
+          <div class="title">ÍNDICE DE COLABORADORES</div>
+          <div class="year">${year}</div>
+        </header>
+        <table class="index-table">
+          <thead>
+            <tr><th>#</th><th>Colaborador</th><th>Puesto</th><th>Matrícula</th><th>Unidad</th></tr>
+          </thead>
+          <tbody>
+            ${indexRows}
+          </tbody>
+        </table>
+      </section>
+    `;
+
     const content = `
       <html>
       <head>
         <title>Resultados COVAS ${periodo} ${year}</title>
         <style>
-          body{font-family: 'Inter', system-ui, -apple-system, sans-serif; margin:0; padding:16px; background:#e5e7eb;}
-          .sheet{background:#fff; padding:16px 20px; margin:12px auto; max-width:1100px; box-shadow:0 12px 30px rgba(0,0,0,0.08); border:1px solid #111827;}
+          @page { size: A4; margin: 0; }
+          html, body{ width:100%; height:100%; margin:0; padding:0;}
+          body{
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background:#0b1224;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .sheet{
+            background:#fff;
+            padding:18px 22px;
+            margin:12px auto;
+            width:794px;  /* A4 width at 96dpi */
+            max-width:794px;
+            min-height:1123px; /* A4 height at 96dpi */
+            box-shadow:0 12px 30px rgba(0,0,0,0.08);
+            border:1px solid #111827;
+            box-sizing:border-box;
+            page-break-after: always;
+          }
+          .cover{
+            padding:0;
+            width:794px;
+            max-width:794px;
+            height:1123px;
+            border:none;
+            box-shadow:none;
+            page-break-after: always;
+            overflow:hidden;
+          }
+          .cover-overlay{
+            height:100%;
+            max-height:1123px;
+            border-radius:12px;
+            padding:80px 70px;
+            color:#f8fafc;
+            background: radial-gradient(circle at 18% 20%, rgba(124,58,237,0.45), transparent 35%),
+                        radial-gradient(circle at 85% 25%, rgba(14,165,233,0.35), transparent 40%),
+                        linear-gradient(145deg, #0b1224 0%, #161e35 45%, #0c2432 100%);
+            display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+            box-sizing:border-box;
+          }
+          .brand{font-size:44px; font-weight:800; letter-spacing:0.05em; text-transform:lowercase;}
+          .brand-accent{color:#7de2ff;}
+          .cover-center{text-align:center; margin-top:40px;}
+          .cover-title{font-size:92px; font-weight:900; letter-spacing:0.08em;}
+          .cover-year{font-size:38px; font-weight:700; letter-spacing:0.14em; margin-top:8px;}
+          .cover-periodo{font-size:22px; font-weight:600; letter-spacing:0.06em; color:#c7e7ff; margin-top:4px;}
           .header{display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #111827; padding-bottom:8px;}
           .title{font-size:18px; font-weight:900; letter-spacing:0.04em;}
           .year{font-size:20px; font-weight:900;}
           table{width:100%; border-collapse:collapse;}
+          .index-table{margin-top:14px;}
+          .index-table th{background:#111827; color:#fff; padding:8px; text-align:left; letter-spacing:0.04em;}
+          .index-table td{padding:8px; border-bottom:1px solid #e5e7eb; font-size:12px;}
+          .index-table tr:nth-child(even){background:#f8fafc;}
           .frame{border:1px solid #111827;}
           .frame td{border:1px solid #111827; padding:6px 8px; font-size:12px;}
           .row-legend td{font-weight:800; background:#f4f4f5; text-align:center;}
@@ -196,9 +286,24 @@ export default function ImprimirCovas() {
           .notes li{margin-bottom:3px;}
           .total-row td{font-weight:800; background:#f9fafb;}
           .footnotes{font-size:11px; color:#374151; margin-top:8px;}
+          #print-btn{
+            position:fixed; top:16px; right:16px; z-index:9999;
+            background:#111827; color:#fff; border:none; border-radius:12px;
+            padding:10px 14px; font-weight:800; letter-spacing:0.03em;
+            box-shadow:0 8px 20px rgba(0,0,0,0.25); cursor:pointer;
+          }
+          #print-btn:hover{background:#0b1224;}
+          @media print{
+            #print-btn{display:none;}
+            body{background:#fff; padding:0;}
+            .sheet{margin:0 auto; box-shadow:none; border:1px solid #e5e7eb;}
+          }
         </style>
       </head>
-      <body>${rowsHtml}</body>
+      <body>
+        <button id="print-btn" onclick="window.print()">Descargar PDF</button>
+        ${coverHtml}${indexHtml}${rowsHtml}
+      </body>
       </html>
     `;
     win.document.write(content);
@@ -211,7 +316,7 @@ export default function ImprimirCovas() {
       setError(null);
       setDataReady(false);
 
-      // 1. Obtener IDs de colaboradores segÃºn filtros
+      // 1. Obtener IDs de colaboradores segun filtros
       let query = supabase.from('colaboradores').select('id').eq('esta_activo', true);
       if (unidadId) query = query.eq('unidad_negocio_id', parseInt(unidadId));
 
@@ -235,12 +340,12 @@ export default function ImprimirCovas() {
       // Filtrar los que fallaron (null)
       const finalReport = reports.filter(r => r !== null);
 
-      if (finalReport.length === 0) throw new Error("No se pudo obtener informaciÃ³n de los colaboradores.");
+      if (finalReport.length === 0) throw new Error("No se pudo obtener informacion de los colaboradores.");
 
       setProcessedData(finalReport);
       setDataReady(true);
       setPdfRequested(false);
-      setShowResultados(true);
+      setShowResultados(false); // ocultar panel de resultados
       openResultsTab(finalReport, labelPeriodo, anio);
     } catch (err: any) {
       setError(err.message);
@@ -258,17 +363,17 @@ export default function ImprimirCovas() {
             Reportes Corporativos
           </div>
           <h1 className="text-4xl font-black text-gray-800 dark:text-white tracking-tight">
-            ImpresiÃ³n de COVAS
+            Impresion de COVAS
           </h1>
           <p className="text-gray-500 dark:text-gray-400 max-w-lg">
-            Genera el Plan de CompensaciÃ³n Variable oficial en formato PDF premium. 
+            Genera el Plan de Compensacion Variable oficial en formato PDF premium. 
             Incluye desgloses de metas, indicadores y bonos por mes o por trimestre.
           </p>
         </div>
         
         <div className="bg-white/50 dark:bg-black/20 backdrop-blur-md p-2 rounded-[24px] border border-gray-100 dark:border-white/10 flex gap-2">
            <div className="flex flex-col items-center px-4 py-2 bg-indigo-500/10 rounded-2xl border border-indigo-500/20">
-              <span className="text-[10px] font-bold text-gray-400 uppercase">AÃ±o</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase">Año</span>
               <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">2026</span>
            </div>
            <div className="flex flex-col items-center px-4 py-2">
@@ -278,12 +383,12 @@ export default function ImprimirCovas() {
         </div>
       </div>
 
-      {/* Panel de ConfiguraciÃ³n */}
+      {/* Panel de Configuracion */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white/40 dark:bg-black/20 backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-[32px] p-8 shadow-xl">
            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
              <Filter size={20} className="text-indigo-500" />
-             ConfiguraciÃ³n del Reporte
+              Configuracion del Reporte
            </h3>
 
            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -364,7 +469,7 @@ export default function ImprimirCovas() {
                   ) : (
                     <div className="space-y-4">
                       <div className="p-4 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl">
-                        <p className="text-[10px] font-bold text-indigo-500 uppercase mb-3">Resumen de CÃ¡lculos</p>
+                        <p className="text-[10px] font-bold text-indigo-500 uppercase mb-3">Resumen de Calculos</p>
                         <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
                           {processedData.map((col, i) => {
                             const totalBonos = col.comisiones.reduce((acc: number, c: any) => acc + (c.montoBono || 0), 0);
@@ -429,9 +534,9 @@ export default function ImprimirCovas() {
             </div>
           )}
 
-           {showResultados && dataReady && (
+          {false && dataReady && (
              <div className="mt-6 space-y-4">
-               <h4 className="text-sm font-bold text-gray-700 dark:text-gray-100 uppercase tracking-wide">Resultados del cÃƒÂ¡lculo ({periodoLabel})</h4>
+              <h4 className="text-sm font-bold text-gray-700 dark:text-gray-100 uppercase tracking-wide">Resultados del calculo ({periodoLabel})</h4>
                <div className="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
                  {processedData.map((col: any, idx: number) => (
                    <div key={idx} className="rounded-2xl border border-gray-100 dark:border-white/10 bg-white/60 dark:bg-black/20 p-4">
@@ -487,17 +592,17 @@ export default function ImprimirCovas() {
                <FileText size={24} />
              </div>
              <div>
-               <h4 className="text-xl font-bold">Â¿QuÃ© incluye el PDF?</h4>
+              <h4 className="text-xl font-bold">¿Qué incluye el PDF?</h4>
                <div className="mt-4 space-y-3">
-                 {[
-                   'Portada de COVAS 2026.',
-                   'Ãndice dinÃ¡mico de personal.',
-                   'Separadores por Unidad de Negocio.',
-                   'CÃ©dulas individuales detalladas.',
-                   'SecciÃ³n de firmas regulatorias.'
-                 ].map((tip, i) => (
-                   <div key={i} className="flex items-center gap-2 text-sm opacity-90">
-                     <ChevronRight size={14} className="text-cyan-400" />
+                {[
+                  'Portada de COVAS 2026.',
+                  'Indice dinamico de personal.',
+                  'Separadores por Unidad de Negocio.',
+                  'Cedulas individuales detalladas.',
+                  'Seccion de firmas regulatorias.'
+                ].map((tip, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm opacity-90">
+                    <ChevronRight size={14} className="text-cyan-400" />
                      {tip}
                    </div>
                  ))}
@@ -507,7 +612,7 @@ export default function ImprimirCovas() {
              <div className="pt-6 border-t border-white/10">
                <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-200">Requerimiento</p>
                <p className="text-xs mt-1 text-white/80 leading-relaxed">
-                 AsegÃºrate de que los indicadores y alcances del periodo <strong>{periodoLabel}</strong> estÃ©n capturados y validados para un reporte preciso.
+                Asegurate de que los indicadores y alcances del periodo <strong>{periodoLabel}</strong> esten capturados y validados para un reporte preciso.
                </p>
              </div>
            </div>

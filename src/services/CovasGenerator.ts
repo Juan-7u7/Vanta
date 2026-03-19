@@ -46,7 +46,7 @@ export async function getColaboradorDataForReport(
     // 1. Datos del colaborador y esquema (para tipo_colaborador)
     const { data: col, error: errCol } = await supabase
       .from('colaboradores')
-      .select('*')
+      .select('*, unidades_negocio:unidad_negocio_id(nombre)')
       .eq('id', colaborador_id)
       .single();
 
@@ -181,6 +181,7 @@ export async function getColaboradorDataForReport(
       nombre: `${col.nombre} ${col.apellido_paterno || ''}`.trim(),
       matricula: col.matricula,
       puesto: col.puesto,
+      unidades_negocio: (col as any).unidades_negocio || null,
       sueldoBase: salarioRow ? sumColumns(salarioRow, mesesPeriodo) : 0,
       comisiones: resultados,
       otrosIngresos,
