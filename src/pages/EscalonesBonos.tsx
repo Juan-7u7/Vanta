@@ -60,7 +60,6 @@ export default function EscalonesBonos() {
 
   const fetchEsquemas = async () => {
     try {
-      setLoading(true);
       const { data, error: err } = await supabase.from('esquemas_pago').select('*').order('nombre');
       if (err) throw err;
       setEsquemas(data || []);
@@ -69,8 +68,6 @@ export default function EscalonesBonos() {
       }
     } catch (err: any) {
       setError(err.message);
-    } finally {
-      setLoading(false);
     }
   };
 
