@@ -34,7 +34,7 @@ export default function ImprimirCovas() {
   const [unidadId, setUnidadId] = useState<string>('');
   const [unidades, setUnidades] = useState<{id: number, nombre: string}[]>([]);
   const selectedQuarter = QUARTERS.find(q => q.id === quarterId)!;
-  const [showResultados, setShowResultados] = useState(false);
+  // const [showResultados, setShowResultados] = useState(false);
 
   useEffect(() => {
     fetchUnidades();
@@ -344,9 +344,8 @@ export default function ImprimirCovas() {
 
       setProcessedData(finalReport);
       setDataReady(true);
-      setPdfRequested(false);
-      setShowResultados(false); // ocultar panel de resultados
-      openResultsTab(finalReport, labelPeriodo, anio);
+        setPdfRequested(false);
+        openResultsTab(finalReport, labelPeriodo, anio);
     } catch (err: any) {
       setError(err.message);
     } finally {
