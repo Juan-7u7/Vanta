@@ -12,6 +12,8 @@ interface Indicador {
   colaborador_id: string;
   nombre_indicador: string;
   tipo_indicador: string;
+  esquema_pago_id?: number | null;
+  esquema_pago?: { nombre: string; tipo: string } | null;
   anio: number;
   enero: number; febrero: number; marzo: number; abril: number;
   mayo: number; junio: number; julio: number; agosto: number;
@@ -82,12 +84,20 @@ function IndicadorCard({ ind, onEdit }: { ind: Indicador; onEdit: () => void }) 
           <p className="text-[12px] text-gray-500 dark:text-gray-400 truncate mt-0.5">
             {ind.nombre_indicador || 'Sin descripción'}
           </p>
-          <div className="flex items-center gap-2 mt-0.5">
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
             <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase">
               {ind.colaborador?.unidades_negocio?.nombre || 'N/A'}
             </span>
             <span className="text-[10px] text-gray-400">·</span>
             <span className="text-[10px] text-gray-400">{ind.anio}</span>
+            {ind.esquema_pago?.nombre && (
+              <>
+                <span className="text-[10px] text-gray-400">·</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold">
+                  {ind.esquema_pago.nombre} ({ind.esquema_pago.tipo})
+                </span>
+              </>
+            )}
           </div>
         </div>
 
@@ -214,6 +224,7 @@ export default function Indicadores() {
         .from('metas_indicadores')
         .select(`
           *,
+          esquema_pago:esquema_pago_id(nombre, tipo),
           colaborador:colaborador_id(
             nombre, apellido_paterno, email,
             unidades_negocio:unidad_negocio_id(nombre, color_hex)

@@ -6,32 +6,46 @@ import { supabase } from '../lib/supabase';
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'] as const;
 const MESES_CORTOS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
 
+interface ComisionIndicator {
+  nombre_indicador: string;
+  tipo_indicador: string;
+  ponderacion: number;
+  meta: Record<typeof MESES[number], number>;
+  alcance: Record<typeof MESES[number], number>;
+}
+
 interface ComisionRow {
   colaborador_id: string;
   anio: number;
-  nombre_indicador: string;
-  tipo_indicador: string;
   colaborador: {
     nombre: string;
     apellido_paterno: string;
     email: string;
     unidades_negocio: { nombre: string; color_hex?: string } | null;
   } | null | any;
-  meta: Record<typeof MESES[number], number>;
-  alcance: Record<typeof MESES[number], number>;
+  indicadores: ComisionIndicator[];
+  aprobacion?: {
+    mes: string;
+    paso_captura: boolean;
+    paso_validacion: boolean;
+    paso_autorizacion: boolean;
+    paso_direccion: boolean;
+  };
 }
 
-const fmt = (val: number) =>
-  val.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmt = (val: number) => {
+  const n = Number(val) || 0;
+  return n.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
 
 const pct = (alcance: number, meta: number): number =>
   meta > 0 ? Math.round((alcance / meta) * 10000) / 100 : 0;
 
-const calcTotalMeta = (row: ComisionRow) =>
-  MESES.reduce((s, m) => s + (row.meta[m] || 0), 0);
+const calcTotalMetaIndicador = (ind: ComisionIndicator) =>
+  MESES.reduce((s, m) => s + (ind.meta[m] || 0), 0);
 
-const calcTotalAlcance = (row: ComisionRow) =>
-  MESES.reduce((s, m) => s + (row.alcance[m] || 0), 0);
+const calcTotalAlcanceIndicador = (ind: ComisionIndicator) =>
+  MESES.reduce((s, m) => s + (ind.alcance[m] || 0), 0);
 
 // Color semáforo por % cumplimiento
 function colorPct(p: number) {
@@ -69,15 +83,37 @@ function MesCumplimiento({ meta, alcance, label, isCurrent }: {
 
 function ComisionCard({ row }: { row: ComisionRow }) {
   const [expanded, setExpanded] = useState(false);
-  const totalMeta = calcTotalMeta(row);
-  const totalAlcance = calcTotalAlcance(row);
-  const totalPct = pct(totalAlcance, totalMeta);
+  // Promedio ponderado
+  const pesos = row.indicadores.reduce((s, ind) => s + (ind.ponderacion || 0), 0) || row.indicadores.length;
+  const totalPct = Math.round((
+    row.indicadores.reduce((s, ind) => {
+      const m = calcTotalMetaIndicador(ind);
+      const a = calcTotalAlcanceIndicador(ind);
+      const p = m > 0 ? a / m : 0;
+      return s + p * (ind.ponderacion || (1 / row.indicadores.length));
+    }, 0) / (pesos || 1)) * 10000) / 100;
+
   const mesIdx = new Date().getMonth();
   const mesKey = MESES[mesIdx];
-  const mesPct = pct(row.alcance[mesKey] || 0, row.meta[mesKey] || 0);
+  const mesPct = (() => {
+    const sumMeta = row.indicadores.reduce((s, ind) => s + (ind.meta[mesKey] || 0), 0);
+    const sumAlc = row.indicadores.reduce((s, ind) => s + (ind.alcance[mesKey] || 0), 0);
+    return pct(sumAlc, sumMeta);
+  })();
+  const totalMeta = row.indicadores.reduce((s, ind) => s + calcTotalMetaIndicador(ind), 0);
+  const totalAlcance = row.indicadores.reduce((s, ind) => s + calcTotalAlcanceIndicador(ind), 0);
   const { text: colorText, bg: colorBg } = colorPct(totalPct);
 
   const TrendIcon = totalPct >= 90 ? TrendingUp : totalPct >= 70 ? Minus : TrendingDown;
+
+  const ApprovalDot = ({ active, label }: { active: boolean; label: string }) => (
+    <div className="flex items-center gap-1">
+      <span className={`w-3 h-3 rounded-full border ${active
+        ? 'bg-green-500 border-green-500 shadow-[0_0_0_3px_rgba(34,197,94,0.2)]'
+        : 'bg-gray-300 dark:bg-gray-700 border-gray-300 dark:border-gray-700'}`} />
+      <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">{label}</span>
+    </div>
+  );
 
   return (
     <div className="border-b border-gray-100 dark:border-white/5 last:border-0">
@@ -99,22 +135,14 @@ function ComisionCard({ row }: { row: ComisionRow }) {
             <span className="text-sm font-bold text-gray-800 dark:text-white truncate">
               {row.colaborador?.nombre} {row.colaborador?.apellido_paterno}
             </span>
-            {row.nombre_indicador && (
-              <span className="hidden sm:inline text-[10px] px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 font-bold shrink-0 max-w-[200px] truncate">
-                {row.nombre_indicador}
-              </span>
-            )}
+            <span className="hidden sm:inline text-[10px] px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 font-bold shrink-0">
+              {row.indicadores.length} indicadores
+            </span>
           </div>
           <div className="flex items-center gap-2 mt-0.5">
             <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase">
               {row.colaborador?.unidades_negocio?.nombre || 'N/A'}
             </span>
-            {row.tipo_indicador && (
-              <>
-                <span className="text-[10px] text-gray-400">·</span>
-                <span className="text-[10px] text-gray-500 dark:text-gray-400">{row.tipo_indicador}</span>
-              </>
-            )}
             <span className="text-[10px] text-gray-400">·</span>
             <span className="text-[10px] text-gray-400">{row.anio}</span>
           </div>
@@ -147,6 +175,18 @@ function ComisionCard({ row }: { row: ComisionRow }) {
           </div>
         </div>
 
+        {/* Aprobaciones */}
+        <div className="hidden lg:flex items-center gap-2 ml-4">
+          {[
+            { key: 'CAP', active: row.aprobacion?.paso_captura },
+            { key: 'REV', active: row.aprobacion?.paso_direccion },
+            { key: 'VAL', active: row.aprobacion?.paso_validacion },
+            { key: 'APR', active: row.aprobacion?.paso_autorizacion },
+          ].map(step => (
+            <ApprovalDot key={step.key} active={!!step.active} label={step.key} />
+          ))}
+        </div>
+
         {/* Chevron */}
         <div className={`ml-3 p-1.5 rounded-xl text-gray-400 transition-all duration-200 ${expanded ? 'rotate-180' : ''}`}>
           <ChevronDown size={16} />
@@ -156,8 +196,7 @@ function ComisionCard({ row }: { row: ComisionRow }) {
       {/* Panel expandido */}
       {expanded && (
         <div className="px-5 pb-5 space-y-5 animate-in slide-in-from-top-2 duration-200">
-
-          {/* Tarjetas resumen */}
+          {/* Tarjetas resumen globales */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: 'Meta Anual', value: fmt(totalMeta), sub: 'Total esperado', color: 'text-blue-600 dark:text-blue-400' },
@@ -165,9 +204,12 @@ function ComisionCard({ row }: { row: ComisionRow }) {
               { label: 'Cumplimiento', value: `${totalPct}%`, sub: 'Alcance / Meta', color: colorPct(totalPct).text },
               {
                 label: 'Mes Actual',
-                value: pct(row.alcance[mesKey] || 0, row.meta[mesKey] || 0) > 0
-                  ? `${pct(row.alcance[mesKey] || 0, row.meta[mesKey] || 0)}%`
-                  : '—',
+                value: (() => {
+                  const m = row.indicadores.reduce((s, ind) => s + (ind.meta[mesKey] || 0), 0);
+                  const a = row.indicadores.reduce((s, ind) => s + (ind.alcance[mesKey] || 0), 0);
+                  const p = pct(a, m);
+                  return p > 0 ? `${p}%` : '—';
+                })(),
                 sub: MESES_CORTOS[mesIdx],
                 color: colorPct(mesPct).text
               },
@@ -180,67 +222,93 @@ function ComisionCard({ row }: { row: ComisionRow }) {
             ))}
           </div>
 
-          {/* Grid de 12 meses */}
-          <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">Cumplimiento por Mes</p>
-            <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
-              {MESES.map((mes, i) => (
-                <MesCumplimiento
-                  key={mes}
-                  meta={row.meta[mes] || 0}
-                  alcance={row.alcance[mes] || 0}
-                  label={MESES_CORTOS[i]}
-                  isCurrent={i === mesIdx}
-                />
-              ))}
-            </div>
-          </div>
+          {/* Bloques por indicador */}
+          <div className="space-y-4">
+            {row.indicadores.map((ind, idx) => {
+              const totMetaInd = calcTotalMetaIndicador(ind);
+              const totAlcInd = calcTotalAlcanceIndicador(ind);
+              const pctInd = pct(totAlcInd, totMetaInd);
+              return (
+                <div key={`${ind.nombre_indicador}-${idx}`} className="rounded-2xl border border-gray-100 dark:border-white/10 bg-white/60 dark:bg-white/5 p-4 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
+                        <span className="text-[11px] font-bold text-orange-600 dark:text-orange-400">{idx + 1}</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-gray-800 dark:text-white">{ind.nombre_indicador}</p>
+                        <p className="text-[10px] text-gray-400">Ponderación: {(ind.ponderacion || (100 / row.indicadores.length)).toFixed(2)}%</p>
+                      </div>
+                    </div>
+                    <div className={`px-3 py-1 rounded-xl text-sm font-mono font-bold border ${colorPct(pctInd).bg} ${colorPct(pctInd).text}`}>
+                      {pctInd}%
+                    </div>
+                  </div>
 
-          {/* Tabla meta vs alcance */}
-          <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">Meta vs Alcance Detallado</p>
-            <div className="overflow-x-auto rounded-2xl border border-gray-100 dark:border-white/10">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="bg-gray-50 dark:bg-white/5 border-b border-gray-100 dark:border-white/10">
-                    <th className="text-left px-3 py-2 font-bold text-gray-400 uppercase text-[10px]">Concepto</th>
-                    {MESES_CORTOS.map(m => (
-                      <th key={m} className="text-center px-1 py-2 font-bold text-gray-400 uppercase text-[9px] min-w-[48px]">{m}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b border-gray-100 dark:border-white/5">
-                    <td className="px-3 py-2 font-bold text-blue-600 dark:text-blue-400 text-[10px]">Meta</td>
-                    {MESES.map(mes => (
-                      <td key={mes} className="px-1 py-2 text-center font-mono text-[10px] text-gray-600 dark:text-gray-400">
-                        {row.meta[mes] > 0 ? row.meta[mes].toLocaleString('es-MX', { maximumFractionDigits: 0 }) : '—'}
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="border-b border-gray-100 dark:border-white/5">
-                    <td className="px-3 py-2 font-bold text-violet-600 dark:text-violet-400 text-[10px]">Alcance</td>
-                    {MESES.map(mes => (
-                      <td key={mes} className="px-1 py-2 text-center font-mono text-[10px] text-gray-600 dark:text-gray-400">
-                        {row.alcance[mes] > 0 ? row.alcance[mes].toLocaleString('es-MX', { maximumFractionDigits: 0 }) : '—'}
-                      </td>
-                    ))}
-                  </tr>
-                  <tr>
-                    <td className="px-3 py-2 font-bold text-orange-600 dark:text-orange-400 text-[10px]">%</td>
-                    {MESES.map(mes => {
-                      const p = pct(row.alcance[mes] || 0, row.meta[mes] || 0);
-                      const { text } = colorPct(p);
-                      return (
-                        <td key={mes} className={`px-1 py-2 text-center font-mono font-bold text-[10px] ${row.meta[mes] > 0 ? text : 'text-gray-300 dark:text-gray-700'}`}>
-                          {row.meta[mes] > 0 ? `${p}%` : '—'}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                  {/* Cumplimiento mensual por indicador */}
+                  <div>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">Cumplimiento por Mes</p>
+                    <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
+                      {MESES.map((mes, i) => (
+                        <MesCumplimiento
+                          key={mes}
+                          meta={ind.meta[mes] || 0}
+                          alcance={ind.alcance[mes] || 0}
+                          label={MESES_CORTOS[i]}
+                          isCurrent={i === mesIdx}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tabla meta vs alcance por indicador */}
+                  <div>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">Meta vs Alcance Detallado</p>
+                    <div className="overflow-x-auto rounded-2xl border border-gray-100 dark:border-white/10">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="bg-gray-50 dark:bg-white/5 border-b border-gray-100 dark:border-white/10">
+                            <th className="text-left px-3 py-2 font-bold text-gray-400 uppercase text-[10px]">Concepto</th>
+                            {MESES_CORTOS.map(m => (
+                              <th key={m} className="text-center px-1 py-2 font-bold text-gray-400 uppercase text-[9px] min-w-[48px]">{m}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-white/10">
+                          <tr className="hover:bg-gray-50/60 dark:hover:bg-white/5">
+                            <td className="px-3 py-2 font-bold text-gray-700 dark:text-white">Meta</td>
+                            {MESES.map(m => (
+                              <td key={m} className="px-1 py-2 text-center font-mono text-[11px] text-gray-600 dark:text-gray-300">
+                                {fmt(ind.meta[m] || 0)}
+                              </td>
+                            ))}
+                          </tr>
+                          <tr className="hover:bg-gray-50/60 dark:hover:bg-white/5">
+                            <td className="px-3 py-2 font-bold text-gray-700 dark:text-white">Alcance</td>
+                            {MESES.map(m => (
+                              <td key={m} className="px-1 py-2 text-center font-mono text-[11px] text-gray-600 dark:text-gray-300">
+                                {fmt(ind.alcance[m] || 0)}
+                              </td>
+                            ))}
+                          </tr>
+                          <tr className="hover:bg-gray-50/60 dark:hover:bg-white/5">
+                            <td className="px-3 py-2 font-bold text-gray-700 dark:text-white">%</td>
+                            {MESES.map(m => {
+                              const p = pct(ind.alcance[m] || 0, ind.meta[m] || 0);
+                              return (
+                                <td key={m} className="px-1 py-2 text-center font-mono text-[11px] font-bold">
+                                  <span className={colorPct(p).text}>{p ? `${p}%` : '—'}</span>
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -262,11 +330,11 @@ export default function ComisionesDirectas() {
     try {
       setLoading(true);
 
-      // 1. Metas (objetivos) — con datos del colaborador
+      // 1. Metas (objetivos) — múltiples indicadores por colaborador
       const { data: metasData, error: errMetas } = await supabase
         .from('metas_indicadores')
         .select(`
-          colaborador_id, anio, nombre_indicador, tipo_indicador,
+          id, colaborador_id, anio, nombre_indicador, tipo_indicador, ponderacion,
           enero, febrero, marzo, abril, mayo, junio,
           julio, agosto, septiembre, octubre, noviembre, diciembre,
           colaborador:colaborador_id(
@@ -278,17 +346,18 @@ export default function ComisionesDirectas() {
       if (!metasData || metasData.length === 0) { setRows([]); return; }
 
       const ids = metasData.map(m => m.colaborador_id).filter(Boolean);
+      const metaIds = metasData.map(m => m.id).filter(Boolean);
 
-      // 2. Alcances reales
+      // 2. Alcances reales por indicador
       const { data: alcanceData } = await supabase
         .from('alcance_real')
-        .select('colaborador_id, anio, enero, febrero, marzo, abril, mayo, junio, julio, agosto, septiembre, octubre, noviembre, diciembre')
-        .in('colaborador_id', ids);
+        .select('colaborador_id, indicador_id, anio, enero, febrero, marzo, abril, mayo, junio, julio, agosto, septiembre, octubre, noviembre, diciembre')
+        .in('colaborador_id', ids)
+        .in('indicador_id', metaIds);
 
-      // Mapa alcance: "colaborador_id-anio"
       const alcanceMap: Record<string, Record<typeof MESES[number], number>> = {};
       (alcanceData || []).forEach(a => {
-        const key = `${a.colaborador_id}-${a.anio}`;
+        const key = `${a.colaborador_id}-${a.anio}-${a.indicador_id}`;
         alcanceMap[key] = {
           enero: a.enero || 0, febrero: a.febrero || 0, marzo: a.marzo || 0,
           abril: a.abril || 0, mayo: a.mayo || 0, junio: a.junio || 0,
@@ -297,27 +366,59 @@ export default function ComisionesDirectas() {
         };
       });
 
-      // 3. Merge
-      const enriched: ComisionRow[] = metasData.map(m => {
+      // 3. Pasos de aprobación (mes actual, anio filtro)
+      const mesActual = MESES[new Date().getMonth()];
+      const { data: pasosData } = await supabase
+        .from('pasos_aprobacion')
+        .select('colaborador_id, mes, anio, paso_captura, paso_validacion, paso_autorizacion, paso_direccion')
+        .in('colaborador_id', ids)
+        .eq('anio', filters.anio)
+        .eq('mes', mesActual);
+
+      const pasosMap: Record<string, any> = {};
+      (pasosData || []).forEach(p => {
+        const key = `${p.colaborador_id}-${p.anio}`;
+        pasosMap[key] = p;
+      });
+
+      // 3. Agrupar por colaborador
+      const grouped: Record<string, ComisionRow> = {};
+      metasData.forEach(m => {
         const key = `${m.colaborador_id}-${m.anio}`;
-        const emptyMeses = { enero: 0, febrero: 0, marzo: 0, abril: 0, mayo: 0, junio: 0, julio: 0, agosto: 0, septiembre: 0, octubre: 0, noviembre: 0, diciembre: 0 };
-        return {
-          colaborador_id: m.colaborador_id,
-          anio: m.anio,
+        if (!grouped[key]) {
+          grouped[key] = {
+            colaborador_id: m.colaborador_id,
+            anio: m.anio,
+            colaborador: Array.isArray(m.colaborador) ? m.colaborador[0] : m.colaborador,
+            indicadores: [],
+            aprobacion: pasosMap[key] ? {
+              mes: pasosMap[key].mes,
+              paso_captura: !!pasosMap[key].paso_captura,
+              paso_validacion: !!pasosMap[key].paso_validacion,
+              paso_autorizacion: !!pasosMap[key].paso_autorizacion,
+              paso_direccion: !!pasosMap[key].paso_direccion,
+            } : undefined
+          };
+        }
+        const alc = alcanceMap[`${m.colaborador_id}-${m.anio}-${m.id}`];
+        grouped[key].indicadores.push({
           nombre_indicador: m.nombre_indicador || '',
           tipo_indicador: m.tipo_indicador || '',
-          colaborador: Array.isArray(m.colaborador) ? m.colaborador[0] : m.colaborador,
+          ponderacion: m.ponderacion ?? 0,
           meta: {
             enero: m.enero || 0, febrero: m.febrero || 0, marzo: m.marzo || 0,
             abril: m.abril || 0, mayo: m.mayo || 0, junio: m.junio || 0,
             julio: m.julio || 0, agosto: m.agosto || 0, septiembre: m.septiembre || 0,
             octubre: m.octubre || 0, noviembre: m.noviembre || 0, diciembre: m.diciembre || 0,
           },
-          alcance: alcanceMap[key] || emptyMeses,
-        };
+          alcance: alc || {
+            enero: 0, febrero: 0, marzo: 0, abril: 0, mayo: 0, junio: 0,
+            julio: 0, agosto: 0, septiembre: 0, octubre: 0, noviembre: 0, diciembre: 0,
+          }
+        });
       });
 
-      setRows(enriched);
+      setRows(Object.values(grouped));
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -328,7 +429,7 @@ export default function ComisionesDirectas() {
   const filteredData = rows.filter(row => {
     const nombre = `${row.colaborador?.nombre || ''} ${row.colaborador?.apellido_paterno || ''}`;
     const matchesSearch = !searchTerm || nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.nombre_indicador.toLowerCase().includes(searchTerm.toLowerCase());
+      row.indicadores.some(ind => ind.nombre_indicador.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesUnidad = !filters.unidad || row.colaborador?.unidades_negocio?.nombre === filters.unidad;
     const matchesAnio = !filters.anio || row.anio?.toString() === filters.anio;
     return matchesSearch && matchesUnidad && matchesAnio;
@@ -338,8 +439,8 @@ export default function ComisionesDirectas() {
   const hasFilters = !!(filters.unidad || filters.anio !== '2026');
 
   // Resumen global
-  const totalMeta = rows.reduce((s, r) => s + calcTotalMeta(r), 0);
-  const totalAlcance = rows.reduce((s, r) => s + calcTotalAlcance(r), 0);
+  const totalMeta = rows.reduce((s, r) => s + r.indicadores.reduce((si, ind) => si + calcTotalMetaIndicador(ind), 0), 0);
+  const totalAlcance = rows.reduce((s, r) => s + r.indicadores.reduce((si, ind) => si + calcTotalAlcanceIndicador(ind), 0), 0);
   const totalGlobalPct = pct(totalAlcance, totalMeta);
 
   return (

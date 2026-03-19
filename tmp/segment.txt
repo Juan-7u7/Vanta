@@ -1,0 +1,160 @@
+              {row.indicadores.length} indicadores
+            </span>
+          </div>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase">
+              {row.colaborador?.unidades_negocio?.nombre || 'N/A'}
+            </span>
+            <span className="text-[10px] text-gray-400">·</span>
+            <span className="text-[10px] text-gray-400">{row.anio}</span>
+          </div>
+        </div>
+
+        {/* % global — sm+ */}
+        <div className="hidden sm:flex w-32 flex-col items-end gap-1 shrink-0">
+          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border ${colorBg}`}>
+            <TrendIcon size={12} className={colorText} />
+            <span className={`text-sm font-mono font-bold ${colorText}`}>
+              {totalPct}%
+            </span>
+          </div>
+          <span className="text-[9px] text-gray-400 uppercase">Cumplimiento</span>
+        </div>
+
+        {/* Mes actual — md+ */}
+        <div className="hidden md:flex w-36 flex-col gap-1 items-center shrink-0">
+          <div className="w-full h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full ${colorPct(mesPct).bar}`}
+              style={{ width: `${Math.min(mesPct, 100)}%` }}
+            />
+          </div>
+          <div className="flex items-center gap-2 w-full justify-between">
+            <span className="text-[9px] text-gray-400 uppercase">{MESES_CORTOS[mesIdx]}</span>
+            <span className={`text-[11px] font-mono font-bold ${colorPct(mesPct).text}`}>
+              {mesPct > 0 ? `${mesPct}%` : '—'}
+            </span>
+          </div>
+        </div>
+
+        {/* Chevron */}
+        <div className={`ml-3 p-1.5 rounded-xl text-gray-400 transition-all duration-200 ${expanded ? 'rotate-180' : ''}`}>
+          <ChevronDown size={16} />
+        </div>
+      </div>
+
+      {/* Panel expandido */}
+      {expanded && (
+        <div className="px-5 pb-5 space-y-5 animate-in slide-in-from-top-2 duration-200">
+
+          {/* Tarjetas resumen */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: 'Meta Anual', value: fmt(totalMeta), sub: 'Total esperado', color: 'text-blue-600 dark:text-blue-400' },
+              { label: 'Alcance Anual', value: fmt(totalAlcance), sub: 'Total logrado', color: 'text-violet-600 dark:text-violet-400' },
+              { label: 'Cumplimiento', value: `${totalPct}%`, sub: 'Alcance / Meta', color: colorPct(totalPct).text },
+              {
+                label: 'Mes Actual',
+                value: pct(row.alcance[mesKey] || 0, row.meta[mesKey] || 0) > 0
+                  ? `${pct(row.alcance[mesKey] || 0, row.meta[mesKey] || 0)}%`
+                  : '—',
+                sub: MESES_CORTOS[mesIdx],
+                color: colorPct(mesPct).text
+              },
+            ].map(({ label, value, sub, color }) => (
+              <div key={label} className="bg-white/60 dark:bg-white/5 rounded-2xl p-3 border border-gray-100 dark:border-white/10">
+                <p className="text-[10px] font-bold text-gray-400 uppercase">{label}</p>
+                <p className={`text-lg font-mono font-bold mt-0.5 ${color}`}>{value}</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">{sub}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Grid de 12 meses */}
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">Cumplimiento por Mes</p>
+            <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
+              {MESES.map((mes, i) => (
+                <MesCumplimiento
+                  key={mes}
+                  meta={row.meta[mes] || 0}
+                  alcance={row.alcance[mes] || 0}
+                  label={MESES_CORTOS[i]}
+                  isCurrent={i === mesIdx}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Tabla meta vs alcance */}
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">Meta vs Alcance Detallado</p>
+            <div className="overflow-x-auto rounded-2xl border border-gray-100 dark:border-white/10">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-gray-50 dark:bg-white/5 border-b border-gray-100 dark:border-white/10">
+                    <th className="text-left px-3 py-2 font-bold text-gray-400 uppercase text-[10px]">Concepto</th>
+                    {MESES_CORTOS.map(m => (
+                      <th key={m} className="text-center px-1 py-2 font-bold text-gray-400 uppercase text-[9px] min-w-[48px]">{m}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-gray-100 dark:border-white/5">
+                    <td className="px-3 py-2 font-bold text-blue-600 dark:text-blue-400 text-[10px]">Meta</td>
+                    {MESES.map(mes => (
+                      <td key={mes} className="px-1 py-2 text-center font-mono text-[10px] text-gray-600 dark:text-gray-400">
+                        {row.meta[mes] > 0 ? row.meta[mes].toLocaleString('es-MX', { maximumFractionDigits: 0 }) : '—'}
+                      </td>
+                    ))}
+                  </tr>
+                  <tr className="border-b border-gray-100 dark:border-white/5">
+                    <td className="px-3 py-2 font-bold text-violet-600 dark:text-violet-400 text-[10px]">Alcance</td>
+                    {MESES.map(mes => (
+                      <td key={mes} className="px-1 py-2 text-center font-mono text-[10px] text-gray-600 dark:text-gray-400">
+                        {row.alcance[mes] > 0 ? row.alcance[mes].toLocaleString('es-MX', { maximumFractionDigits: 0 }) : '—'}
+                      </td>
+                    ))}
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 font-bold text-orange-600 dark:text-orange-400 text-[10px]">%</td>
+                    {MESES.map(mes => {
+                      const p = pct(row.alcance[mes] || 0, row.meta[mes] || 0);
+                      const { text } = colorPct(p);
+                      return (
+                        <td key={mes} className={`px-1 py-2 text-center font-mono font-bold text-[10px] ${row.meta[mes] > 0 ? text : 'text-gray-300 dark:text-gray-700'}`}>
+                          {row.meta[mes] > 0 ? `${p}%` : '—'}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function ComisionesDirectas() {
+  const [rows, setRows] = useState<ComisionRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({ unidad: '', anio: '2026' });
+
+  useEffect(() => { fetchData(); }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+
+      // 1. Metas (objetivos) — múltiples indicadores por colaborador
+      const { data: metasData, error: errMetas } = await supabase
+        .from('metas_indicadores')
+        .select(`
+          colaborador_id, anio, nombre_indicador, tipo_indicador, ponderacion,
+          enero, febrero, marzo, abril, mayo, junio,

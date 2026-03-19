@@ -22,6 +22,11 @@ interface Escalon {
   porcentaje_pago: number;
 }
 
+const PLANTILLA_RAPIDA = [
+  { limite_inferior: 0, limite_superior: 89.9, porcentaje_pago: 0 },
+  { limite_inferior: 90, limite_superior: 9999, porcentaje_pago: 100 },
+];
+
 export default function EscalonesBonos() {
   const [esquemas, setEsquemas] = useState<Esquema[]>([]);
   const [selectedEsquemaId, setSelectedEsquemaId] = useState<number | null>(null);
@@ -78,7 +83,14 @@ export default function EscalonesBonos() {
         .eq('esquema_id', esquemaId)
         .order('limite_inferior', { ascending: true });
       if (err) throw err;
-      setEscalones(data || []);
+      if (data && data.length > 0) {
+        setEscalones(data);
+      } else {
+        // Sembrar plantilla por defecto para evitar esquemas sin escalones
+        const seeded = PLANTILLA_RAPIDA.map(p => ({ ...p, esquema_id: esquemaId }));
+        await supabase.from('escalones_bonos').insert(seeded);
+        setEscalones(seeded as any);
+      }
     } catch (err: any) {
       setError(err.message);
     }
@@ -113,6 +125,38 @@ export default function EscalonesBonos() {
   const handleSaveEscalon = async () => {
     if (!selectedEsquemaId) return;
     try {
+      if (
+        escalonFormData.limite_inferior === undefined ||
+        escalonFormData.limite_superior === undefined ||
+        escalonFormData.porcentaje_pago === undefined
+      ) {
+        setError('Completa todos los campos del escalón.');
+        return;
+      }
+      const li = Number(escalonFormData.limite_inferior);
+      const ls = Number(escalonFormData.limite_superior);
+      const pp = Number(escalonFormData.porcentaje_pago);
+      if (isNaN(li) || isNaN(ls) || isNaN(pp)) {
+        setError('Usa valores numéricos para rango y porcentaje.');
+        return;
+      }
+      if (ls < li) {
+        setError('El límite superior debe ser mayor o igual al inferior.');
+        return;
+      }
+      if (pp < 0 || pp > 100) {
+        setError('El porcentaje debe estar entre 0 y 100.');
+        return;
+      }
+      const overlaps = escalones.some(e => {
+        if (editingEscalonId !== 'new' && e.id === editingEscalonId) return false;
+        return !(ls < e.limite_inferior || li > e.limite_superior);
+      });
+      if (overlaps) {
+        setError('El rango se sobrepone con otro escalón. Ajusta los límites.');
+        return;
+      }
+
       setSaving(true);
       const data = { ...escalonFormData, esquema_id: selectedEsquemaId };
       if (editingEscalonId === 'new') {
@@ -213,12 +257,26 @@ export default function EscalonesBonos() {
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{currentEsquema.nombre}</h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{currentEsquema.descripcion || 'Sin descripción'}</p>
                   </div>
-                  <button
-                    onClick={() => { setEditingEscalonId('new'); setEscalonFormData({ limite_inferior: 0, limite_superior: 0, porcentaje_pago: 0 }); }}
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold rounded-xl hover:bg-indigo-500 hover:text-white transition-all text-xs"
-                  >
-                    <Plus size={16} /> Agregar Escalón
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { setEditingEscalonId('new'); setEscalonFormData({ limite_inferior: 0, limite_superior: 0, porcentaje_pago: 0 }); }}
+                      className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold rounded-xl hover:bg-indigo-500 hover:text-white transition-all text-xs"
+                    >
+                      <Plus size={16} /> Agregar Escalón
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (!selectedEsquemaId) return;
+                        const seeded = PLANTILLA_RAPIDA.map(p => ({ ...p, esquema_id: selectedEsquemaId }));
+                        await supabase.from('escalones_bonos').delete().eq('esquema_id', selectedEsquemaId);
+                        await supabase.from('escalones_bonos').insert(seeded);
+                        fetchEscalones(selectedEsquemaId);
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-900/80 text-white font-bold rounded-xl hover:bg-gray-800 transition-all text-xs"
+                    >
+                      Plantilla rápida 90/100
+                    </button>
+                  </div>
                </div>
 
                <div className="overflow-hidden rounded-2xl border border-gray-100 dark:border-white/5">

@@ -36,9 +36,11 @@ export default function AlcanceModal({ isOpen, onClose, onSuccess, initialData }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [colaboradores, setColaboradores] = useState<{ id: string; nombre: string; apellido_paterno: string }[]>([]);
+  const [indicadores, setIndicadores] = useState<{ id: number; nombre_indicador: string; colaborador_id: string; anio: number }[]>([]);
 
   const emptyForm = {
     colaborador_id: '',
+    indicador_id: '',
     anio: new Date().getFullYear(),
     enero: '', febrero: '', marzo: '', abril: '',
     mayo: '', junio: '', julio: '', agosto: '',
@@ -64,6 +66,7 @@ export default function AlcanceModal({ isOpen, onClose, onSuccess, initialData }
     if (initialData) {
       setFormData({
         colaborador_id: initialData.colaborador_id || '',
+        indicador_id: initialData.indicador_id?.toString() || '',
         anio:           initialData.anio || new Date().getFullYear(),
         enero:          initialData.enero?.toString()      || '',
         febrero:        initialData.febrero?.toString()    || '',
@@ -85,15 +88,35 @@ export default function AlcanceModal({ isOpen, onClose, onSuccess, initialData }
     setError(null);
   }, [isOpen, initialData]);
 
+  // cargar indicadores según colaborador
+  useEffect(() => {
+    const loadIndicadores = async () => {
+      if (!isOpen || !formData.colaborador_id) { setIndicadores([]); return; }
+      const { data } = await supabase
+        .from('metas_indicadores')
+        .select('id, nombre_indicador, colaborador_id, anio')
+        .eq('colaborador_id', formData.colaborador_id)
+        .order('nombre_indicador');
+      setIndicadores(data || []);
+    };
+    loadIndicadores();
+  }, [formData.colaborador_id, isOpen]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
+      if (!formData.colaborador_id || !formData.indicador_id) {
+        setError('Selecciona colaborador e indicador.');
+        setLoading(false);
+        return;
+      }
       // Solo columnas reales de alcance_real
       const payload = {
         colaborador_id: formData.colaborador_id,
+        indicador_id: formData.indicador_id ? Number(formData.indicador_id) : null,
         anio:           Number(formData.anio),
         enero:          parseMonto(formData.enero),
         febrero:        parseMonto(formData.febrero),
@@ -116,10 +139,27 @@ export default function AlcanceModal({ isOpen, onClose, onSuccess, initialData }
           .eq('id', initialData.id);
         if (err) throw err;
       } else {
-        const { error: err } = await supabase
+        // upsert manual porque la unique es parcial (colaborador_id, indicador_id, anio)
+        const { data: existing } = await supabase
           .from('alcance_real')
-          .insert([payload]);
-        if (err) throw err;
+          .select('id')
+          .eq('colaborador_id', payload.colaborador_id)
+          .eq('indicador_id', payload.indicador_id)
+          .eq('anio', payload.anio)
+          .maybeSingle();
+
+        if (existing?.id) {
+          const { error: err } = await supabase
+            .from('alcance_real')
+            .update(payload)
+            .eq('id', existing.id);
+          if (err) throw err;
+        } else {
+          const { error: err } = await supabase
+            .from('alcance_real')
+            .insert([payload]);
+          if (err) throw err;
+        }
       }
 
       onSuccess();
@@ -173,6 +213,25 @@ export default function AlcanceModal({ isOpen, onClose, onSuccess, initialData }
               {colaboradores.map(c => (
                 <option key={c.id} value={c.id} className="bg-white dark:bg-[#1a1f2e]">
                   {c.nombre} {c.apellido_paterno}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Indicador */}
+          <div>
+            <label className={labelClass}>Indicador</label>
+            <select
+              required
+              disabled={!formData.colaborador_id}
+              value={formData.indicador_id}
+              onChange={(e) => setFormData({ ...formData, indicador_id: e.target.value })}
+              className={inputClass}
+            >
+              <option value="" className="bg-white dark:bg-[#1a1f2e]">Seleccionar indicador</option>
+              {indicadores.map(ind => (
+                <option key={ind.id} value={ind.id} className="bg-white dark:bg-[#1a1f2e]">
+                  {ind.nombre_indicador}
                 </option>
               ))}
             </select>

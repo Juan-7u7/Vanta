@@ -125,12 +125,35 @@ export default function OtrosIngresosModal({ isOpen, onClose, onSuccess, initial
         diciembre:       parseMonto(formData.diciembre),
       };
 
-      // Upsert respetando la restricción unique_ingreso_concepto
-      const { error: err } = await supabase
-        .from('otros_ingresos')
-        .upsert(payload, { onConflict: 'colaborador_id, nombre_concepto, anio' });
+      if (initialData?.id) {
+        const { error: err } = await supabase
+          .from('otros_ingresos')
+          .update(payload)
+          .eq('id', initialData.id);
+        if (err) throw err;
+      } else {
+        // upsert manual porque no hay unique definido en BD para (colaborador_id, nombre_concepto, anio)
+        const { data: existing } = await supabase
+          .from('otros_ingresos')
+          .select('id')
+          .eq('colaborador_id', payload.colaborador_id)
+          .eq('nombre_concepto', payload.nombre_concepto)
+          .eq('anio', payload.anio)
+          .maybeSingle();
 
-      if (err) throw err;
+        if (existing?.id) {
+          const { error: err } = await supabase
+            .from('otros_ingresos')
+            .update(payload)
+            .eq('id', existing.id);
+          if (err) throw err;
+        } else {
+          const { error: err } = await supabase
+            .from('otros_ingresos')
+            .insert([payload]);
+          if (err) throw err;
+        }
+      }
 
       onSuccess();
       onClose();

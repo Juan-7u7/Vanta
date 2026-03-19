@@ -1,13 +1,21 @@
-/** final 1.0 */
+﻿/** final 1.0 */
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Loader2, Download, FileText, ChevronRight, Filter, AlertCircle } from 'lucide-react';
 import { calculateBonoPercent, aplicarAjustePorGrupo } from '../utils/covasLogic';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { CovasDocument } from '../services/CovasPDFGenerator';
-import { getColaboradorDataForReport } from '../services/CovasGenerator';
+import { getColaboradorDataForReport, getColaboradorDataForQuarter } from '../services/CovasGenerator';
 
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'] as const;
+const QUARTERS = [
+  { id: 'Q1', label: 'Q1 (ene - mar)', months: ['enero', 'febrero', 'marzo'] },
+  { id: 'Q2', label: 'Q2 (abr - jun)', months: ['abril', 'mayo', 'junio'] },
+  { id: 'Q3', label: 'Q3 (jul - sep)', months: ['julio', 'agosto', 'septiembre'] },
+  { id: 'Q4', label: 'Q4 (oct - dic)', months: ['octubre', 'noviembre', 'diciembre'] },
+] as const;
+
+type PeriodoTipo = 'mes' | 'trimestre';
 
 export default function ImprimirCovas() {
   const [generating, setGenerating] = useState(false);
@@ -17,10 +25,16 @@ export default function ImprimirCovas() {
   const [pdfRequested, setPdfRequested] = useState(false);
   
   // Filtros
+  const [periodoTipo, setPeriodoTipo] = useState<PeriodoTipo>('mes');
   const [mes, setMes] = useState<typeof MESES[number]>(MESES[new Date().getMonth()]);
+  const defaultQuarter = QUARTERS[Math.floor(new Date().getMonth() / 3)].id;
+  const [quarterId, setQuarterId] = useState<(typeof QUARTERS)[number]['id']>(defaultQuarter);
+  const [periodoLabel, setPeriodoLabel] = useState<string>(mes);
   const [anio] = useState(2026);
   const [unidadId, setUnidadId] = useState<string>('');
   const [unidades, setUnidades] = useState<{id: number, nombre: string}[]>([]);
+  const selectedQuarter = QUARTERS.find(q => q.id === quarterId)!;
+  const [showResultados, setShowResultados] = useState(false);
 
   useEffect(() => {
     fetchUnidades();
@@ -31,13 +45,173 @@ export default function ImprimirCovas() {
     if (data) setUnidades(data);
   };
 
+  const formatCurrency = (n: number) => new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(n || 0);
+  const toQuarter = (p: string) => {
+    const pm = p.toLowerCase();
+    if (pm.startsWith('q1')) return 'Q1';
+    if (pm.startsWith('q2')) return 'Q2';
+    if (pm.startsWith('q3')) return 'Q3';
+    if (pm.startsWith('q4')) return 'Q4';
+    const idx = MESES.findIndex(m => m === pm || m === p);
+    if (idx >= 0) return ['Q1','Q1','Q1','Q2','Q2','Q2','Q3','Q3','Q3','Q4','Q4','Q4'][idx];
+    return 'Q?';
+  };
+
+  const openResultsTab = (data: any[], periodo: string, year: number) => {
+    const win = window.open('', '_blank');
+    if (!win) return;
+    const rowsHtml = data.map(col => {
+      const totalBonos = col.totales?.subtotalBonos || 0;
+      const otros = col.totales?.totalOtrosIngresos || 0;
+      const anticipos = col.anticipos_aplicables || 0;
+      const saldoArr = col.saldo_pendiente_arrastrado || 0;
+      const sueldoBase = col.sueldoBase || 0;
+      const totalPercepcion = sueldoBase + totalBonos + otros - anticipos + saldoArr;
+      const qMark = toQuarter(periodo);
+      const qCols: Record<string,string> = { Q1:'-',Q2:'-',Q3:'-',Q4:'-',TOTAL: formatCurrency(totalPercepcion) };
+      if (['Q1','Q2','Q3','Q4'].includes(qMark)) qCols[qMark] = formatCurrency(totalPercepcion);
+
+      const comiRows = (col.comisiones || []).map((c: any, idx: number) => `
+        <tr>
+          <td>${idx+1}</td>
+          <td>${c.nombre || '-'}</td>
+          <td class="num">${c.meta?.toLocaleString('es-MX') || '-'}</td>
+          <td class="num">${c.alcance?.toLocaleString('es-MX') || '-'}</td>
+          <td class="num">${(c.cumplimiento || 0).toFixed(1)}%</td>
+          <td class="num">${c.porcentajePago !== undefined ? c.porcentajePago+'%' : '-'}</td>
+          <td class="num">${formatCurrency(c.montoBono || 0)}</td>
+        </tr>
+      `).join('');
+
+      return `
+      <section class="sheet">
+        <header class="header">
+          <div class="title">PLAN DE COMPENSACIÓN VARIABLE</div>
+          <div class="year">${year}</div>
+        </header>
+
+        <table class="frame">
+          <tr class="row-legend">
+            <td class="label wide" colspan="2">CAPITAL HUMANO</td>
+            <td class="label">1Q</td><td class="label">2Q</td><td class="label">3Q</td><td class="label">4Q</td><td class="label">TOTAL</td>
+          </tr>
+          <tr>
+            <td class="sub" colspan="2">SUELDO FIJO MENSUALIZADO</td>
+            <td class="num">${qCols.Q1}</td>
+            <td class="num">${qCols.Q2}</td>
+            <td class="num">${qCols.Q3}</td>
+            <td class="num">${qCols.Q4}</td>
+            <td class="num strong">${qCols.TOTAL}</td>
+          </tr>
+          <tr>
+            <td class="sub" colspan="2">BONO TOTAL (antes anticipos)</td>
+            <td colspan="5" class="num">${formatCurrency(totalBonos)}</td>
+          </tr>
+         <tr>
+            <td class="sub" colspan="2">OTROS INGRESOS</td>
+            <td colspan="5" class="num">${formatCurrency(otros)}</td>
+          </tr>
+          <tr>
+            <td class="sub" colspan="2">SALDO ARRASTRADO</td>
+            <td colspan="5" class="num">${formatCurrency(saldoArr)}</td>
+          </tr>
+          <tr class="total-row">
+            <td class="sub" colspan="2">TOTAL PERCEPCIÓN ESTIMADA</td>
+            <td class="num">${qCols.Q1}</td>
+            <td class="num">${qCols.Q2}</td>
+            <td class="num">${qCols.Q3}</td>
+            <td class="num">${qCols.Q4}</td>
+            <td class="num strong">${qCols.TOTAL}</td>
+          </tr>
+          <tr class="block-title-row">
+            <td colspan="7">DETALLE DE INDICADORES</td>
+          </tr>
+          <tr>
+            <td colspan="7">
+              <table class="detail">
+                <colgroup>
+                  <col style="width:6%"><col style="width:34%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%">
+                </colgroup>
+                <thead>
+                  <tr><th>#</th><th>Indicador</th><th>Meta</th><th>Alcance</th><th>% Cumpl.</th><th>% Pago</th><th>Bono</th></tr>
+                </thead>
+                <tbody>
+                  ${comiRows || `<tr><td colspan="7" class="empty">Sin indicadores</td></tr>`}
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </table>
+
+        <div class="footnotes">
+          <p><strong>Colaborador:</strong> ${col.nombre} &nbsp;|&nbsp; <strong>Puesto:</strong> ${col.puesto || '-'} &nbsp;|&nbsp; <strong>Matrícula:</strong> ${col.matricula || '-'}</p>
+          <p>Periodo: ${periodo} &nbsp;|&nbsp; Saldo arrastrado: ${formatCurrency(saldoArr)} &nbsp;|&nbsp; Otros ingresos: ${formatCurrency(otros)}</p>
+        </div>
+
+        <div class="notes">
+          <ol>
+            <li>La empresa se reserva el derecho de cambiar o modificar el plan de compensación de acuerdo a la situación de la empresa, conducta y desempeño del titular.</li>
+            <li>Calculado y pagadero mensual, trimestral y anualmente según sea el caso.</li>
+            <li>Trimestralmente se informará a Consejo la compensación obtenida por el periodo evaluado.</li>
+            <li>Para el pago de este plan será condición NO NEGOCIABLE, contar con los soportes de los resultados debidamente autorizados.</li>
+            <li>El pago del presente esquema de compensación variable, estará sujeto a que el EBITDA sea igual o mayor al año anterior en los casos que el esquema no sea por EBITDA.</li>
+            <li>En este esquema de COVA solo participan los titulares que tengan 90 días cubiertos en el trimestre.</li>
+            <li>Se entiende que los cálculos trimestrales son anticipos del COVA anual, en dado caso que el cálculo anual sea diferente a los anticipos.</li>
+            <li>El pago de este esquema será en un periodo de 8 semanas después del cierre al periodo evaluado.</li>
+          </ol>
+        </div>
+      </section>
+      `;
+    }).join('');
+
+    const content = `
+      <html>
+      <head>
+        <title>Resultados COVAS ${periodo} ${year}</title>
+        <style>
+          body{font-family: 'Inter', system-ui, -apple-system, sans-serif; margin:0; padding:16px; background:#e5e7eb;}
+          .sheet{background:#fff; padding:16px 20px; margin:12px auto; max-width:1100px; box-shadow:0 12px 30px rgba(0,0,0,0.08); border:1px solid #111827;}
+          .header{display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #111827; padding-bottom:8px;}
+          .title{font-size:18px; font-weight:900; letter-spacing:0.04em;}
+          .year{font-size:20px; font-weight:900;}
+          table{width:100%; border-collapse:collapse;}
+          .frame{border:1px solid #111827;}
+          .frame td{border:1px solid #111827; padding:6px 8px; font-size:12px;}
+          .row-legend td{font-weight:800; background:#f4f4f5; text-align:center;}
+          .label{text-align:center;}
+          .wide{text-align:left;}
+          .sub{font-weight:700;}
+          .meta{font-size:11px; text-align:center;}
+          .detail{table-layout:fixed;}
+          .detail th{background:#111827; color:#fff; padding:6px 8px; font-size:12px; text-align:center;}
+          .detail td{padding:6px 8px; font-size:12px; border-bottom:1px solid #e5e7eb; text-align:center;}
+          .num{text-align:center;}
+          .neg{color:#b91c1c;}
+          .strong{font-weight:800; color:#111827;}
+          .block-title{margin:12px 0 6px; font-size:13px; font-weight:800; letter-spacing:0.03em;}
+          .block-title-row td{background:#111827; color:#fff; text-align:center; font-weight:800;}
+          .empty{text-align:center; color:#9ca3af;}
+          .notes{font-size:11px; color:#4b5563; margin-top:10px;}
+          .notes ul{margin:4px 0 0 16px; padding:0;}
+          .notes li{margin-bottom:3px;}
+          .total-row td{font-weight:800; background:#f9fafb;}
+          .footnotes{font-size:11px; color:#374151; margin-top:8px;}
+        </style>
+      </head>
+      <body>${rowsHtml}</body>
+      </html>
+    `;
+    win.document.write(content);
+    win.document.close();
+  };
+
   const processDataForPDF = async () => {
     try {
       setGenerating(true);
       setError(null);
       setDataReady(false);
 
-      // 1. Obtener IDs de colaboradores según filtros
+      // 1. Obtener IDs de colaboradores segÃºn filtros
       let query = supabase.from('colaboradores').select('id').eq('esta_activo', true);
       if (unidadId) query = query.eq('unidad_negocio_id', parseInt(unidadId));
 
@@ -45,20 +219,29 @@ export default function ImprimirCovas() {
       if (errCols) throw errCols;
       if (!cols || cols.length === 0) throw new Error("No hay colaboradores activos.");
 
-      // 2. Obtener datos detallados usando el servicio centralizado (getColaboradorDataForReport)
+      const selectedQuarter = QUARTERS.find(q => q.id === quarterId)!;
+      const labelPeriodo = periodoTipo === 'mes' ? mes : selectedQuarter.label;
+      setPeriodoLabel(labelPeriodo);
+
+      // 2. Obtener datos detallados usando el servicio centralizado (mes o trimestre)
       // Esto garantiza que traigamos las firmas, metas y alcances correctamente calculados.
       const reports = await Promise.all(
-        cols.map(c => getColaboradorDataForReport(c.id, mes, anio))
+        cols.map(c => periodoTipo === 'mes'
+          ? getColaboradorDataForReport(c.id, mes, anio)
+          : getColaboradorDataForQuarter(c.id, selectedQuarter.months as any, anio)
+        )
       );
 
       // Filtrar los que fallaron (null)
       const finalReport = reports.filter(r => r !== null);
 
-      if (finalReport.length === 0) throw new Error("No se pudo obtener información de los colaboradores.");
+      if (finalReport.length === 0) throw new Error("No se pudo obtener informaciÃ³n de los colaboradores.");
 
       setProcessedData(finalReport);
       setDataReady(true);
       setPdfRequested(false);
+      setShowResultados(true);
+      openResultsTab(finalReport, labelPeriodo, anio);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -75,17 +258,17 @@ export default function ImprimirCovas() {
             Reportes Corporativos
           </div>
           <h1 className="text-4xl font-black text-gray-800 dark:text-white tracking-tight">
-            Impresión de COVAS
+            ImpresiÃ³n de COVAS
           </h1>
           <p className="text-gray-500 dark:text-gray-400 max-w-lg">
-            Genera el Plan de Compensación Variable oficial en formato PDF premium. 
-            Incluye desgloses de metas, indicadores y bonos mensuales.
+            Genera el Plan de CompensaciÃ³n Variable oficial en formato PDF premium. 
+            Incluye desgloses de metas, indicadores y bonos por mes o por trimestre.
           </p>
         </div>
         
         <div className="bg-white/50 dark:bg-black/20 backdrop-blur-md p-2 rounded-[24px] border border-gray-100 dark:border-white/10 flex gap-2">
            <div className="flex flex-col items-center px-4 py-2 bg-indigo-500/10 rounded-2xl border border-indigo-500/20">
-              <span className="text-[10px] font-bold text-gray-400 uppercase">Año</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase">AÃ±o</span>
               <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">2026</span>
            </div>
            <div className="flex flex-col items-center px-4 py-2">
@@ -95,28 +278,64 @@ export default function ImprimirCovas() {
         </div>
       </div>
 
-      {/* Panel de Configuración */}
+      {/* Panel de ConfiguraciÃ³n */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white/40 dark:bg-black/20 backdrop-blur-xl border border-white/40 dark:border-white/10 rounded-[32px] p-8 shadow-xl">
            <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
              <Filter size={20} className="text-indigo-500" />
-             Configuración del Reporte
+             ConfiguraciÃ³n del Reporte
            </h3>
 
            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase ml-2">Mes de Reporte</label>
-                <div className="grid grid-cols-4 gap-2">
-                  {MESES.map(m => (
-                    <button
-                      key={m}
-                      onClick={() => { setMes(m); setDataReady(false); }}
-                      className={`py-2 rounded-xl text-[10px] font-bold uppercase transition-all border ${mes === m ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-white dark:bg-white/5 border-gray-100 dark:border-white/5 text-gray-500 hover:border-indigo-500/50'}`}
-                    >
-                      {m.substring(0, 3)}
-                    </button>
-                  ))}
+              <div className="space-y-4">
+                <label className="text-xs font-bold text-gray-400 uppercase ml-2">Tipo de periodo</label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setPeriodoTipo('mes'); setPeriodoLabel(mes); setDataReady(false); }}
+                    className={`flex-1 py-3 rounded-2xl font-bold text-sm border transition-all ${periodoTipo === 'mes' ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-white dark:bg-white/5 border-gray-100 dark:border-white/5 text-gray-500 hover:border-indigo-500/50'}`}
+                  >
+                    Mes
+                  </button>
+                  <button
+                    onClick={() => { setPeriodoTipo('trimestre'); setPeriodoLabel(selectedQuarter.label); setDataReady(false); }}
+                    className={`flex-1 py-3 rounded-2xl font-bold text-sm border transition-all ${periodoTipo === 'trimestre' ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-white dark:bg-white/5 border-gray-100 dark:border-white/5 text-gray-500 hover:border-indigo-500/50'}`}
+                  >
+                    Trimestre (Q)
+                  </button>
                 </div>
+
+                {periodoTipo === 'mes' ? (
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase ml-2">Mes de Reporte</label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {MESES.map(m => (
+                        <button
+                          key={m}
+                          onClick={() => { setMes(m); setPeriodoLabel(m); setDataReady(false); }}
+                          className={`py-2 rounded-xl text-[10px] font-bold uppercase transition-all border ${mes === m ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-white dark:bg-white/5 border-gray-100 dark:border-white/5 text-gray-500 hover:border-indigo-500/50'}`}
+                        >
+                          {m.substring(0, 3)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 uppercase ml-2">Trimestre</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {QUARTERS.map(q => (
+                        <button
+                          key={q.id}
+                          onClick={() => { setQuarterId(q.id); setPeriodoLabel(q.label); setDataReady(false); }}
+                          className={`p-3 rounded-2xl text-left border transition-all ${quarterId === q.id ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-white dark:bg-white/5 border-gray-100 dark:border-white/5 text-gray-500 hover:border-indigo-500/50'}`}
+                        >
+                          <div className="text-[11px] font-black uppercase">{q.id}</div>
+                          <div className="text-[10px] opacity-80">{q.label}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-6">
@@ -145,7 +364,7 @@ export default function ImprimirCovas() {
                   ) : (
                     <div className="space-y-4">
                       <div className="p-4 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl">
-                        <p className="text-[10px] font-bold text-indigo-500 uppercase mb-3">Resumen de Cálculos</p>
+                        <p className="text-[10px] font-bold text-indigo-500 uppercase mb-3">Resumen de CÃ¡lculos</p>
                         <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
                           {processedData.map((col, i) => {
                             const totalBonos = col.comisiones.reduce((acc: number, c: any) => acc + (c.montoBono || 0), 0);
@@ -178,8 +397,8 @@ export default function ImprimirCovas() {
                         </button>
                       ) : (
                         <PDFDownloadLink
-                          document={<CovasDocument data={processedData} periodo={{ mes, anio }} />}
-                          fileName={`COVAS_CORPORATIVO_${mes.toUpperCase()}_${anio}.pdf`}
+                          document={<CovasDocument data={processedData} periodo={{ mes: periodoLabel, anio }} />}
+                          fileName={`COVAS_CORPORATIVO_${periodoLabel.replace(/\s+/g, '_').toUpperCase()}_${anio}.pdf`}
                           className="w-full py-4 bg-green-600 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-green-500/20"
                         >
                           {({ loading }) => (
@@ -203,10 +422,56 @@ export default function ImprimirCovas() {
               </div>
            </div>
 
-           {error && (
-             <div className="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400">
-               <AlertCircle size={20} />
-               <p className="text-sm font-medium">{error}</p>
+          {error && (
+            <div className="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400">
+              <AlertCircle size={20} />
+              <p className="text-sm font-medium">{error}</p>
+            </div>
+          )}
+
+           {showResultados && dataReady && (
+             <div className="mt-6 space-y-4">
+               <h4 className="text-sm font-bold text-gray-700 dark:text-gray-100 uppercase tracking-wide">Resultados del cÃƒÂ¡lculo ({periodoLabel})</h4>
+               <div className="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                 {processedData.map((col: any, idx: number) => (
+                   <div key={idx} className="rounded-2xl border border-gray-100 dark:border-white/10 bg-white/60 dark:bg-black/20 p-4">
+                     <div className="flex justify-between items-start">
+                       <div>
+                         <p className="text-xs uppercase font-bold text-gray-400">{col.matricula}</p>
+                         <p className="text-lg font-black text-gray-800 dark:text-white">{col.nombre}</p>
+                         <p className="text-sm text-gray-500 dark:text-gray-400">{col.puesto}</p>
+                       </div>
+                       <div className="text-right">
+                         <p className="text-xs text-gray-400 uppercase font-bold">Total Neto</p>
+                         <p className="text-lg font-black text-green-600 dark:text-green-400">
+                           {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(col.totales?.totalNetoMensual || 0)}
+                         </p>
+                         <p className="text-[11px] text-gray-500 dark:text-gray-400">Bonos: {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(col.totales?.subtotalBonos || 0)}</p>
+                         <p className="text-[11px] text-gray-500 dark:text-gray-400">Otros: {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(col.totales?.totalOtrosIngresos || 0)}</p>
+                         <p className="text-[11px] text-gray-500 dark:text-gray-400">Anticipos: {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(col.anticipos_aplicables || 0)}</p>
+                       </div>
+                     </div>
+
+                     <div className="mt-3 border-t border-gray-100 dark:border-white/10 pt-3 space-y-2">
+                       {(col.comisiones || []).map((c: any, i: number) => (
+                         <div key={i} className="flex justify-between text-sm">
+                           <div>
+                             <p className="font-semibold text-gray-800 dark:text-white">{c.nombre}</p>
+                             <p className="text-[11px] text-gray-500 dark:text-gray-400">Unidad: {c.unidad_medida || '-'} | Esquema: {c.esquema_tipo}</p>
+                           </div>
+                           <div className="text-right">
+                             <p className="text-[11px] text-gray-500 dark:text-gray-400">Cumplimiento: {c.cumplimiento?.toFixed(1)}%</p>
+                             <p className="text-[11px] text-gray-500 dark:text-gray-400">Pago: {c.porcentajePago ? `${c.porcentajePago}%` : '0%'}</p>
+                             <p className="text-sm font-bold text-indigo-600 dark:text-indigo-300">
+                               {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(c.montoBono || 0)}
+                             </p>
+                           </div>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+                 ))}
+               </div>
              </div>
            )}
         </div>
@@ -222,14 +487,14 @@ export default function ImprimirCovas() {
                <FileText size={24} />
              </div>
              <div>
-               <h4 className="text-xl font-bold">¿Qué incluye el PDF?</h4>
+               <h4 className="text-xl font-bold">Â¿QuÃ© incluye el PDF?</h4>
                <div className="mt-4 space-y-3">
                  {[
                    'Portada de COVAS 2026.',
-                   'Índice dinámico de personal.',
+                   'Ãndice dinÃ¡mico de personal.',
                    'Separadores por Unidad de Negocio.',
-                   'Cédulas individuales detalladas.',
-                   'Sección de firmas regulatorias.'
+                   'CÃ©dulas individuales detalladas.',
+                   'SecciÃ³n de firmas regulatorias.'
                  ].map((tip, i) => (
                    <div key={i} className="flex items-center gap-2 text-sm opacity-90">
                      <ChevronRight size={14} className="text-cyan-400" />
@@ -242,7 +507,7 @@ export default function ImprimirCovas() {
              <div className="pt-6 border-t border-white/10">
                <p className="text-[10px] font-bold uppercase tracking-widest text-indigo-200">Requerimiento</p>
                <p className="text-xs mt-1 text-white/80 leading-relaxed">
-                 Asegúrate de que los indicadores y alcances del mes de <strong>{mes}</strong> estén capturados y validados para un reporte preciso.
+                 AsegÃºrate de que los indicadores y alcances del periodo <strong>{periodoLabel}</strong> estÃ©n capturados y validados para un reporte preciso.
                </p>
              </div>
            </div>
@@ -251,3 +516,9 @@ export default function ImprimirCovas() {
     </div>
   );
 }
+
+
+
+
+
+

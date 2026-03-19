@@ -36,11 +36,13 @@ export default function IndicadorModal({ isOpen, onClose, onSuccess, initialData
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [colaboradores, setColaboradores] = useState<{ id: string; nombre: string; apellido_paterno: string }[]>([]);
+  const [esquemas, setEsquemas] = useState<{ id: number; nombre: string; tipo: string }[]>([]);
 
   const emptyForm = {
     colaborador_id: '',
     nombre_indicador: '',
     tipo_indicador: '',
+    esquema_pago_id: '',
     anio: new Date().getFullYear(),
     enero: '', febrero: '', marzo: '', abril: '',
     mayo: '', junio: '', julio: '', agosto: '',
@@ -66,14 +68,23 @@ export default function IndicadorModal({ isOpen, onClose, onSuccess, initialData
         .order('nombre');
       setColaboradores(data || []);
     };
+    const fetchEsquemas = async () => {
+      const { data } = await supabase
+        .from('esquemas_pago')
+        .select('id, nombre, tipo')
+        .order('nombre');
+      setEsquemas(data || []);
+    };
 
     fetchColaboradores();
+    fetchEsquemas();
 
     if (initialData) {
       setFormData({
         colaborador_id: initialData.colaborador_id || '',
         nombre_indicador: initialData.nombre_indicador || '',
         tipo_indicador: initialData.tipo_indicador || '',
+        esquema_pago_id: initialData.esquema_pago_id?.toString() || '',
         anio: initialData.anio || new Date().getFullYear(),
         enero: initialData.enero?.toString() || '',
         febrero: initialData.febrero?.toString() || '',
@@ -111,6 +122,7 @@ export default function IndicadorModal({ isOpen, onClose, onSuccess, initialData
         colaborador_id: formData.colaborador_id,
         nombre_indicador: formData.nombre_indicador,
         tipo_indicador: formData.tipo_indicador,
+        esquema_pago_id: formData.esquema_pago_id ? Number(formData.esquema_pago_id) : null,
         anio: Number(formData.anio),
         enero:      parseMonto(formData.enero),
         febrero:    parseMonto(formData.febrero),
@@ -219,6 +231,23 @@ export default function IndicadorModal({ isOpen, onClose, onSuccess, initialData
               {colaboradores.map(c => (
                 <option key={c.id} value={c.id} className="bg-white dark:bg-[#1a1f2e]">
                   {c.nombre} {c.apellido_paterno}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Esquema de pago */}
+          <div>
+            <label className={labelClass}>Esquema de pago</label>
+            <select
+              value={formData.esquema_pago_id}
+              onChange={(e) => setFormData({ ...formData, esquema_pago_id: e.target.value })}
+              className={inputClass}
+            >
+              <option value="" className="bg-white dark:bg-[#1a1f2e]">Sin esquema (usar default)</option>
+              {esquemas.map(e => (
+                <option key={e.id} value={e.id} className="bg-white dark:bg-[#1a1f2e]">
+                  {e.nombre} · {e.tipo}
                 </option>
               ))}
             </select>

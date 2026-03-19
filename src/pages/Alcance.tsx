@@ -11,6 +11,7 @@ const MESES_CORTOS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'S
 interface Alcance {
   id: number;
   colaborador_id: string;
+  indicador_id?: number;
   anio: number;
   enero: number; febrero: number; marzo: number; abril: number;
   mayo: number; junio: number; julio: number; agosto: number;
@@ -22,7 +23,7 @@ interface Alcance {
     email: string;
     unidades_negocio: { nombre: string; color_hex?: string } | null;
   } | null | any;
-  // Join secundario con metas_indicadores (por colaborador_id + anio)
+  // Join con meta/indicador específico
   nombre_indicador?: string;
   tipo_indicador?: string;
   // Pasos de pasos_aprobacion
@@ -232,17 +233,18 @@ export default function Alcance() {
     try {
       setLoading(true);
 
-      // 1. Query principal: alcance_real + join colaboradores
+      // 1. Query principal: alcance_real + join colaboradores + indicador
       const { data: alcanceData, error: err } = await supabase
         .from('alcance_real')
         .select(`
-          id, colaborador_id, anio,
+          id, colaborador_id, indicador_id, anio,
           enero, febrero, marzo, abril, mayo, junio,
           julio, agosto, septiembre, octubre, noviembre, diciembre,
           colaborador:colaborador_id(
             nombre, apellido_paterno, email,
             unidades_negocio:unidad_negocio_id(nombre, color_hex)
-          )
+          ),
+          indicador:indicador_id(nombre_indicador, tipo_indicador)
         `);
 
       if (err) throw err;
@@ -252,23 +254,6 @@ export default function Alcance() {
       }
 
       const ids = alcanceData.map(d => d.colaborador_id).filter(Boolean);
-
-      // 2. Query secundaria: metas_indicadores para obtener nombre/tipo por colaborador
-      //    Vinculamos por colaborador_id + anio
-      const { data: metasData } = await supabase
-        .from('metas_indicadores')
-        .select('colaborador_id, anio, nombre_indicador, tipo_indicador')
-        .in('colaborador_id', ids);
-
-      // Mapa: "colaborador_id-anio" → indicador
-      const metasMap: Record<string, { nombre_indicador: string; tipo_indicador: string }> = {};
-      (metasData || []).forEach(m => {
-        const key = `${m.colaborador_id}-${m.anio}`;
-        // Si hay varios indicadores por colaborador, tomamos el primero
-        if (!metasMap[key]) {
-          metasMap[key] = { nombre_indicador: m.nombre_indicador, tipo_indicador: m.tipo_indicador };
-        }
-      });
 
       // 3. Query de pasos de aprobación
       const mesActual = MESES[new Date().getMonth()];
@@ -283,12 +268,10 @@ export default function Alcance() {
 
       // 4. Merge de los tres conjuntos
       const enriched: Alcance[] = alcanceData.map(d => {
-        const metaKey = `${d.colaborador_id}-${d.anio}`;
-        const meta = metasMap[metaKey];
         return {
           ...d,
-          nombre_indicador: meta?.nombre_indicador,
-          tipo_indicador: meta?.tipo_indicador,
+          nombre_indicador: (d as any).indicador?.nombre_indicador,
+          tipo_indicador: (d as any).indicador?.tipo_indicador,
           pasos: pasosMap[d.colaborador_id] || null,
         };
       });
