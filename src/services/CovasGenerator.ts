@@ -26,6 +26,15 @@ function resolvePeriodMonths(periodo: string): string[] {
   return [p];
 }
 
+function resolveCustomRange(desde?: string, hasta?: string): string[] {
+  if (!desde) return [];
+  const start = MONTHS_ORDER.indexOf(desde.toLowerCase().trim());
+  const end = hasta ? MONTHS_ORDER.indexOf(hasta.toLowerCase().trim()) : start;
+  if (start === -1 || end === -1) return [];
+  const [lo, hi] = start <= end ? [start, end] : [end, start];
+  return MONTHS_ORDER.slice(lo, hi + 1);
+}
+
 function sumColumns(row: any, months: string[]): number {
   if (!row) return 0;
   return months.reduce((acc, m) => acc + Number((row as any)[m] || 0), 0);
@@ -37,9 +46,13 @@ function sumColumns(row: any, months: string[]): number {
 export async function getColaboradorDataForReport(
   colaborador_id: string, 
   mes: string,
-  anio: number
+  anio: number,
+  mesesCustom?: string[]
 ) {
-  const mesesPeriodo = resolvePeriodMonths(mes);
+  const mesesPeriodo = mesesCustom && mesesCustom.length > 0
+    ? resolveCustomRange(mesesCustom[0], mesesCustom[mesesCustom.length - 1])
+    : resolvePeriodMonths(mes);
+  if (!mesesPeriodo.length) return null;
   const columnasMes = mesesPeriodo.join(', ');
   
   try {
