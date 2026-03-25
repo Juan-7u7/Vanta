@@ -93,7 +93,33 @@ export default function ImprimirCovas() {
         qCols[qMark] = formatCurrency(totalPercepcion);
       }
 
-      const comiRows = (col.comisiones || []).map((c: any, idx: number) => `
+      const comiRows = (col.comisiones || []).map((c: any, idx: number) => {
+        const escalones = c.escalones || [];
+        const escalasHtml = escalones.length ? `
+          <table class="escalones-table">
+            <thead>
+              <tr>
+                <th>Lim. Inferior</th>
+                <th>Lim. Superior</th>
+                <th>% Pago</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${escalones.map((e: any) => {
+                const isApplied = Number(e.porcentaje_pago || 0) === Number(c.porcentajePago || 0);
+                return `
+                  <tr class="${isApplied ? 'esc-aplicado' : ''}">
+                    <td>${Number(e.limite_inferior || 0).toLocaleString('es-MX')}</td>
+                    <td>${Number(e.limite_superior || 0).toLocaleString('es-MX')}</td>
+                    <td>${Number(e.porcentaje_pago || 0).toFixed(2)}%</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        ` : '';
+
+        return `
         <tr>
           <td>${idx+1}</td>
           <td>${c.nombre || '-'}</td>
@@ -103,7 +129,9 @@ export default function ImprimirCovas() {
           <td class="num">${c.porcentajePago !== undefined ? c.porcentajePago+'%' : '-'}</td>
           <td class="num">${formatCurrency(c.montoBono || 0)}</td>
         </tr>
-      `).join('');
+        ${escalasHtml ? `<tr class="esc-row"><td colspan="7"><div class="esc-title">Escalones / Ponderación aplicada</div>${escalasHtml}</td></tr>` : ''}
+        `;
+      }).join('');
 
       return `
       <section class="sheet">
@@ -111,6 +139,11 @@ export default function ImprimirCovas() {
           <div class="title">PLAN DE COMPENSACIÓN VARIABLE</div>
           <div class="year">${year}</div>
         </header>
+
+        <div class="collab-banner">
+          <div class="collab-line"><span class="label">Colaborador:</span> ${col.nombre || '-'} &nbsp;|&nbsp; <span class="label">Puesto:</span> ${col.puesto || '-'} &nbsp;|&nbsp; <span class="label">Matrícula:</span> ${col.matricula || '-'}</div>
+          <div class="collab-periodo">Periodo: ${periodo}</div>
+        </div>
 
         <table class="frame">
           <tr class="row-legend">
@@ -308,6 +341,39 @@ export default function ImprimirCovas() {
           .notes li{margin-bottom:3px;}
           .total-row td{font-weight:800; background:#f9fafb;}
           .footnotes{font-size:11px; color:#374151; margin-top:8px;}
+          .collab-banner{
+            margin:10px 0 14px;
+            padding:10px 12px;
+            background:#e0e7ff;
+            border:1px solid #c7d2fe;
+            border-radius:10px;
+            font-size:12px;
+            font-weight:700;
+            color:#111827;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:12px;
+          }
+          .collab-line{flex:1;}
+          .collab-periodo{
+            padding:6px 10px;
+            background:#111827;
+            color:#fff;
+            border-radius:8px;
+            font-size:12px;
+            font-weight:800;
+            letter-spacing:0.04em;
+            text-transform:uppercase;
+            white-space:nowrap;
+          }
+          .label{font-weight:800;}
+          .esc-title{font-size:11px; font-weight:800; margin:6px 0 4px; color:#0b1224;}
+          .escalones-table{width:100%; border-collapse:collapse; border:1px solid #d1d5db; page-break-inside:avoid; margin-bottom:6px;}
+          .escalones-table th{background:#e5e7eb; font-size:11px; padding:6px; border:1px solid #d1d5db;}
+          .escalones-table td{font-size:11px; padding:6px; border:1px solid #d1d5db; text-align:center;}
+          .esc-aplicado{background:#dbeafe;}
+          .esc-row td{background:#f8fafc;}
           #print-btn{
             position:fixed; top:16px; right:16px; z-index:9999;
             background:#111827; color:#fff; border:none; border-radius:12px;

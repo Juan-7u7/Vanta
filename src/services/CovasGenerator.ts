@@ -271,6 +271,7 @@ export async function getColaboradorDataForQuarter(
       montoBono: r.bonoBruto,
       bonoObjetivo: ind.bonoObjetivoPeriodo,
       porcentajePago: r.porcentajePago,
+      escalones: ind.escalones,
     };
   });
 
