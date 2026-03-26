@@ -79,7 +79,7 @@ export async function getColaboradorDataForReport(
     // 2. Metas/bonos por indicador con esquema y unidad
     const { data: rawIndicadores, error: errInd } = await supabase
       .from('metas_indicadores')
-      .select(`id, nombre_indicador, tipo_indicador, unidad_medida, ponderacion, esquema_pago_id, ${columnasMes}`)
+      .select(`id, nombre_indicador, tipo_indicador, unidad_medida, ponderacion, esquema_pago_id, esquemas_pago:esquema_pago_id(tipo), ${columnasMes}`)
       .eq('colaborador_id', colaborador_id)
       .eq('anio', anio);
     if (errInd) throw errInd;
@@ -192,7 +192,7 @@ export async function getColaboradorDataForReport(
     const totales = calcularTotalesMensuales(resultados, otrosIngresos.reduce((a,b)=>a+(b.monto||0),0));
 
     return {
-      nombre: `${col.nombre} ${col.apellido_paterno || ''}`.trim(),
+      nombre: `${col.nombre || ''} ${col.apellido_paterno || ''} ${col.apellido_materno || ''}`.replace(/\s+/g,' ').trim(),
       matricula: col.matricula,
       puesto: col.puesto,
       unidades_negocio: (col as any).unidades_negocio || null,

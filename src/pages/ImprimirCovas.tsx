@@ -125,13 +125,14 @@ export default function ImprimirCovas() {
         <tr>
           <td>${idx+1}</td>
           <td>${c.nombre || '-'}</td>
+          <td>${(c.esquema_tipo || 'porcentaje').toUpperCase()}</td>
           <td class="num">${c.meta?.toLocaleString('es-MX') || '-'}</td>
           <td class="num">${c.alcance?.toLocaleString('es-MX') || '-'}</td>
           <td class="num">${(c.cumplimiento || 0).toFixed(1)}%</td>
           <td class="num">${c.porcentajePago !== undefined ? c.porcentajePago+'%' : '-'}</td>
           <td class="num">${formatCurrency(c.montoBono || 0)}</td>
         </tr>
-        ${escalasHtml ? `<tr class="esc-row"><td colspan="7"><div class="esc-title">Escalones / Ponderación aplicada</div>${escalasHtml}</td></tr>` : ''}
+        ${escalasHtml ? `<tr class="esc-row"><td colspan="8"><div class="esc-title">Escalones / Ponderación aplicada</div>${escalasHtml}</td></tr>` : ''}
         `;
       }).join('');
 
@@ -187,13 +188,13 @@ export default function ImprimirCovas() {
             <td colspan="7">
               <table class="detail">
                 <colgroup>
-                  <col style="width:6%"><col style="width:34%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%">
+                  <col style="width:5%"><col style="width:25%"><col style="width:12%"><col style="width:12%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:16%">
                 </colgroup>
                 <thead>
-                  <tr><th>#</th><th>Indicador</th><th>Meta</th><th>Alcance</th><th>% Cumpl.</th><th>% Pago</th><th>Bono</th></tr>
+                  <tr><th>#</th><th>Indicador</th><th>Esquema</th><th>Meta</th><th>Alcance</th><th>% Cumpl.</th><th>% Pago</th><th>Bono</th></tr>
                 </thead>
                 <tbody>
-                  ${comiRows || `<tr><td colspan="7" class="empty">Sin indicadores</td></tr>`}
+                  ${comiRows || `<tr><td colspan="8" class="empty">Sin indicadores</td></tr>`}
                 </tbody>
               </table>
             </td>

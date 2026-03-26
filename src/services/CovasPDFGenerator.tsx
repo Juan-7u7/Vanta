@@ -27,11 +27,12 @@ const styles = StyleSheet.create({
   cellBold: { fontSize: 8, fontWeight: 'bold' },
   cellGreen: { fontSize: 8, fontWeight: 'bold', color: '#059669' },
 
-  colNombre: { width: '35%' },
+  colNombre: { width: '28%' },
+  colEsquema: { width: '12%' },
   colMeta: { width: '15%', textAlign: 'right' },
   colAlcance: { width: '15%', textAlign: 'right' },
   colPct: { width: '15%', textAlign: 'right' },
-  colBono: { width: '20%', textAlign: 'right' },
+  colBono: { width: '15%', textAlign: 'right' },
 
   // AJUSTE & OTROS
   highlightRow: { flexDirection: 'row', backgroundColor: '#F0F9FF', padding: 8, marginTop: 4, borderRadius: 6 },
@@ -120,6 +121,7 @@ export const CovasDocument = ({ data, periodo }: { data: any[], periodo: { mes: 
               <Text style={styles.sectionTitle}>Indicadores de Desempeño</Text>
               <View style={styles.tableHeader}>
                 <View style={styles.colNombre}><Text style={styles.columnHeader}>Indicador</Text></View>
+                <View style={styles.colEsquema}><Text style={styles.columnHeader}>Esquema</Text></View>
                 <View style={styles.colMeta}><Text style={styles.columnHeader}>Meta</Text></View>
                 <View style={styles.colAlcance}><Text style={styles.columnHeader}>Alcance</Text></View>
                 <View style={styles.colPct}><Text style={styles.columnHeader}>% Cumpl.</Text></View>
@@ -128,6 +130,7 @@ export const CovasDocument = ({ data, periodo }: { data: any[], periodo: { mes: 
               {col.comisiones.map((c: any, i: number) => (
                 <View key={i} style={styles.tableRow}>
                   <View style={styles.colNombre}><Text style={styles.cell}>{c.nombre}</Text></View>
+                  <View style={styles.colEsquema}><Text style={styles.cell}>{(c.esquema_tipo || 'porcentaje').toUpperCase()}</Text></View>
                   <View style={styles.colMeta}><Text style={styles.cell}>{c.meta.toLocaleString('es-MX')}</Text></View>
                   <View style={styles.colAlcance}><Text style={styles.cell}>{c.alcance.toLocaleString('es-MX')}</Text></View>
                   <View style={styles.colPct}>
