@@ -29,6 +29,8 @@ export interface IndicadorEntrada {
   ponderacion: number; // 0-1
   escalones: EscalonPago[];
   tipo_colaborador: string; // Gerente | Ejecutivo | Operativo | etc
+  regla_calculo?: string; // presets como lineal_desde_70, meses_creciente, monto_fijo_por_tramo
+  metadata?: Record<string, any>; // params adicionales (tope, slope, etc)
 }
 
 export interface IndicadorResultado {
@@ -125,7 +127,18 @@ export function calcularBonoBruto(indicador: IndicadorEntrada): IndicadorResulta
     };
   }
 
-  const porcentajePago = buscarEscalonFlexible(cumplimiento, indicador.escalones, cumplimientoTexto);
+  let porcentajePago = buscarEscalonFlexible(cumplimiento, indicador.escalones, cumplimientoTexto);
+
+  // Reglas personalizadas por esquema
+  if (indicador.regla_calculo === 'lineal_desde_70') {
+    const tope = indicador.metadata?.tope ?? 120;
+    const slope = indicador.metadata?.slope ?? 1;
+    porcentajePago = cumplimiento < 70 ? 0 : Math.min(tope, cumplimiento * slope);
+  } else if (indicador.regla_calculo === 'meses_creciente') {
+    // ya cubierto por escalones; mantener porcentajePago calculado
+  } else if (indicador.regla_calculo === 'monto_fijo_por_tramo') {
+    // ya cubierto por escalones; mantener porcentajePago calculado
+  }
   const montoBono = techoFinanciero * (porcentajePago / 100);
 
   return {

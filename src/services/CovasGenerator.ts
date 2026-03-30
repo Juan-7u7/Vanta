@@ -79,7 +79,7 @@ export async function getColaboradorDataForReport(
     // 2. Metas/bonos por indicador con esquema y unidad
     const { data: rawIndicadores, error: errInd } = await supabase
       .from('metas_indicadores')
-      .select(`id, nombre_indicador, tipo_indicador, unidad_medida, ponderacion, esquema_pago_id, esquemas_pago:esquema_pago_id(tipo), ${columnasMes}`)
+      .select(`id, nombre_indicador, tipo_indicador, unidad_medida, ponderacion, esquema_pago_id, esquemas_pago:esquema_pago_id(slug, tipo), ${columnasMes}`)
       .eq('colaborador_id', colaborador_id)
       .eq('anio', anio);
     if (errInd) throw errInd;
@@ -145,9 +145,23 @@ export async function getColaboradorDataForReport(
     const ponderacionDefault = 1 / totalIndicadores;
     const bonoTotalColaborador = 0; // sin monto_base en esquema, fallback se usa más abajo
 
+    const inferirRegla = (slug?: string) => {
+      if (!slug) return undefined;
+      const s = slug.toLowerCase();
+      if (s.includes('porcentaje-70')) return 'lineal_desde_70';
+      if (s.includes('meses-creciente')) return 'meses_creciente';
+      if (s.includes('comision-directa')) return 'monto_fijo_por_tramo';
+      return undefined;
+    };
+
     for (const mInd of indicadoresData) {
       // escalones por indicador; si no hay esquema_id, usar fallback sin llamar API
       const esquemaId = (mInd as any).esquema_pago_id;
+      const esquemaSlug = (mInd as any).esquemas_pago?.slug as string | undefined;
+      const regla_calculo = inferirRegla(esquemaSlug);
+      const metadataRegla = regla_calculo === 'lineal_desde_70'
+        ? { tope: 120, slope: 1 }
+        : undefined;
       let escalones = [
         { limite_inferior: 0, limite_superior: 89.9, porcentaje_pago: 0 },
         { limite_inferior: 90, limite_superior: 9999, porcentaje_pago: 100 }
@@ -177,7 +191,9 @@ export async function getColaboradorDataForReport(
         ponderacion,
         categoria,
         escalones,
-        tipo_colaborador: col.tipo_colaborador || col.puesto || ''
+        tipo_colaborador: col.tipo_colaborador || col.puesto || '',
+        regla_calculo,
+        metadata: metadataRegla
       });
     }
 
