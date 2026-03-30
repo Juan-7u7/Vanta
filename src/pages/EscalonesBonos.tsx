@@ -57,7 +57,7 @@ export default function EscalonesBonos() {
   const [deleteTarget, setDeleteTarget] = useState<Esquema | null>(null);
   const [dependientesColabs, setDependientesColabs] = useState<any[]>([]);
   const [dependientesMetas, setDependientesMetas] = useState<any[]>([]);
-  const [destinoEsquemaId, setDestinoEsquemaId] = useState<number | null>(null);
+  const [destinoEsquemaId, setDestinoEsquemaId] = useState<number | null | undefined>(undefined);
 
   useEffect(() => {
     fetchEsquemas();
@@ -640,10 +640,10 @@ const helpCopy: Record<string, string[]> = {
               <label className="text-[10px] font-black text-gray-400 uppercase">Mover referencias a</label>
               <select
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500"
-                value={destinoEsquemaId ?? ''}
+                value={destinoEsquemaId === null ? 'null' : destinoEsquemaId === undefined ? '' : destinoEsquemaId}
                 onChange={e => {
-                  if (e.target.value === '') return setDestinoEsquemaId(undefined);
-                  if (e.target.value === 'null') return setDestinoEsquemaId(null);
+                  if (e.target.value === '') { setDestinoEsquemaId(undefined); return; }
+                  if (e.target.value === 'null') { setDestinoEsquemaId(null); return; }
                   setDestinoEsquemaId(Number(e.target.value));
                 }}
               >
