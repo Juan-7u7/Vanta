@@ -25,8 +25,10 @@ ALTER TABLE esquemas_pago ADD COLUMN fuente text;
 ```
 
 ## Datos de prueba
-- Agrega registros dummy en `colaboradores`, `indicadores`, `ingresos_mensuales` para probar PDFs.
-- Usa seeds separados o importa CSV desde Supabase si ya existen.
+- Archivos listos en `db/`:
+  - `db/schema.sql` – DDL mínimamente necesario para local/QA.
+  - `db/seed_sample.sql` – Datos dummy (1 colaborador, metas, alcances, salario, otros ingresos).
+- Importa con `psql < db/schema.sql` y luego `psql < db/seed_sample.sql` o pega en el SQL editor de Supabase.
 
 ## Backups
 - Desde consola Supabase: `pg_dump` para export; `pg_restore` para importar.
