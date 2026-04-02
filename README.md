@@ -1,37 +1,43 @@
-# Vanta Media - Sistema de Compensaciones 2026
+# Vanta Media – Sistema de Compensaciones 2026
 
-Sistema integral para la gestión, cálculo y generación de Planes de Compensación Variable (COVAS) para Vanta Media.
+Aplicacion web para gestionar y calcular planes de compensacion variable (COVAS). Stack: React 18 + TypeScript + Vite + TailwindCSS, Supabase como backend y auth, generacion de PDF con @react-pdf/renderer y jsPDF.
 
-## 🚀 Tecnologías Principales
-- **Frontend**: React 18 + TypeScript + Vite
-- **Estilos**: Tailwind CSS (Lucide React para iconos)
-- **Base de Datos & Auth**: Supabase
-- **PDF**: @react-pdf/renderer (Generación dinámica de documentos)
+## Inicio rapido
+- Requisitos: Node 20+, npm, acceso a Supabase (URL y keys), Git.
+- Instalar dependencias: `npm install`
+- Variables: copia `docs/secrets.example.env` a `.env` y completa tus claves.
+- Desarrollo: `npm run dev`
+- Lint: `npm run lint`
+- Build: `npm run build`
+- Previsualizar build: `npm run preview`
+- Sembrar plantillas en BD: `npm run seed:plantillas` (requiere servicio Supabase con permisos de escritura).
 
-## 📁 Estructura del Proyecto
-- `/src/components`: Componentes reutilizables de UI y componentes complejos como los visualizadores de PDF.
-- `/src/context`: Contextos globales (ej. AuthContext para manejo de sesiones).
-- `/src/lib`: Configuraciones de librerías externas (Supabase client).
-- `/src/pages`: Vistas principales del sistema (Dashboard, Usuarios, Indicadores, etc.).
-- `/src/services`: Lógica de negocio pesada, como la orquestación de generación de archivos.
-- `/src/utils`: Funciones de utilidad puras y lógica de cálculo matemático/financiero.
+## Arquitectura breve
+- `src/pages` vistas principales (Dashboard, Bonos, Escalones, etc.).
+- `src/components` modales y UI reutilizable, PDFs declarativos.
+- `src/services` generadores PDF imperativo/declarativo y fetch de datos.
+- `src/utils` motor financiero (covasLogic*).
+- `src/config` plantillas de esquemas predefinidas.
+- `src/lib/supabase.ts` inicializacion del cliente.
 
-## 🛠️ Instalación y Desarrollo
-1. Clonar el repositorio.
-2. Instalar dependencias: `npm install`
-3. Configurar variables de entorno (`.env`):
-   ```env
-   VITE_SUPABASE_URL=tu_url
-   VITE_SUPABASE_ANON_KEY=tu_key
-   ```
-4. Iniciar servidor de desarrollo: `npm run dev`
+## Documentacion
+Plantillas completas en `docs/`:
+- `docs/setup.md` – instalacion, entorno, primer arranque.
+- `docs/architecture.md` – modulos, flujos de datos y decisiones.
+- `docs/operations.md` – despliegue, monitoreo, accesos.
+- `docs/ci_cd.md` – pipelines y convenciones de calidad.
+- `docs/db.md` – tablas clave, seeds y backup/restore.
+- `docs/troubleshooting.md` – errores comunes y fixes rapidos.
+- `docs/roadmap.md` – pendientes y mejoras sugeridas.
+- `docs/secrets.example.env` – plantilla de variables sin secretos.
 
-## 📖 Mantenimiento y Escalabilidad
-El proyecto sigue un enfoque modular:
-1. **Lógica separada**: Los cálculos de bonos residen en `utils/covasLogic.ts` para facilitar pruebas unitarias.
-2. **Servicios**: La generación de PDFs está aislada en servicios para permitir cambios de librería sin afectar la UI.
-3. **Tipado Estricto**: Se utiliza TypeScript en todo el proyecto para minimizar errores en tiempo de ejecución.
+Docs especificas existentes:
+- `DOCS_COLABORADOR.md` – generacion de PDFs.
+- `README_LOGICA_FINANCIERA.md` – motor de calculos COVAS.
 
-## 📝 Documentación de Funciones Especiales
-Las funciones críticas de cálculo y seguridad están documentadas con JSDoc dentro del código para referencia rápida en el IDE.
+## Despliegue sugerido
+- Vercel (ver `vercel.json` rewrite SPA).
+- Configura `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en los env de Vercel. Para tareas de seed usa una clave de servicio solo en entorno seguro.
 
+## Licencia y soporte
+Licencia no especificada en el repo. Incluye en `LICENSE` si aplica. Contactos y accesos en `docs/operations.md`.
