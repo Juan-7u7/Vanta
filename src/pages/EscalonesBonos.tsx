@@ -1,4 +1,4 @@
-/** final 3.0 - Gestión de Esquemas y Plantillas */
+﻿/** final 3.0 - Gestión de Esquemas y Plantillas */
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import {
@@ -260,7 +260,7 @@ const helpCopy: Record<string, string[]> = {
     porcentaje: [
       'Define el piso: debajo del 70% no paga (ajusta tus rangos).',
       'Usa el tope en el último escalón para limitar el pago (>100%).',
-      'Porcentaje de pago se aplica sobre el monto objetivo de ese indicador.',
+      'El porcentaje de pago se aplica sobre el monto objetivo de ese indicador.',
     ],
     meses: [
       'Cada fila representa un mes de evaluación (mes1, mes2...).',
@@ -283,7 +283,7 @@ const helpCopy: Record<string, string[]> = {
     if (tipo === 'monto') return 'Rango (%)';
     if (tipo === 'meses') return 'Rango (Meses)';
     if (tipo === 'porcentaje') return 'Rango (%)';
-    if (tipo === 'ranking') return 'Rango (Posición)';
+    if (tipo === 'ranking') return 'Rango (posición)';
     return 'Rango';
   };
 
@@ -376,7 +376,7 @@ const helpCopy: Record<string, string[]> = {
                   </div>
                   <div>
                     <p className="text-xs font-bold truncate max-w-[120px]">{e.nombre}</p>
-                    <p className={`text-[9px] uppercase font-bold opacity-60`}>{e.tipo}{e.fuente === 'plantilla' ? ' · Plantilla' : ''}</p>
+                    <p className={`text-[9px] uppercase font-bold opacity-60`}>{e.tipo}{e.fuente === 'plantilla' ? ' Â· Plantilla' : ''}</p>
                   </div>
                 </div>
                 <div className="absolute top-2 right-2 flex gap-1 transition-all">
@@ -421,7 +421,7 @@ const helpCopy: Record<string, string[]> = {
                       onClick={() => { setEditingEscalonId('new'); setEscalonFormData({ limite_inferior: 0, limite_superior: 0, porcentaje_pago: 0 }); }}
                       className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold rounded-xl hover:bg-indigo-500 hover:text-white transition-all text-xs"
                     >
-                      <Plus size={16} /> Agregar Escalón
+                      <Plus size={16} /> Agregar escalón
                     </button>
                     <button
                       onClick={async () => {
@@ -438,10 +438,10 @@ const helpCopy: Record<string, string[]> = {
                   </div>
                </div>
 
-               {/* Ayuda contextual rÃ¡pida */}
+               {/* Ayuda contextual rápida */}
                <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                  <div className="col-span-2 p-4 rounded-2xl border border-indigo-100 dark:border-white/10 bg-indigo-50/60 dark:bg-white/5">
-                   <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-2">CÃ³mo configurar</p>
+                   <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-2">Cómo configurar</p>
                    <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
                      {(helpCopy[currentEsquema.tipo] || []).map((h, i) => (
                        <li key={i} className="flex items-start gap-2">
@@ -452,9 +452,9 @@ const helpCopy: Record<string, string[]> = {
                    </ul>
                  </div>
                  <div className="p-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white/70 dark:bg-black/30">
-                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Consejo rÃ¡pido</p>
+                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Consejo rápido</p>
                    <p className="text-sm text-gray-700 dark:text-gray-200">
-                     Ordena los rangos sin huecos ni solapes y usa el Ãºltimo escalÃ³n como tope.
+                     Ordena los rangos sin huecos ni solapes y usa el último escalón como tope.
                    </p>
                  </div>
                </div>
@@ -476,9 +476,9 @@ const helpCopy: Record<string, string[]> = {
                      <tr className="bg-indigo-500/5">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <input type="number" step="0.01" value={escalonFormData.limite_inferior} onChange={e => setEscalonFormData({...escalonFormData, limite_inferior: parseFloat(e.target.value)})} className="w-20 px-3 py-2 bg-white dark:bg-black/20 border border-indigo-500/30 rounded-xl text-xs outline-none" placeholder="Min" />
+                            <input type="number" step="0.01" value={escalonFormData.limite_inferior} onChange={e => setEscalonFormData({...escalonFormData, limite_inferior: parseFloat(e.target.value)})} className="w-20 px-3 py-2 bg-white dark:bg-black/20 border border-indigo-500/30 rounded-xl text-xs outline-none text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" placeholder="Min" />
                             <ArrowRight size={12} className="text-gray-400" />
-                            <input type="number" step="0.01" value={escalonFormData.limite_superior} onChange={e => setEscalonFormData({...escalonFormData, limite_superior: parseFloat(e.target.value)})} className="w-20 px-3 py-2 bg-white dark:bg-black/20 border border-indigo-500/30 rounded-xl text-xs outline-none" placeholder="Max" />
+                            <input type="number" step="0.01" value={escalonFormData.limite_superior} onChange={e => setEscalonFormData({...escalonFormData, limite_superior: parseFloat(e.target.value)})} className="w-20 px-3 py-2 bg-white dark:bg-black/20 border border-indigo-500/30 rounded-xl text-xs outline-none text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" placeholder="Max" />
                           </div>
                         </td>
                         <td className="px-6 py-4 text-center text-xs text-gray-500">
@@ -486,7 +486,7 @@ const helpCopy: Record<string, string[]> = {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-center gap-2">
-                            <input type="number" step="0.01" value={escalonFormData.porcentaje_pago} onChange={e => setEscalonFormData({...escalonFormData, porcentaje_pago: parseFloat(e.target.value)})} className="w-20 px-3 py-2 bg-white dark:bg-black/20 border border-indigo-500/30 rounded-xl text-xs text-center font-bold" />
+                            <input type="number" step="0.01" value={escalonFormData.porcentaje_pago} onChange={e => setEscalonFormData({...escalonFormData, porcentaje_pago: parseFloat(e.target.value)})} className="w-20 px-3 py-2 bg-white dark:bg-black/20 border border-indigo-500/30 rounded-xl text-xs text-center font-bold text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" />
                             <span className="text-xs text-indigo-500 font-bold">%</span>
                           </div>
                          </td>
@@ -523,14 +523,14 @@ const helpCopy: Record<string, string[]> = {
                                <button
                                  onClick={() => { setEditingEscalonId(esc.id); setEscalonFormData(esc); }}
                                  className="p-2 bg-indigo-50 dark:bg-indigo-500/5 text-indigo-400 hover:bg-indigo-500 hover:text-white rounded-xl transition-all shadow-sm"
-                                 title="Editar Escalón"
+                                 title="Editar escalón"
                                >
                                  <Edit2 size={14} />
                                </button>
                                <button
-                                 onClick={() => { if(confirm('¿Eliminar?')) supabase.from('escalones_bonos').delete().eq('id', esc.id).then(() => fetchEscalones(selectedEsquemaId!)); }}
+                                 onClick={() => { if(confirm('Â¿Eliminar?')) supabase.from('escalones_bonos').delete().eq('id', esc.id).then(() => fetchEscalones(selectedEsquemaId!)); }}
                                  className="p-2 bg-red-50 dark:bg-red-500/5 text-red-400 hover:bg-red-600 hover:text-white rounded-xl transition-all shadow-sm"
-                                 title="Eliminar Escalón"
+                                 title="Eliminar escalón"
                                >
                                  <Trash2 size={14} />
                                </button>
@@ -560,11 +560,21 @@ const helpCopy: Record<string, string[]> = {
             <div className="space-y-4">
               <div className="space-y-1">
                 <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Nombre</label>
-                <input type="text" value={editingEsquema?.nombre} onChange={e => setEditingEsquema({...editingEsquema, nombre: e.target.value})} className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Ej: Operativos Planta" />
+                <input
+                  type="text"
+                  value={editingEsquema?.nombre}
+                  onChange={e => setEditingEsquema({...editingEsquema, nombre: e.target.value})}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                  placeholder="Ej: Operativos Planta"
+                />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Tipo de Lógica</label>
-                <select value={editingEsquema?.tipo} onChange={e => setEditingEsquema({...editingEsquema, tipo: e.target.value as any})} className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 appearance-none">
+                <select
+                  value={editingEsquema?.tipo}
+                  onChange={e => setEditingEsquema({...editingEsquema, tipo: e.target.value as any})}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 appearance-none text-gray-800 dark:text-white"
+                >
                   <option value="porcentaje">Porcentaje de Cumplimiento (%)</option>
                   <option value="meses">Antigüedad (Meses)</option>
                   <option value="monto">Monto de Ventas ($)</option>
@@ -572,8 +582,13 @@ const helpCopy: Record<string, string[]> = {
                 </select>
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-black text-gray-400 uppercase ml-1">Descripción</label>
-                <textarea value={editingEsquema?.descripcion} onChange={e => setEditingEsquema({...editingEsquema, descripcion: e.target.value})} className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500" rows={3} />
+                <label className="text-[10px] font-black text-gray-400 uppercase ml-1">descripción</label>
+                <textarea
+                  value={editingEsquema?.descripcion}
+                  onChange={e => setEditingEsquema({...editingEsquema, descripcion: e.target.value})}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                  rows={3}
+                />
               </div>
             </div>
             <div className="mt-8 flex gap-3">
@@ -693,5 +708,9 @@ const helpCopy: Record<string, string[]> = {
     </div>
   );
 }
+
+
+
+
 
 
