@@ -75,6 +75,11 @@ export const CovasDocument = ({ data, periodo }: { data: any[], periodo: { mes: 
         })));
 
         const percepcionTotal = col.sueldoBase + sumaBonos + sumaOtros + resAjuste.ajuste;
+        const mesesEnRango = col.mesesEnRango || 1;
+        const sueldoBaseMensual = col.sueldoBaseMensual ?? col.sueldoBase;
+        const sueldoBaseLabel = mesesEnRango > 1
+          ? `${formatCurrency(sueldoBaseMensual)} x ${mesesEnRango} meses = ${formatCurrency(col.sueldoBase)}`
+          : formatCurrency(sueldoBaseMensual);
 
         console.log(`Colaborador: ${col.nombre}`);
         console.log(` > Base: ${col.sueldoBase}`);
@@ -100,7 +105,7 @@ export const CovasDocument = ({ data, periodo }: { data: any[], periodo: { mes: 
             <View style={styles.cardsContainer}>
               <View style={styles.card}>
                 <Text style={styles.cardLabel}>Sueldo Base</Text>
-                <Text style={styles.cardValue}>{formatCurrency(col.sueldoBase)}</Text>
+                <Text style={styles.cardValue}>{sueldoBaseLabel}</Text>
               </View>
               <View style={styles.card}>
                 <Text style={styles.cardLabel}>Bonos Ganados</Text>

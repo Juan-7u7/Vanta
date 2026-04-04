@@ -63,6 +63,13 @@ export default function ImprimirCovas() {
     const win = existingWin || window.open('', '_blank');
     if (!win) return;
     const rowsHtml = data.map(col => {
+      const formatBaseDetail = (mensual: number, meses: number, total: number) => {
+        const m = meses && meses > 0 ? meses : 1;
+        return m > 1
+          ? `${formatCurrency(mensual || 0)} x ${m} meses = ${formatCurrency(total || 0)}`
+          : formatCurrency(mensual || total || 0);
+      };
+
       const totalBonos = col.totales?.subtotalBonos || 0;
       const otros = col.totales?.totalOtrosIngresos || 0;
       const anticipos = col.anticipos_aplicables || 0;
@@ -71,6 +78,7 @@ export default function ImprimirCovas() {
       const totalPercepcion = sueldoBase + totalBonos + otros - anticipos + saldoArr;
       const qMark = toQuarter(periodo);
       const qCols: Record<string,string> = { Q1:'-',Q2:'-',Q3:'-',Q4:'-',TOTAL: formatCurrency(totalPercepcion) };
+      const qColsBase: Record<string,string> = { Q1:'-',Q2:'-',Q3:'-',Q4:'-',TOTAL: formatBaseDetail(col.sueldoBaseMensual ?? sueldoBase, col.mesesEnRango ?? 1, sueldoBase) };
       if (col.quarterMap) {
         ['Q1','Q2','Q3','Q4'].forEach((qid: any) => {
           const qd = (col.quarterMap as any)[qid];
@@ -82,6 +90,7 @@ export default function ImprimirCovas() {
             const qsa = qd.saldo_pendiente_arrastrado || 0;
             const tp = qs + qb + qo - qa + qsa;
             qCols[qid] = formatCurrency(tp);
+            qColsBase[qid] = formatBaseDetail(qd.sueldoBaseMensual ?? qs, qd.mesesEnRango ?? 1, qs);
           }
         });
         qCols.TOTAL = formatCurrency(
@@ -91,8 +100,10 @@ export default function ImprimirCovas() {
             return acc + num;
           }, 0)
         );
+        qColsBase.TOTAL = formatBaseDetail(col.sueldoBaseMensual ?? sueldoBase, col.mesesEnRango ?? 1, sueldoBase);
       } else if (['Q1','Q2','Q3','Q4'].includes(qMark)) {
         qCols[qMark] = formatCurrency(totalPercepcion);
+        qColsBase[qMark] = formatBaseDetail(col.sueldoBaseMensual ?? sueldoBase, col.mesesEnRango ?? 1, sueldoBase);
       }
 
       const comiRowsArr = (col.comisiones || []).map((c: any, idx: number) => {
@@ -129,7 +140,7 @@ export default function ImprimirCovas() {
           <td class="num">${c.meta?.toLocaleString('es-MX') || '-'}</td>
           <td class="num">${c.alcance?.toLocaleString('es-MX') || '-'}</td>
           <td class="num">${(c.cumplimiento || 0).toFixed(1)}%</td>
-          <td class="num">${c.porcentajePago !== undefined ? c.porcentajePago+'%' : '-'}</td>
+          <td class="num">${c.porcentajePago !== undefined ? Number(c.porcentajePago).toFixed(2)+'%' : '-'}</td>
           <td class="num">${formatCurrency(c.montoBono || 0)}</td>
         </tr>
         ${escalasHtml ? `<tr class="esc-row"><td colspan="8"><div class="esc-title">Escalones / Ponderación aplicada</div>${escalasHtml}</td></tr>` : ''}
@@ -170,11 +181,11 @@ export default function ImprimirCovas() {
           </tr>
           <tr>
             <td class="sub" colspan="2">SUELDO FIJO MENSUALIZADO</td>
-            <td class="num">${qCols.Q1}</td>
-            <td class="num">${qCols.Q2}</td>
-            <td class="num">${qCols.Q3}</td>
-            <td class="num">${qCols.Q4}</td>
-            <td class="num strong">${qCols.TOTAL}</td>
+            <td class="num">${qColsBase.Q1}</td>
+            <td class="num">${qColsBase.Q2}</td>
+            <td class="num">${qColsBase.Q3}</td>
+            <td class="num">${qColsBase.Q4}</td>
+            <td class="num strong">${qColsBase.TOTAL}</td>
           </tr>
           <tr>
             <td class="sub" colspan="2">BONO TOTAL (antes anticipos)</td>
@@ -894,7 +905,7 @@ export default function ImprimirCovas() {
                            </div>
                            <div className="text-right">
                              <p className="text-[11px] text-gray-500 dark:text-gray-400">Cumplimiento: {c.cumplimiento?.toFixed(1)}%</p>
-                             <p className="text-[11px] text-gray-500 dark:text-gray-400">Pago: {c.porcentajePago ? `${c.porcentajePago}%` : '0%'}</p>
+                            <p className="text-[11px] text-gray-500 dark:text-gray-400">Pago: {c.porcentajePago ? `${Number(c.porcentajePago).toFixed(2)}%` : '0%'}</p>
                              <p className="text-sm font-bold text-indigo-600 dark:text-indigo-300">
                                {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(c.montoBono || 0)}
                              </p>

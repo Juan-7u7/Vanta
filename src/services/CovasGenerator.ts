@@ -53,6 +53,7 @@ export async function getColaboradorDataForReport(
     ? resolveCustomRange(mesesCustom[0], mesesCustom[mesesCustom.length - 1])
     : resolvePeriodMonths(mes);
   if (!mesesPeriodo.length) return null;
+  const mesesEnRango = mesesPeriodo.length;
   const columnasMes = mesesPeriodo.join(', ');
   
   try {
@@ -106,6 +107,17 @@ export async function getColaboradorDataForReport(
       .eq('anio', anio)
       .maybeSingle();
     const salarioSafe = errSal ? null : salarioRow;
+    // Show monthly base detail with month count
+    const sueldoBaseMensual = (() => {
+      if (!salarioSafe || mesesPeriodo.length === 0) return 0;
+      const mensualidades = mesesPeriodo.map(m => Number((salarioSafe as any)[m] || 0));
+      const firstNonZero = mensualidades.find(v => v > 0);
+      if (firstNonZero !== undefined) return firstNonZero;
+      const fallback = mensualidades[0];
+      if (fallback && mesesPeriodo.length > 1) return fallback;
+      const total = sumColumns(salarioSafe, mesesPeriodo);
+      return mesesPeriodo.length ? total / mesesPeriodo.length : 0;
+    })();
 
     // 5. Aprobaciones del periodo
     const { data: aprobRows } = await supabase
@@ -213,6 +225,8 @@ export async function getColaboradorDataForReport(
       puesto: col.puesto,
       unidades_negocio: (col as any).unidades_negocio || null,
       sueldoBase: salarioSafe ? sumColumns(salarioSafe, mesesPeriodo) : 0,
+      sueldoBaseMensual,
+      mesesEnRango,
       comisiones: resultados,
       otrosIngresos,
       esquema_tipo: (esquemaPago as any)?.tipo || 'porcentaje',
@@ -324,6 +338,8 @@ export async function getColaboradorDataForQuarter(
       totalNetoMensual: liquidacion.netoAPagar
     },
     aprobaciones: valid[0].aprobaciones,
-    sueldoBase: valid.reduce((acc, r) => acc + (r.sueldoBase || 0), 0) // sumar los 3 meses del Q
+    sueldoBase: valid.reduce((acc, r) => acc + (r.sueldoBase || 0), 0), // sumar los 3 meses del Q
+    sueldoBaseMensual: valid.find(r => (r as any).sueldoBaseMensual && (r as any).sueldoBaseMensual > 0)?.sueldoBaseMensual || valid[0].sueldoBaseMensual || 0,
+    mesesEnRango: mesesDelQ.length
   };
 }
