@@ -1,12 +1,13 @@
 /** final 1.0 */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { 
   Menu, X, ChevronDown, CircleDollarSign, 
   TrendingUp, Settings, FileText, Bell, LogOut
 } from 'lucide-react';
 
-const MODULES = [
+const BASE_MODULES = [
   {
     title: 'Módulo de compensaciones',
     icon: CircleDollarSign,
@@ -53,10 +54,51 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ onLogout }: SidebarProps) {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [showAlerts, setShowAlerts] = useState(false);
+
+  const isContralor = useMemo(() => {
+    const email = user?.email?.toLowerCase() || '';
+    return email.startsWith('contralor');
+  }, [user]);
+
+  const MODULES = useMemo(() => {
+    if (!isContralor) return BASE_MODULES;
+
+    // Menú restringido para contralor (solo prefijo de correo).
+    return [
+      {
+        title: 'Módulo de compensaciones',
+        icon: CircleDollarSign,
+        options: [
+          { name: 'Indicadores', path: '/dashboard/indicadores' },
+          { name: 'Salarios', path: '/dashboard/salarios' },
+          { name: 'Alcance', path: '/dashboard/alcance' },
+          { name: 'Comisiones Directas (solo lectura)', path: '/dashboard/comisiones-directas' },
+          { name: 'Opción no disponible', disabled: true, path: '#' },
+        ],
+      },
+      {
+        title: 'Configuración del sistema',
+        icon: Settings,
+        options: [
+          { name: 'Escalones', path: '/dashboard/escalones' },
+          { name: 'Opción no disponible', disabled: true, path: '#' },
+        ],
+      },
+      {
+        title: 'Consulta de reportes',
+        icon: FileText,
+        options: [
+          { name: 'Imprimir COVAS', path: '/dashboard/covas' },
+          { name: 'Opción no disponible', disabled: true, path: '#' },
+        ],
+      },
+    ];
+  }, [isContralor]);
 
   useEffect(() => {
     const handleResize = () => {
