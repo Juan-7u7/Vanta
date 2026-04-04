@@ -18,7 +18,6 @@ export default function ColaboradorModal({ isOpen, onClose, onSuccess, initialDa
   const [unidades, setUnidades] = useState<{id: number, nombre: string}[]>([]);
   const [perfiles, setPerfiles] = useState<{id: number, nombre_perfil: string}[]>([]);
   const [jefes, setJefes] = useState<{id: string, nombre: string, apellido_paterno: string}[]>([]);
-  const [esquemas, setEsquemas] = useState<{id: number, nombre: string}[]>([]);
 
   const [formData, setFormData] = useState({
     matricula: '',
@@ -32,7 +31,6 @@ export default function ColaboradorModal({ isOpen, onClose, onSuccess, initialDa
     unidad_negocio_id: '',
     perfil_id: '',
     jefe_id: '',
-    esquema_pago_id: '',
     esta_activo: true,
     fecha_ingreso: new Date().toISOString().split('T')[0]
   });
@@ -53,7 +51,6 @@ export default function ColaboradorModal({ isOpen, onClose, onSuccess, initialDa
           unidad_negocio_id: initialData.unidad_negocio_id?.toString() || '',
           perfil_id: initialData.perfil_id?.toString() || '',
           jefe_id: initialData.jefe_id || '',
-          esquema_pago_id: initialData.esquema_pago_id?.toString() || '',
           esta_activo: initialData.esta_activo ?? true,
           fecha_ingreso: initialData.fecha_ingreso || new Date().toISOString().split('T')[0]
         });
@@ -61,7 +58,7 @@ export default function ColaboradorModal({ isOpen, onClose, onSuccess, initialDa
         setFormData({
           matricula: '', nombre: '', apellido_paterno: '', apellido_materno: '',
           email: '', puesto: '', area: '', razon_social: 'VANTA MEDIA S.A. DE C.V.',
-          unidad_negocio_id: '', perfil_id: '', jefe_id: '', esquema_pago_id: '',
+          unidad_negocio_id: '', perfil_id: '', jefe_id: '',
           esta_activo: true, fecha_ingreso: new Date().toISOString().split('T')[0]
         });
       }
@@ -70,16 +67,14 @@ export default function ColaboradorModal({ isOpen, onClose, onSuccess, initialDa
 
   const fetchCatalogs = async () => {
     try {
-      const [uRes, pRes, jRes, eRes] = await Promise.all([
+      const [uRes, pRes, jRes] = await Promise.all([
         supabase.from('unidades_negocio').select('id, nombre'),
         supabase.from('perfiles_seguridad').select('id, nombre_perfil'),
-        supabase.from('colaboradores').select('id, nombre, apellido_paterno').eq('esta_activo', true),
-        supabase.from('esquemas_pago').select('id, nombre')
+        supabase.from('colaboradores').select('id, nombre, apellido_paterno').eq('esta_activo', true)
       ]);
 
       if (uRes.data) setUnidades(uRes.data);
       if (pRes.data) setPerfiles(pRes.data);
-      if (eRes.data) setEsquemas(eRes.data);
       if (jRes.data) {
         // Excluir al propio colaborador de la lista de jefes si estamos editando
         const filteredJefes = initialData 
@@ -101,8 +96,7 @@ export default function ColaboradorModal({ isOpen, onClose, onSuccess, initialDa
       ...formData,
       unidad_negocio_id: formData.unidad_negocio_id ? parseInt(formData.unidad_negocio_id) : null,
       perfil_id: formData.perfil_id ? parseInt(formData.perfil_id) : null,
-      jefe_id: formData.jefe_id || null,
-      esquema_pago_id: formData.esquema_pago_id ? parseInt(formData.esquema_pago_id) : null
+      jefe_id: formData.jefe_id || null
     };
 
     try {
@@ -325,25 +319,6 @@ export default function ColaboradorModal({ isOpen, onClose, onSuccess, initialDa
               </button>
             </div>
 
-            {/* Esquema de Pago */}
-            <div className="space-y-1.5 md:col-span-2">
-              <label className="text-xs font-bold text-gray-400 uppercase ml-1">Esquema de Pago (Cálculo de Montos)</label>
-              <select 
-                value={formData.esquema_pago_id}
-                onChange={e => setFormData({...formData, esquema_pago_id: e.target.value})}
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-blue-500/50 outline-none transition-all dark:text-white text-sm cursor-pointer appearance-none"
-              >
-                <option value="" className="bg-white dark:bg-[#1a1f2e] text-gray-900 dark:text-gray-300">Seleccionar esquema...</option>
-                {esquemas.map(e => (
-                  <option key={e.id} value={e.id} className="bg-white dark:bg-[#1a1f2e] text-gray-900 dark:text-gray-300">
-                    {e.nombre}
-                  </option>
-                ))}
-              </select>
-              <p className="text-[10px] text-gray-400 mt-1 ml-1">
-                Esto define si el monto se calcula por % de cumplimiento, por meses de antigüedad o por monto.
-              </p>
-            </div>
           </div>
 
           <div className="mt-8 flex gap-3">

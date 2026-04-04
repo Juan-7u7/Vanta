@@ -179,8 +179,8 @@ export default function EscalonesBonos() {
         setError('El límite superior debe ser mayor o igual al inferior.');
         return;
       }
-      if (pp < 0 || pp > 100) {
-        setError('El porcentaje debe estar entre 0 y 100.');
+      if (pp < 0 || pp > 200) {
+        setError('El porcentaje debe estar entre 0 y 200.');
         return;
       }
       const overlaps = escalones.some(e => {
