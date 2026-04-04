@@ -95,7 +95,7 @@ export default function ImprimirCovas() {
         qCols[qMark] = formatCurrency(totalPercepcion);
       }
 
-      const comiRows = (col.comisiones || []).map((c: any, idx: number) => {
+      const comiRowsArr = (col.comisiones || []).map((c: any, idx: number) => {
         const escalones = c.escalones || [];
         const escalasHtml = escalones.length ? `
           <table class="escalones-table">
@@ -134,14 +134,29 @@ export default function ImprimirCovas() {
         </tr>
         ${escalasHtml ? `<tr class="esc-row"><td colspan="8"><div class="esc-title">Escalones / Ponderación aplicada</div>${escalasHtml}</td></tr>` : ''}
         `;
-      }).join('');
+      });
 
-      return `
-      <section class="sheet">
-        <header class="header">
-          <div class="title">PLAN DE COMPENSACIÓN VARIABLE</div>
-          <div class="year">${year}</div>
-        </header>
+      const chunkSize = 12; // filas de indicadores por página estándar
+      const maxRowsInlineFooter = 1; // allow inline footer only with 0–1 indicadores
+      const chunkedRows = [];
+      const useInlineFooter = comiRowsArr.length <= maxRowsInlineFooter;
+
+      if (!comiRowsArr.length) {
+        chunkedRows.push(`<tr><td colspan="8" class="empty">Sin indicadores</td></tr>`);
+      } else if (useInlineFooter) {
+        chunkedRows.push(comiRowsArr.slice(0, maxRowsInlineFooter).join(''));
+      } else {
+        for (let i = 0; i < comiRowsArr.length; i += chunkSize) {
+          chunkedRows.push(comiRowsArr.slice(i, i + chunkSize).join(''));
+        }
+      }
+
+      const sheets = chunkedRows.map((chunkRows, chunkIndex) => `
+        <section class="sheet${chunkIndex > 0 ? ' sheet--cont' : ''}">
+          <header class="header">
+            <div class="title">PLAN DE COMPENSACIÓN VARIABLE</div>
+            <div class="year">${year}</div>
+          </header>
 
         <div class="collab-banner">
           <div class="collab-line"><span class="label">Colaborador:</span> ${col.nombre || '-'} &nbsp;|&nbsp; <span class="label">Puesto:</span> ${col.puesto || '-'} &nbsp;|&nbsp; <span class="label">Matrícula:</span> ${col.matricula || '-'}</div>
@@ -194,21 +209,16 @@ export default function ImprimirCovas() {
                   <tr><th>#</th><th>Indicador</th><th>Esquema</th><th>Meta</th><th>Alcance</th><th>% Cumpl.</th><th>% Pago</th><th>Bono</th></tr>
                 </thead>
                 <tbody>
-                  ${comiRows || `<tr><td colspan="8" class="empty">Sin indicadores</td></tr>`}
+                  ${chunkRows}
                 </tbody>
               </table>
             </td>
           </tr>
         </table>
+        </section>
+      `);
 
-        <!-- Footnotes duplicados; se dejan comentados para evitar repetición de datos del colaborador -->
-        <!--
-        <div class="footnotes">
-          <p><strong>Colaborador:</strong> ${col.nombre} &nbsp;|&nbsp; <strong>Puesto:</strong> ${col.puesto || '-'} &nbsp;|&nbsp; <strong>Matrícula:</strong> ${col.matricula || '-'}</p>
-          <p>Periodo: ${periodo} &nbsp;|&nbsp; Otros ingresos: ${formatCurrency(otros)}</p>
-        </div>
-        -->
-
+      const footerHtml = `
         <div class="footer-block">
           <div class="notes-card">
             <div class="notes-title">Notas</div>
@@ -252,9 +262,22 @@ export default function ImprimirCovas() {
               </tbody>
             </table>
           </div>
-        </div>
-      </section>
-      `;
+        </div>`;
+
+      if (useInlineFooter) {
+        const last = sheets.pop();
+        if (last) {
+          sheets.push(last.replace('</section>', `${footerHtml}</section>`));
+        }
+      } else {
+        sheets.push(`
+        <section class="sheet sheet--footer sheet--break">
+          ${footerHtml}
+        </section>
+        `);
+      }
+
+      return sheets.join('');
     }).join('');
 
     const indexRows = data.map((col, i) => `
@@ -316,11 +339,25 @@ export default function ImprimirCovas() {
             margin:12px auto;
             width:794px;  /* A4 width at 96dpi */
             max-width:794px;
-            min-height:1123px; /* A4 height at 96dpi */
+            height:1123px; /* A4 height at 96dpi */
+            max-height:1123px;
             box-shadow:0 12px 30px rgba(0,0,0,0.08);
             border:1px solid #111827;
             box-sizing:border-box;
             page-break-after: always;
+            overflow:hidden;
+          }
+          .sheet--cont{
+            margin-top:16px;
+          }
+          .sheet--footer{
+            display:flex;
+            flex-direction:column;
+            justify-content:flex-start;
+            page-break-inside: avoid;
+          }
+          .sheet--break{
+            page-break-before: always;
           }
           .cover{
             padding:0;
