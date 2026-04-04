@@ -340,7 +340,7 @@ export default function OtrosIngresos() {
         <div>
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Otros Ingresos</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Despensa, puntualidad, bonos y demás conceptos adicionales
+            Despensa, puntualidad, montos y demás conceptos adicionales
           </p>
         </div>
         <div className="flex items-center gap-3">

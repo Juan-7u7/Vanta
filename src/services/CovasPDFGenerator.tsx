@@ -108,7 +108,7 @@ export const CovasDocument = ({ data, periodo }: { data: any[], periodo: { mes: 
                 <Text style={styles.cardValue}>{sueldoBaseLabel}</Text>
               </View>
               <View style={styles.card}>
-                <Text style={styles.cardLabel}>Bonos Ganados</Text>
+                <Text style={styles.cardLabel}>Montos Ganados</Text>
                 <Text style={styles.cardValue}>{formatCurrency(sumaBonos + resAjuste.ajuste)}</Text>
               </View>
               <View style={styles.card}>
@@ -130,7 +130,7 @@ export const CovasDocument = ({ data, periodo }: { data: any[], periodo: { mes: 
                 <View style={styles.colMeta}><Text style={styles.columnHeader}>Meta</Text></View>
                 <View style={styles.colAlcance}><Text style={styles.columnHeader}>Alcance</Text></View>
                 <View style={styles.colPct}><Text style={styles.columnHeader}>% Cumpl.</Text></View>
-                <View style={styles.colBono}><Text style={styles.columnHeader}>Bono</Text></View>
+                <View style={styles.colBono}><Text style={styles.columnHeader}>Monto</Text></View>
               </View>
               {col.comisiones.map((c: any, i: number) => (
                 <View key={i} style={styles.tableRow}>

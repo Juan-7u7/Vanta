@@ -116,7 +116,7 @@ export default function ReporteDirectivo() {
             <p className="text-sm font-bold uppercase">Capital Humano</p>
             <p className="text-sm font-bold mt-2">Puesto: <span className="font-extrabold">{MOCK_COL.puesto}</span></p>
             <p className="text-sm mt-1">Sueldo Fijo Mensualizado: <span className="font-bold">$ {MOCK_COL.sueldo}</span></p>
-            <p className="text-sm mt-1">Bono Total: <span className="font-bold">Meses {MOCK_COL.bonoMeses}</span> <span className="font-bold">Monto $ {MOCK_COL.bonoMonto}</span></p>
+            <p className="text-sm mt-1">Monto Total: <span className="font-bold">Meses {MOCK_COL.bonoMeses}</span> <span className="font-bold">Monto $ {MOCK_COL.bonoMonto}</span></p>
             <p className="text-lg font-black mt-3">{MOCK_COL.nombre}</p>
           </div>
           <div className="col-span-1 border border-black p-3">
@@ -187,7 +187,7 @@ export default function ReporteDirectivo() {
                       <td className="p-1 text-right">0.00%</td>
                     </tr>
                     <tr>
-                      <td className="p-1">MONTO DE BONO ALCANZADO:</td>
+                      <td className="p-1">MONTO ALCANZADO:</td>
                       <td className="p-1 text-right">$ 0.00</td>
                       <td className="p-1 text-right">$ 0.00</td>
                       <td className="p-1 text-right">$ 0.00</td>

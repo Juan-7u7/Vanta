@@ -188,7 +188,7 @@ export default function ImprimirCovas() {
             <td class="num strong">${qColsBase.TOTAL}</td>
           </tr>
           <tr>
-            <td class="sub" colspan="2">BONO TOTAL (antes anticipos)</td>
+            <td class="sub" colspan="2">MONTO TOTAL (antes anticipos)</td>
             <td colspan="5" class="num">${formatCurrency(totalBonos)}</td>
           </tr>
          <tr>
@@ -217,7 +217,7 @@ export default function ImprimirCovas() {
                   <col style="width:5%"><col style="width:25%"><col style="width:12%"><col style="width:12%"><col style="width:10%"><col style="width:10%"><col style="width:10%"><col style="width:16%">
                 </colgroup>
                 <thead>
-                  <tr><th>#</th><th>Indicador</th><th>Esquema</th><th>Meta</th><th>Alcance</th><th>% Cumpl.</th><th>% Pago</th><th>Bono</th></tr>
+                  <tr><th>#</th><th>Indicador</th><th>Esquema</th><th>Meta</th><th>Alcance</th><th>% Cumpl.</th><th>% Pago</th><th>Monto</th></tr>
                 </thead>
                 <tbody>
                   ${chunkRows}
@@ -643,7 +643,7 @@ export default function ImprimirCovas() {
           </h1>
           <p className="text-gray-500 dark:text-gray-400 max-w-lg">
             Genera el Plan de Compensacion Variable oficial en formato PDF premium. 
-            Incluye desgloses de metas, indicadores y bonos por mes o por trimestre.
+            Incluye desgloses de metas, indicadores y montos por mes o por trimestre.
           </p>
         </div>
         
@@ -890,7 +890,7 @@ export default function ImprimirCovas() {
                          <p className="text-lg font-black text-green-600 dark:text-green-400">
                            {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(col.totales?.totalNetoMensual || 0)}
                          </p>
-                         <p className="text-[11px] text-gray-500 dark:text-gray-400">Bonos: {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(col.totales?.subtotalBonos || 0)}</p>
+                         <p className="text-[11px] text-gray-500 dark:text-gray-400">Montos: {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(col.totales?.subtotalBonos || 0)}</p>
                          <p className="text-[11px] text-gray-500 dark:text-gray-400">Otros: {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(col.totales?.totalOtrosIngresos || 0)}</p>
                          <p className="text-[11px] text-gray-500 dark:text-gray-400">Anticipos: {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(col.anticipos_aplicables || 0)}</p>
                        </div>
@@ -907,7 +907,7 @@ export default function ImprimirCovas() {
                              <p className="text-[11px] text-gray-500 dark:text-gray-400">Cumplimiento: {c.cumplimiento?.toFixed(1)}%</p>
                             <p className="text-[11px] text-gray-500 dark:text-gray-400">Pago: {c.porcentajePago ? `${Number(c.porcentajePago).toFixed(2)}%` : '0%'}</p>
                              <p className="text-sm font-bold text-indigo-600 dark:text-indigo-300">
-                               {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(c.montoBono || 0)}
+                              {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(c.montoBono || 0)}
                              </p>
                            </div>
                          </div>

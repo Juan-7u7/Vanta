@@ -272,7 +272,7 @@ export default function IndicadorModal({ isOpen, onClose, onSuccess, initialData
                 type="text"
                 value={formData.tipo_indicador}
                 onChange={(e) => setFormData({ ...formData, tipo_indicador: e.target.value })}
-                placeholder="Ej. Comisión, KPI, Bono"
+                placeholder="Ej. Comisión, KPI, Monto"
                 className={inputClass}
               />
             </div>

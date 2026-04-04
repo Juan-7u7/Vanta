@@ -327,7 +327,7 @@ export default function ColaboradorModal({ isOpen, onClose, onSuccess, initialDa
 
             {/* Esquema de Pago */}
             <div className="space-y-1.5 md:col-span-2">
-              <label className="text-xs font-bold text-gray-400 uppercase ml-1">Esquema de Pago (Cálculo de Bonos)</label>
+              <label className="text-xs font-bold text-gray-400 uppercase ml-1">Esquema de Pago (Cálculo de Montos)</label>
               <select 
                 value={formData.esquema_pago_id}
                 onChange={e => setFormData({...formData, esquema_pago_id: e.target.value})}
@@ -341,7 +341,7 @@ export default function ColaboradorModal({ isOpen, onClose, onSuccess, initialDa
                 ))}
               </select>
               <p className="text-[10px] text-gray-400 mt-1 ml-1">
-                Esto define si el bono se calcula por % de cumplimiento, por meses de antigüedad o por monto.
+                Esto define si el monto se calcula por % de cumplimiento, por meses de antigüedad o por monto.
               </p>
             </div>
           </div>

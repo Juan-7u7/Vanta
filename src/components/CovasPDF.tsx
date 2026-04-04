@@ -283,7 +283,7 @@ export function CovasPDF({ colaboradores, anio }: any) {
               <View style={[styles.table, { marginBottom: 5 }]}>
                 <View style={[styles.tableRow, styles.tableBlueBg]}>
                    <View style={[styles.cell, { width: '25%' }]}><Text style={styles.bold}>ALCANCE %</Text></View>
-                   <View style={[styles.cell, { width: '15%' }]}><Text style={[styles.bold, styles.textCenter]}>% BONO</Text></View>
+                   <View style={[styles.cell, { width: '15%' }]}><Text style={[styles.bold, styles.textCenter]}>% MONTO</Text></View>
                    <View style={[styles.cell, { width: '12%' }]}><Text style={[styles.bold, styles.textCenter]}>1Q</Text></View>
                    <View style={[styles.cell, { width: '12%' }]}><Text style={[styles.bold, styles.textCenter]}>2Q</Text></View>
                    <View style={[styles.cell, { width: '12%' }]}><Text style={[styles.bold, styles.textCenter]}>3Q</Text></View>

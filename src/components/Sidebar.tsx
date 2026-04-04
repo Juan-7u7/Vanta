@@ -34,7 +34,7 @@ const MODULES = [
       { name: 'Perfiles', path: '/dashboard/perfiles' },
       { name: 'Escalones', path: '/dashboard/escalones' },
       { name: 'Usuarios', path: '/dashboard/usuarios' },
-      { name: 'Bonos', path: '/dashboard/bonos' },
+      { name: 'Montos', path: '/dashboard/bonos' },
       { name: 'Carga Masiva de Datos', path: '/dashboard/carga-masiva' },
     ],
   },

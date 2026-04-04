@@ -142,7 +142,7 @@ export default function Bonos() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Estás seguro de eliminar este tipo de bono? Esta acción no se puede deshacer.')) return;
+    if (!confirm('¿Estás seguro de eliminar este tipo de monto? Esta acción no se puede deshacer.')) return;
     try {
       const { error: err } = await supabase
         .from('cat_bonos')
@@ -151,7 +151,7 @@ export default function Bonos() {
       if (err) throw err;
       fetchBonos();
     } catch (err: any) {
-      alert("Error al eliminar bono: " + err.message);
+      alert("Error al eliminar monto: " + err.message);
     }
   };
 
@@ -183,10 +183,10 @@ export default function Bonos() {
         <div>
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
             <Tag className="w-8 h-8 text-amber-500" />
-            Catálogo de Bonos
+            Catálogo de Montos
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Gestión de nombres y descripciones de bonos para otros ingresos.
+            Gestión de nombres y descripciones de montos para otros ingresos.
           </p>
         </div>
         <button
@@ -194,7 +194,7 @@ export default function Bonos() {
           className="flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-lg shadow-amber-500/20 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
         >
           <Plus size={20} />
-          Nuevo Bono
+          Nuevo Monto
         </button>
       </div>
 
@@ -244,7 +244,7 @@ export default function Bonos() {
           
           {bonos.length === 0 && (
              <div className="col-span-full py-12 text-center text-gray-400 bg-white/30 dark:bg-white/5 rounded-3xl border border-dashed border-gray-300 dark:border-white/10">
-               No hay bonos registrados en el catálogo.
+               No hay montos registrados en el catálogo.
              </div>
           )}
         </div>
@@ -258,20 +258,20 @@ export default function Bonos() {
             <div className="px-6 py-6 border-b border-gray-100 dark:border-white/5">
               <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
                 <Tag className="w-5 h-5 text-amber-500" />
-                {formData.id ? 'Editar Bono' : 'Nuevo Bono'}
+                {formData.id ? 'Editar Monto' : 'Nuevo Monto'}
               </h2>
             </div>
             
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Nombre del Bono / Concepto</label>
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Nombre del Monto / Concepto</label>
                 <input
                   type="text"
                   required
                   value={formData.nombre_bono}
                   onChange={e => setFormData({...formData, nombre_bono: e.target.value})}
                   className="w-full px-4 py-2.5 bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-white/10 rounded-2xl text-sm outline-none transition-all dark:text-white focus:ring-2 focus:ring-amber-500/40"
-                  placeholder="Ej. Bono de Puntualidad"
+                  placeholder="Ej. Monto de Puntualidad"
                 />
               </div>
 
@@ -282,7 +282,7 @@ export default function Bonos() {
                   value={formData.descripcion}
                   onChange={e => setFormData({...formData, descripcion: e.target.value})}
                   className="w-full px-4 py-2.5 bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-white/10 rounded-2xl text-sm outline-none transition-all dark:text-white focus:ring-2 focus:ring-amber-500/40 resize-none"
-                  placeholder="Detalles sobre las condiciones del bono..."
+                  placeholder="Detalles sobre las condiciones del monto..."
                 />
               </div>
 

@@ -260,11 +260,11 @@ const helpCopy: Record<string, string[]> = {
     porcentaje: [
       'Define el piso: debajo del 70% no paga (ajusta tus rangos).',
       'Usa el tope en el último escalón para limitar el pago (>100%).',
-      'Porcentaje de pago se aplica sobre el bono objetivo de ese indicador.',
+      'Porcentaje de pago se aplica sobre el monto objetivo de ese indicador.',
     ],
     meses: [
       'Cada fila representa un mes de evaluación (mes1, mes2...).',
-      'El porcentaje indica el pago relativo al bono objetivo de meses.',
+      'El porcentaje indica el pago relativo al monto objetivo de meses.',
       'Mantén los meses en orden (1,2,3...) para claridad.',
     ],
     monto: [
@@ -275,7 +275,7 @@ const helpCopy: Record<string, string[]> = {
     ranking: [
       'Usa valor_referencia para nombrar la posición (ej. top3, top10).',
       'Ordena los rangos por posición ascendente para evitar solapes.',
-      'El porcentaje se aplica sobre el bono objetivo del indicador.',
+      'El porcentaje se aplica sobre el monto objetivo del indicador.',
     ],
   };
 
