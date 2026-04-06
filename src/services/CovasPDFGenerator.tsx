@@ -2,6 +2,116 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { formatCurrency, aplicarAjustePorGrupo } from '../utils/covasLogic';
 
+type Aprobador = { rol: string; nombre: string; puesto: string };
+const APROBADORES_POR_UNIDAD: Record<string, Aprobador[]> = {
+  '1': [
+    { rol: 'Captura', nombre: 'JESUS LOERA', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'EDUARDO SALCIDO', puesto: 'Autoriza 1' },
+  ],
+  '7': [
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'ALFREDO HERNANDEZ', puesto: 'Autoriza 1' },
+  ],
+  '8': [
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'FERNANDO GONZALEZ', puesto: 'Autoriza 1' },
+  ],
+  '10': [
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'JAIME MUÑOZ', puesto: 'Autoriza 1' },
+  ],
+  '15': [
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'MARICELA LOZANO', puesto: 'Autoriza 2' },
+  ],
+  '20': [
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'JAVIER ELIZONDO', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '16': [
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'ALEJANDO ARCE', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '22': [
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'ALEJANDO ARCE', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '18': [
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'JULIO HIDALGO', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '24': [
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'RODRIGO ISLAS', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '19': [
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'ELIUD TREVIÑO', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '17': [
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'ANGELICA OROPEZA', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '25': [
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'MARIO BARRIGA', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '23': [
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'JAIME MUÑOZ', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '21': [
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'GUILLERMO GARZA', puesto: 'Autoriza 1' },
+  ],
+  default: [
+    { rol: 'Captura', nombre: 'JOANNA MENDOZA', puesto: 'ADMINISTRADOR DE COMPENSACIONES' },
+    { rol: 'Revisión', nombre: 'JESÚS LÓPEZ', puesto: 'CONTADOR' },
+    { rol: 'Aprueba', nombre: 'EDUARDO SALCIDO', puesto: 'DIRECTOR GENERAL' },
+    { rol: 'Autoriza', nombre: 'ELOISA NUÑEZ', puesto: 'GERENTE DE COMPENSACIONES' }
+  ],
+};
+
 const styles = StyleSheet.create({
   page: { padding: 40, fontFamily: 'Helvetica', backgroundColor: '#FFFFFF', color: '#1F2937' },
   header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 25 },
@@ -48,7 +158,14 @@ const styles = StyleSheet.create({
   statusPending: { color: '#6B7280', backgroundColor: '#F3F4F6' },
 
   footer: { position: 'absolute', bottom: 30, left: 40, right: 40, textAlign: 'center', borderTopWidth: 0.5, borderTopColor: '#F3F4F6', paddingTop: 10 },
-  footerText: { fontSize: 7, color: '#9CA3AF' }
+  footerText: { fontSize: 7, color: '#9CA3AF' },
+
+  // APROBADORES LIST
+  approverCard: { marginTop: 16, padding: 10, borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 8, backgroundColor: '#F9FAFB' },
+  approverTitle: { fontSize: 8, fontWeight: 'bold', color: '#374151', marginBottom: 6, textTransform: 'uppercase' },
+  approverRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+  approverRol: { fontSize: 8, fontWeight: 'bold', color: '#4B5563' },
+  approverNombre: { fontSize: 8, color: '#111827', textAlign: 'right' }
 });
 
 const Signature = ({ title, status }: { title: string, status: boolean }) => (
@@ -80,6 +197,8 @@ export const CovasDocument = ({ data, periodo }: { data: any[], periodo: { mes: 
         const sueldoBaseLabel = mesesEnRango > 1
           ? `${formatCurrency(sueldoBaseMensual)} x ${mesesEnRango} meses = ${formatCurrency(col.sueldoBase)}`
           : formatCurrency(sueldoBaseMensual);
+        const unidadId = col.unidades_negocio?.id ? String(col.unidades_negocio.id) : (col.unidad_negocio_id ? String(col.unidad_negocio_id) : '');
+        const aprobadores = APROBADORES_POR_UNIDAD[unidadId] || APROBADORES_POR_UNIDAD.default;
 
         console.log(`Colaborador: ${col.nombre}`);
         console.log(` > Base: ${col.sueldoBase}`);
@@ -174,6 +293,15 @@ export const CovasDocument = ({ data, periodo }: { data: any[], periodo: { mes: 
                 <Signature title="Validación" status={col.aprobaciones.paso_validacion} />
                 <Signature title="Autorización" status={col.aprobaciones.paso_autorizacion} />
                 <Signature title="Dirección" status={col.aprobaciones.paso_direccion} />
+              </View>
+              <View style={styles.approverCard}>
+                <Text style={styles.approverTitle}>Autorizaciones por unidad</Text>
+                {aprobadores.map((a: Aprobador, i: number) => (
+                  <View key={i} style={styles.approverRow}>
+                    <Text style={styles.approverRol}>{a.rol}</Text>
+                    <Text style={styles.approverNombre}>{a.nombre} · {a.puesto}</Text>
+                  </View>
+                ))}
               </View>
             </View>
 

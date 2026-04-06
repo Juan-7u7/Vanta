@@ -15,6 +15,118 @@ const QUARTERS = [
   { id: 'Q4', label: 'Q4 (oct - dic)', months: ['octubre', 'noviembre', 'diciembre'] },
 ] as const;
 
+type Aprobador = { rol: string; nombre: string; puesto: string };
+// Mapa local por unidad de negocio; usa 'default' como fallback
+const APROBADORES_POR_UNIDAD: Record<string, Aprobador[]> = {
+  // IDs provistos desde la BD
+  '1': [ // VANTA MEDIA
+    { rol: 'Captura', nombre: 'JESUS LOERA', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'EDUARDO SALCIDO', puesto: 'Autoriza 1' },
+  ],
+  '7': [ // DYCE
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'ALFREDO HERNANDEZ', puesto: 'Autoriza 1' },
+  ],
+  '8': [ // CNCI
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'FERNANDO GONZALEZ', puesto: 'Autoriza 1' },
+  ],
+  '10': [ // SPPEL
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'JAIME MUÑOZ', puesto: 'Autoriza 1' },
+  ],
+  '15': [ // ZIGNIA DG
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'MARICELA LOZANO', puesto: 'Autoriza 2' },
+  ],
+  '20': [ // ZIGNIA SB
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'JAVIER ELIZONDO', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '16': [ // ZIGNIA LIVE
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'ALEJANDO ARCE', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '22': [ // ZIGNIA COMERCIAL
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'ALEJANDO ARCE', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '18': [ // ZIGNIA ADMON
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'JULIO HIDALGO', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '24': [ // ZIGNIA MKT
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'RODRIGO ISLAS', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '19': [ // ZIGNIA AMTY
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'ELIUD TREVIÑO', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '17': [ // ZIGNIA ACDMX
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'ANGELICA OROPEZA', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '25': [ // ZGNIA AGDL
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'MARIO BARRIGA', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '23': [ // ZIGNIA SEGURIDAD
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'JAIME MUÑOZ', puesto: 'Autoriza 1' },
+    { rol: 'Autoriza 2', nombre: 'ALEJANDRO GARCIA', puesto: 'Autoriza 2' },
+  ],
+  '21': [ // CORPO
+    { rol: 'Captura', nombre: 'CONTRALOR /ADM FINANZAS', puesto: 'Captura' },
+    { rol: 'Revisión', nombre: 'JOANNA MENDOZA', puesto: 'Revisión' },
+    { rol: 'Aprueba', nombre: 'ELOISA NUÑEZ', puesto: 'Aprueba' },
+    { rol: 'Autoriza', nombre: 'GUILLERMO GARZA', puesto: 'Autoriza 1' },
+  ],
+  default: [
+    { rol: 'Captura', nombre: 'JOANNA MENDOZA', puesto: 'ADMINISTRADOR DE COMPENSACIONES' },
+    { rol: 'Revisión', nombre: 'JESÚS LÓPEZ', puesto: 'CONTADOR' },
+    { rol: 'Aprueba', nombre: 'EDUARDO SALCIDO', puesto: 'DIRECTOR GENERAL' },
+    { rol: 'Autoriza', nombre: 'ELOISA NUÑEZ', puesto: 'GERENTE DE COMPENSACIONES' }
+  ],
+};
+
 type PeriodoTipo = 'mes' | 'trimestre' | 'custom';
 
 export default function ImprimirCovas() {
@@ -62,6 +174,8 @@ export default function ImprimirCovas() {
   const openResultsTab = (data: any[], periodo: string, year: number, existingWin?: Window | null) => {
     const win = existingWin || window.open('', '_blank');
     if (!win) return;
+    const unidadAprobId = unidadId || (data[0]?.unidad_negocio_id ?? data[0]?.unidades_negocio?.id ?? '');
+    const aprobadores = APROBADORES_POR_UNIDAD[String(unidadAprobId)] || APROBADORES_POR_UNIDAD.default;
     const rowsHtml = data.map(col => {
       const formatBaseDetail = (mensual: number, meses: number, total: number) => {
         const m = meses && meses > 0 ? meses : 1;
@@ -250,22 +364,12 @@ export default function ImprimirCovas() {
             <div class="auth-title">Autorizaciones</div>
             <table style="width:100%; border-collapse:collapse; font-size:12px;">
               <tbody>
-                <tr>
-                  <td style="padding:4px 0; width:30%; font-weight:700;">Captura</td>
-                  <td style="padding:4px 0; font-weight:600;">JOANNA MENDOZA · ADMINISTRADOR DE COMPENSACIONES</td>
-                </tr>
-                <tr>
-                  <td style="padding:4px 0; font-weight:700;">Revisión</td>
-                  <td style="padding:4px 0; font-weight:600;">JESÚS LÓPEZ · CONTADOR</td>
-                </tr>
-                <tr>
-                  <td style="padding:4px 0; font-weight:700;">Aprueba</td>
-                  <td style="padding:4px 0; font-weight:600;">EDUARDO SALCIDO · DIRECTOR GENERAL</td>
-                </tr>
-                <tr>
-                  <td style="padding:4px 0; font-weight:700;">Autoriza</td>
-                  <td style="padding:4px 0; font-weight:600;">ELOISA NUÑEZ · GERENTE DE COMPENSACIONES</td>
-                </tr>
+                ${aprobadores.map(a => `
+                  <tr>
+                    <td style="padding:4px 0; width:30%; font-weight:700;">${a.rol}</td>
+                    <td style="padding:4px 0; font-weight:600;">${a.nombre} · ${a.puesto}</td>
+                  </tr>
+                `).join('')}
                 <tr>
                   <td style="padding:6px 0; font-weight:700;">Acuse Recibido</td>
                   <td style="padding:6px 0;">________________________________________</td>
