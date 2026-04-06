@@ -17,13 +17,29 @@ type SeedUser = {
 //      email_confirm: true,
 //      user_metadata: { role: 'admin' }
 //    }
+// Generados a partir de PERFILES AVALANZ -AUTORIZADORES.xlsx
+// Contraseña = <primer_nombre_correo>.<primer_palabra_puesto>.26
 const USERS: SeedUser[] = [
   {
     email: 'admin@cnci.com',
     password: 'Admin.cnci.26',
     email_confirm: true,
     user_metadata: { role: 'admin' }
-  }
+  },
+  { email: 'joanna_mendoza@avalanz.com', password: 'joanna.administrador.26', email_confirm: true },
+  { email: 'jesus_loera@avalanzmedia.mx', password: 'jesus.contralor.26', email_confirm: true },
+  { email: 'eduardo_salcido@avalanzmedia.mx', password: 'eduardo.director.26', email_confirm: true },
+  { email: 'eloisa_nunez@avalanz.com', password: 'eloisa.gerente.26', email_confirm: true },
+  { email: 'benjamin_benites@zignia.mx', password: 'benjamin.contralor.26', email_confirm: true },
+  { email: 'agarcia@zignia.mx', password: 'agarcia.direccion.26', email_confirm: true },
+  { email: 'jorge_trevino@dyce.mx', password: 'jorge.gerente.26', email_confirm: true },
+  { email: 'alfredo_hernandez@dyce.mx', password: 'alfredo.direccion.26', email_confirm: true },
+  { email: 'alexis_delvillar@toditopagos.com', password: 'alexis.direccion.26', email_confirm: true },
+  { email: 'adolfo_diaz@cnci.com.mx', password: 'adolfo.direccion.26', email_confirm: true },
+  { email: 'fernando_gonzalez@cnci.com.mx', password: 'fernando.direccion.26', email_confirm: true },
+  { email: 'karla_garcia@avalanz.com', password: 'karla.contralor.26', email_confirm: true },
+  { email: 'jaime_munoz@avalanz.com', password: 'jaime.direccion.26', email_confirm: true },
+  { email: 'guillermo_garza@avalanz.com', password: 'guillermo.direccion.26', email_confirm: true }
 ]
 
 const SUPABASE_URL = process.env.SUPABASE_URL

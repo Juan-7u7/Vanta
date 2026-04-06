@@ -7,6 +7,13 @@ import {
   TrendingUp, Settings, FileText, Bell, LogOut
 } from 'lucide-react';
 
+// Correos que deben ver el menú restringido de contralor
+const CONTRALOR_EMAILS = new Set([
+  'jesus_loera@avalanzmedia.mx',
+  'benjamin_benites@zignia.mx',
+  'karla_garcia@avalanz.com',
+]);
+
 const BASE_MODULES = [
   {
     title: 'Módulo de compensaciones',
@@ -62,7 +69,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
 
   const isContralor = useMemo(() => {
     const email = user?.email?.toLowerCase() || '';
-    return email.startsWith('contralor');
+    return CONTRALOR_EMAILS.has(email);
   }, [user]);
 
   const MODULES = useMemo(() => {
