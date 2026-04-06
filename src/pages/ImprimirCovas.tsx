@@ -403,7 +403,28 @@ export default function ImprimirCovas() {
         <td>${col.matricula || '-'}</td>
         <td>${(col.unidades_negocio && col.unidades_negocio.nombre) || (col.unidad_negocio && col.unidad_negocio.nombre) || col.unidad || '-'}</td>
       </tr>
-    `).join('');
+    `);
+    const INDEX_CHUNK_SIZE = 22;
+    const indexSections = [];
+    for (let i = 0; i < indexRows.length; i += INDEX_CHUNK_SIZE) {
+      const rowsChunk = indexRows.slice(i, i + INDEX_CHUNK_SIZE).join('');
+      indexSections.push(`
+        <section class="sheet index">
+          <header class="header">
+            <div class="title">ÍNDICE DE COLABORADORES</div>
+            <div class="year">${year} · pág ${Math.floor(i / INDEX_CHUNK_SIZE) + 1}/${Math.ceil(indexRows.length / INDEX_CHUNK_SIZE)}</div>
+          </header>
+          <table class="index-table">
+            <thead>
+              <tr><th>#</th><th>Colaborador</th><th>Puesto</th><th>Matrícula</th><th>Unidad</th></tr>
+            </thead>
+            <tbody>
+              ${rowsChunk}
+            </tbody>
+          </table>
+        </section>
+      `);
+    }
 
     const coverHtml = `
       <section class="sheet cover">
@@ -418,22 +439,7 @@ export default function ImprimirCovas() {
       </section>
     `;
 
-    const indexHtml = `
-      <section class="sheet index">
-        <header class="header">
-          <div class="title">ÍNDICE DE COLABORADORES</div>
-          <div class="year">${year}</div>
-        </header>
-        <table class="index-table">
-          <thead>
-            <tr><th>#</th><th>Colaborador</th><th>Puesto</th><th>Matrícula</th><th>Unidad</th></tr>
-          </thead>
-          <tbody>
-            ${indexRows}
-          </tbody>
-        </table>
-      </section>
-    `;
+    const indexHtml = indexSections.join('');
 
     const content = `
       <html>
