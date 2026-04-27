@@ -72,22 +72,20 @@ export default function Sidebar({ onLogout }: SidebarProps) {
     return CONTRALOR_EMAILS.has(email);
   }, [user]);
 
-  const MODULES = useMemo(() => {
-    if (!isContralor) return BASE_MODULES;
+ const MODULES = useMemo(() => {
+  if (!isContralor) return BASE_MODULES;
 
-    // Menú restringido para contralor (solo prefijo de correo).
-    return [
-      {
-        title: 'Módulo de compensaciones',
-        icon: CircleDollarSign,
-        options: [
-          { name: 'Indicadores', path: '/dashboard/indicadores' },
-          { name: 'Salarios', path: '/dashboard/salarios' },
-          { name: 'Alcance', path: '/dashboard/alcance' },
-          { name: 'Comisiones Directas (solo lectura)', path: '/dashboard/comisiones-directas' },
-          { name: 'Opción no disponible', disabled: true, path: '#' },
-        ],
-      },
+  return [
+    {
+      title: 'Módulo de compensaciones',
+      icon: CircleDollarSign,
+      options: [
+        { name: 'Indicadores', path: '/dashboard/indicadores' },
+        { name: 'Alcance', path: '/dashboard/alcance' },
+      ],
+    },
+  ];
+}, [isContralor]);
       {
         title: 'Configuración del sistema',
         icon: Settings,
