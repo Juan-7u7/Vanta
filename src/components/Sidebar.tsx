@@ -72,7 +72,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
     return CONTRALOR_EMAILS.has(email);
   }, [user]);
 
- const MODULES = useMemo(() => {
+  const MODULES = useMemo(() => {
     if (!isContralor) return BASE_MODULES;
 
     // Menú restringido para contralor (solo prefijo de correo).
@@ -106,6 +106,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
       },
     ];
   }, [isContralor]);
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 1024);
