@@ -1,8 +1,16 @@
 /** final 1.0 */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Edit2, Search, Filter, Plus, Loader2, ChevronDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 import AlcanceModal from '../components/AlcanceModal';
+
+const CONTRALOR_EMAILS = new Set([
+  'jesus_loera@avalanzmedia.mx',
+  'benjamin_benites@zignia.mx',
+  'karla_garcia@avalanz.com',
+]);
+const CONTRALOR_UNIDAD = 'VANTA MEDIA';
 
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'] as const;
 const MESES_CORTOS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
@@ -218,6 +226,12 @@ function AlcanceCard({ item, onEdit }: { item: Alcance; onEdit: () => void }) {
 }
 
 export default function Alcance() {
+  const { user } = useAuth();
+  const isContralor = useMemo(() => {
+    const email = user?.email?.toLowerCase() || '';
+    return CONTRALOR_EMAILS.has(email);
+  }, [user]);
+
   const [items, setItems] = useState<Alcance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -289,7 +303,11 @@ export default function Alcance() {
     const matchesSearch = !searchTerm || nombre.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesUnidad = !filters.unidad || item.colaborador?.unidades_negocio?.nombre === filters.unidad;
     const matchesAnio = !filters.anio || item.anio?.toString() === filters.anio;
-    return matchesSearch && matchesUnidad && matchesAnio;
+
+    // Contralor solo ve VANTA MEDIA
+    const matchesContralor = !isContralor || item.colaborador?.unidades_negocio?.nombre === CONTRALOR_UNIDAD;
+
+    return matchesSearch && matchesUnidad && matchesAnio && matchesContralor;
   });
 
   const unidades = Array.from(new Set(items.map(i => i.colaborador?.unidades_negocio?.nombre).filter(Boolean)));
