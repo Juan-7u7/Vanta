@@ -1,8 +1,16 @@
 /** final 1.0 */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Edit2, Search, Filter, Plus, Loader2, ChevronDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 import IndicadorModal from '../components/IndicadorModal';
+
+const CONTRALOR_EMAILS = new Set([
+  'jesus_loera@avalanzmedia.mx',
+  'benjamin_benites@zignia.mx',
+  'karla_garcia@avalanz.com',
+]);
+const CONTRALOR_UNIDAD = 'VANTA MEDIA';
 
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'] as const;
 const MESES_CORTOS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
@@ -203,6 +211,12 @@ function IndicadorCard({ ind, onEdit }: { ind: Indicador; onEdit: () => void }) 
 }
 
 export default function Indicadores() {
+  const { user } = useAuth();
+  const isContralor = useMemo(() => {
+    const email = user?.email?.toLowerCase() || '';
+    return CONTRALOR_EMAILS.has(email);
+  }, [user]);
+
   const [indicadores, setIndicadores] = useState<Indicador[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -264,7 +278,10 @@ export default function Indicadores() {
     const matchesUnidad = !filters.unidad || ind.colaborador?.unidades_negocio?.nombre === filters.unidad;
     const matchesAnio = !filters.anio || ind.anio?.toString() === filters.anio;
 
-    return matchesSearch && matchesTipo && matchesUnidad && matchesAnio;
+    // Contralor solo ve VANTA MEDIA
+    const matchesContralor = !isContralor || ind.colaborador?.unidades_negocio?.nombre === CONTRALOR_UNIDAD;
+
+    return matchesSearch && matchesTipo && matchesUnidad && matchesAnio && matchesContralor;
   });
 
   const tipos = Array.from(new Set(indicadores.map(i => i.tipo_indicador).filter(Boolean)));
