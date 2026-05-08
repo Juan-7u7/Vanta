@@ -1,6 +1,6 @@
 /** final 1.3 - Elite Business Intelligence */
-import { useEffect, useState } from 'react';
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { useEffect, useState, useMemo } from 'react';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import Sidebar from '../components/Sidebar';
@@ -25,6 +25,12 @@ import CargaMasiva from './CargaMasiva';
 import ImprimirCovas from './ImprimirCovas';
 import EscalonesBonos from './EscalonesBonos';
 
+const CONTRALOR_EMAILS = new Set([
+  'jesus_loera@avalanzmedia.mx',
+  'benjamin_benites@zignia.mx',
+  'karla_garcia@avalanz.com',
+]);
+
 // --- TYPES ---
 interface DashboardStats {
   totalColab: number;
@@ -38,8 +44,6 @@ interface DashboardStats {
   riskAreas: { count: number, label: string, color: string, sub: string, icon: any }[];
   financials: { base: number, variable: number };
 }
-
-// --- SUB-COMPONENTES UI PREMIUM ---
 
 import { useNavigate } from 'react-router-dom';
 
@@ -86,6 +90,11 @@ const MiniRing = ({ value, color = "stroke-indigo-500", size = 60 }: any) => {
 
 const DashboardOverview = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isContralor = useMemo(() => {
+    return CONTRALOR_EMAILS.has(user?.email?.toLowerCase() || '');
+  }, [user]);
+
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats>({
     totalColab: 0,
@@ -110,7 +119,6 @@ const DashboardOverview = () => {
     try {
       setLoading(true);
       
-      // 0. Cargar todas las Unidades de Negocio primero para asegurar su aparición
       const { data: allUnidades } = await supabase.from('unidades_negocio').select('id, nombre, color_hex, logo_url');
       const unitsMap = Object.fromEntries((allUnidades || []).map(u => [u.id, u]));
 
@@ -120,7 +128,6 @@ const DashboardOverview = () => {
       const { data: colabsRaw } = await supabase.from('colaboradores').select('id, nombre, unidad_negocio_id');
       const colabs = (colabsRaw as unknown as any[]) || [];
 
-      // 1. Inversión Detallada
       const [{ data: salReg }, { data: comsReg }, { data: intsReg }] = await Promise.all([
         supabase.from('salarios_mensuales').select(MES_ACTUAL).eq('anio', 2026),
         supabase.from('comisiones_directas').select(MES_ACTUAL).eq('anio', 2026),
@@ -133,7 +140,6 @@ const DashboardOverview = () => {
       const totalInv = baseSalary + variablePay;
       const formattedInv = totalInv >= 1000000 ? (totalInv / 1000000).toFixed(2) + 'M' : (totalInv/1000).toFixed(0) + 'K';
 
-      // 2. Análisis de Rendimiento (Top & Risks)
       const { data: metasRaw } = await supabase.from('metas_indicadores').select(`colaborador_id, ${MES_ACTUAL}`).eq('anio', 2026);
       const { data: realesRaw } = await supabase.from('alcance_real').select(`colaborador_id, ${MES_ACTUAL}`).eq('anio', 2026);
       const metasMap = Object.fromEntries((metasRaw || []).map(m => [m.colaborador_id, m[MES_ACTUAL]]));
@@ -144,7 +150,6 @@ const DashboardOverview = () => {
       const calculatedPerformers: any[] = [];
       let riskCount = 0;
       
-      // Inicializar todas las unidades en 0
       (allUnidades || []).forEach(u => {
         unityStats[u.id] = { total: 0, count: 0, colabsInUnit: 0 };
       });
@@ -176,7 +181,6 @@ const DashboardOverview = () => {
         }
       });
 
-      // 3. Pasos de Aprobación
       const { data: pasosRaw } = await supabase.from('pasos_aprobacion').select('*').eq('mes', MES_ACTUAL).eq('anio', 2026);
       const stepsCount = { cap: 0, rev: 0, val: 0, aut: 0 };
       pasosRaw?.forEach(p => {
@@ -219,6 +223,9 @@ const DashboardOverview = () => {
     } catch (err) { console.error(err); } finally { setLoading(false); }
   };
 
+  // Contralor va directo a Indicadores
+  if (isContralor) return <Navigate to="/dashboard/indicadores" replace />;
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-[70vh] gap-8">
       <div className="w-24 h-24 relative">
@@ -251,12 +258,7 @@ const DashboardOverview = () => {
           </div>
         </div>
 
-        <GlassCard 
-          title="Alcance Global" 
-          icon={Target} 
-          onClick={() => navigate('/dashboard/alcance')}
-          className="flex flex-col justify-between"
-        >
+        <GlassCard title="Alcance Global" icon={Target} onClick={() => navigate('/dashboard/alcance')} className="flex flex-col justify-between">
           <div className="flex items-end justify-between">
             <h2 className="text-5xl font-black text-gray-800 dark:text-white tracking-tighter leading-none">{Math.round(stats.alcanceGlobal)}%</h2>
             <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-2xl"><ArrowUpRight size={20} /></div>
@@ -266,12 +268,7 @@ const DashboardOverview = () => {
           </div>
         </GlassCard>
 
-        <GlassCard 
-          title="Plantilla" 
-          icon={Users} 
-          onClick={() => navigate('/dashboard/colaboradores')}
-          className="flex flex-col justify-between"
-        >
+        <GlassCard title="Plantilla" icon={Users} onClick={() => navigate('/dashboard/colaboradores')} className="flex flex-col justify-between">
            <div className="flex items-end justify-between">
               <h2 className="text-5xl font-black text-gray-800 dark:text-white tracking-tighter leading-none">{stats.totalColab}</h2>
               <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Registros</span>
@@ -279,12 +276,7 @@ const DashboardOverview = () => {
            <p className="text-[10px] font-bold text-gray-400 mt-8 uppercase">Actividad: {(100 - (stats.riskAreas[0]?.count / (stats.totalColab || 1)) * 100).toFixed(0)}% Eficiencia</p>
         </GlassCard>
 
-        <GlassCard 
-          title="KPIs Activos" 
-          icon={Zap} 
-          onClick={() => navigate('/dashboard/indicadores')}
-          className="flex flex-col justify-between"
-        >
+        <GlassCard title="KPIs Activos" icon={Zap} onClick={() => navigate('/dashboard/indicadores')} className="flex flex-col justify-between">
            <div className="flex items-end justify-between">
               <h2 className="text-5xl font-black text-gray-800 dark:text-white tracking-tighter leading-none">{stats.kpisActivos}</h2>
               <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Metas</span>
@@ -299,7 +291,6 @@ const DashboardOverview = () => {
       {/* SECCIÓN CENTRAL: TOP PERFORMERS & RISK AREAS */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* LIDERES DEL MES */}
         <GlassCard title="Líderes del Mes" icon={Trophy} className="lg:col-span-8">
            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6">
               {stats.topPerformers.map((p, i) => (
@@ -329,25 +320,16 @@ const DashboardOverview = () => {
                  </div>
                  <p className="text-[11px] sm:text-xs font-bold text-gray-600 dark:text-gray-300">Resumen de objetivos superados por el equipo elite.</p>
               </div>
-              <button 
-                type="button"
-                onClick={() => navigate('/dashboard/alcance')}
-                className="w-full sm:w-auto text-[10px] font-black uppercase text-indigo-500 tracking-[0.2em] bg-indigo-500/10 sm:bg-transparent py-3 sm:py-0 rounded-xl hover:underline px-4 cursor-pointer whitespace-nowrap"
-              >
+              <button type="button" onClick={() => navigate('/dashboard/alcance')} className="w-full sm:w-auto text-[10px] font-black uppercase text-indigo-500 tracking-[0.2em] bg-indigo-500/10 sm:bg-transparent py-3 sm:py-0 rounded-xl hover:underline px-4 cursor-pointer whitespace-nowrap">
                 Analizar Detalle
               </button>
            </div>
         </GlassCard>
 
-        {/* RISK & NOTIFICATIONS */}
         <GlassCard title="Atención Crítica" icon={AlertTriangle} className="lg:col-span-4 h-full flex flex-col justify-between">
            <div className="space-y-6">
               {stats.riskAreas.map((r, i) => (
-                <div 
-                  key={i} 
-                  onClick={() => navigate('/dashboard/alcance')}
-                  className="p-6 bg-gray-50 dark:bg-white/5 rounded-[32px] border-l-4 border-transparent hover:border-l-indigo-500 transition-all flex items-center justify-between cursor-pointer group/risk"
-                >
+                <div key={i} onClick={() => navigate('/dashboard/alcance')} className="p-6 bg-gray-50 dark:bg-white/5 rounded-[32px] border-l-4 border-transparent hover:border-l-indigo-500 transition-all flex items-center justify-between cursor-pointer group/risk">
                    <div className="flex items-center gap-4">
                       <div className={`w-12 h-12 rounded-2xl ${r.color} flex items-center justify-center text-white shadow-lg`}>
                          <r.icon size={20} strokeWidth={2.5} />
@@ -408,9 +390,7 @@ const DashboardOverview = () => {
 
          <GlassCard title="Monitor del Corte" icon={ShieldCheck} className="lg:col-span-4 h-full flex flex-col">
             <div className="relative flex flex-col gap-10 pl-6">
-               {/* Línea conectora visual */}
                <div className="absolute left-[54px] top-12 bottom-12 w-0.5 bg-gradient-to-b from-indigo-500/20 via-indigo-500/10 to-transparent lg:block hidden" />
-
                {stats.pasos.map((p, i) => {
                  const pct = (p.completados / (p.total || 1)) * 100;
                  return (
@@ -433,17 +413,13 @@ const DashboardOverview = () => {
                            <p className="text-[10px] font-bold text-gray-400">/ {p.total}</p>
                          </div>
                          <div className="mt-3 h-1 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full transition-all duration-1000 ${i === 3 ? 'bg-emerald-500' : 'bg-indigo-500'}`}
-                              style={{ width: `${pct}%` }} 
-                            />
+                            <div className={`h-full transition-all duration-1000 ${i === 3 ? 'bg-emerald-500' : 'bg-indigo-500'}`} style={{ width: `${pct}%` }} />
                          </div>
                       </div>
                    </div>
                  );
                })}
             </div>
-            
             <div className="mt-auto pt-10 border-t border-gray-100 dark:border-white/5">
                <div className="mb-4">
                  <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Contexto Operativo</p>
@@ -470,7 +446,6 @@ export default function Dashboard() {
       <Sidebar onLogout={signOut} />
       <main className="flex-1 min-w-0 overflow-x-hidden transition-all duration-[400ms] lg:pl-[120px] pt-20 px-4 pb-6 lg:pt-16 lg:px-16 lg:pb-16">
         
-        {/* TITULO CONGELADO */}
         <div className="max-w-[1600px] mx-auto mb-16">
            <h1 className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.6em] mb-4">Inteligencia de Negocio</h1>
            <h2 className="text-7xl font-black text-gray-800 dark:text-white tracking-tighter leading-none mb-2">Panel de <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-emerald-500">Control</span></h2>
