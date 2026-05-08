@@ -5,6 +5,12 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import './App.css';
 
+const CONTRALOR_EMAILS = new Set([
+  'jesus_loera@avalanzmedia.mx',
+  'benjamin_benites@zignia.mx',
+  'karla_garcia@avalanz.com',
+]);
+
 function AppContent() {
   const { user, loading } = useAuth();
 
@@ -19,6 +25,8 @@ function AppContent() {
     );
   }
 
+  const isContralor = CONTRALOR_EMAILS.has(user?.email?.toLowerCase() || '');
+
   return (
     <Routes>
       <Route 
@@ -31,7 +39,11 @@ function AppContent() {
         element={user ? <Dashboard /> : <Navigate to="/login" />} 
       />
 
-      <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
+      {/* Contralor va directo a Indicadores, usuarios normales al Dashboard */}
+      <Route 
+        path="*" 
+        element={<Navigate to={user ? (isContralor ? "/dashboard/indicadores" : "/dashboard") : "/login"} />} 
+      />
     </Routes>
   );
 }
