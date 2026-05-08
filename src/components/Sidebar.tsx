@@ -72,36 +72,16 @@ export default function Sidebar({ onLogout }: SidebarProps) {
     return CONTRALOR_EMAILS.has(email);
   }, [user]);
 
- const MODULES = useMemo(() => {
+  const MODULES = useMemo(() => {
     if (!isContralor) return BASE_MODULES;
 
-    // Menú restringido para contralor (solo prefijo de correo).
     return [
       {
         title: 'Módulo de compensaciones',
         icon: CircleDollarSign,
         options: [
           { name: 'Indicadores', path: '/dashboard/indicadores' },
-          { name: 'Salarios', path: '/dashboard/salarios' },
           { name: 'Alcance', path: '/dashboard/alcance' },
-          { name: 'Comisiones Directas (solo lectura)', path: '/dashboard/comisiones-directas' },
-          { name: 'Opción no disponible', disabled: true, path: '#' },
-        ],
-      },
-      {
-        title: 'Configuración del sistema',
-        icon: Settings,
-        options: [
-          { name: 'Escalones', path: '/dashboard/escalones' },
-          { name: 'Opción no disponible', disabled: true, path: '#' },
-        ],
-      },
-      {
-        title: 'Consulta de reportes',
-        icon: FileText,
-        options: [
-          { name: 'Imprimir COVAS', path: '/dashboard/covas' },
-          { name: 'Opción no disponible', disabled: true, path: '#' },
         ],
       },
     ];
@@ -209,7 +189,6 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                   <div 
                     className={`overflow-hidden transition-all duration-300 ease-in-out w-full ${isOpenMenu ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0'} ${!isMobile ? 'group-hover:opacity-100 group-hover:pointer-events-auto pointer-events-none' : ''}`}
                   >
-                    {/* Ocultar submenú al colapsar en escritorio para evitar errores visuales */}
                     <div className={`transition-all duration-300 ${!isMobile ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}>
                       <ul className="ml-[18px] pl-6 py-2 border-l border-gray-300 dark:border-gray-700/50 space-y-1">
                         {module.options.map((opt, iIdx) => (
@@ -260,7 +239,6 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                 </span>
               </button>
               
-              {/* Tooltip para Alertas */}
               {!isMobile && (
                 <div className="sidebar-tooltip absolute left-[calc(100%+20px)] top-1/2 -translate-y-1/2 px-4 py-2 bg-white/70 dark:bg-black/70 backdrop-blur-xl border border-white/40 dark:border-white/10 text-gray-800 dark:text-gray-200 text-sm font-semibold rounded-xl opacity-0 invisible pointer-events-none transition-all duration-300 z-50 shadow-xl whitespace-nowrap flex items-center group-hover/aside:hidden">
                   Alertas
@@ -281,7 +259,6 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                 </span>
               </button>
 
-              {/* Tooltip para Cerrar sesión */}
               {!isMobile && (
                 <div className="sidebar-tooltip absolute left-[calc(100%+20px)] top-1/2 -translate-y-1/2 px-4 py-2 bg-white/70 dark:bg-black/70 backdrop-blur-xl border border-white/40 dark:border-white/10 text-gray-800 dark:text-gray-200 text-sm font-semibold rounded-xl opacity-0 invisible pointer-events-none transition-all duration-300 z-50 shadow-xl whitespace-nowrap flex items-center group-hover/aside:hidden">
                   Cerrar sesión
@@ -310,7 +287,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                 </div>
                 <button 
                   onClick={() => setShowAlerts(false)}
-                  className="p-2 rounded-xl hovr:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-400"
+                  className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-400"
                 >
                   <X size={20} />
                 </button>
