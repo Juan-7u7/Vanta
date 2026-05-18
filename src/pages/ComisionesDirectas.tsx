@@ -1,6 +1,6 @@
-/** final 1.0 */
+/** final 2.0 - con %bono y monto calculado */
 import { useState, useEffect } from 'react';
-import { Search, Filter, Loader2, ChevronDown, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Search, Filter, Loader2, ChevronDown, TrendingUp, TrendingDown, Minus, Info } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'] as const;
@@ -12,6 +12,12 @@ interface ComisionIndicator {
   ponderacion: number;
   meta: Record<typeof MESES[number], number>;
   alcance: Record<typeof MESES[number], number>;
+  porcentajeBono?: number;
+  montoBonoComision?: number;
+  mesesBono?: number;
+  participacion?: number;
+  sueldoMensualizado?: number;
+  escalones?: { limite_inferior: number; limite_superior: number; porcentaje_pago: number }[];
 }
 
 interface ComisionRow {
@@ -106,6 +112,13 @@ function ComisionCard({ row }: { row: ComisionRow }) {
 
   const TrendIcon = totalPct >= 90 ? TrendingUp : totalPct >= 70 ? Minus : TrendingDown;
 
+  // Datos de comisión directa (primer indicador con datos, o promedio)
+  const primerConComision = row.indicadores.find(ind => (ind.porcentajeBono ?? 0) > 0);
+  const pctBonoMostrar = primerConComision?.porcentajeBono ?? 0;
+  const montoMostrar = row.indicadores.reduce((s, ind) => s + (ind.montoBonoComision ?? 0), 0);
+  const mesesBonoInd = primerConComision?.mesesBono ?? 0;
+  const sueldoMensualInd = primerConComision?.sueldoMensualizado ?? 0;
+
   const ApprovalDot = ({ active, label }: { active: boolean; label: string }) => (
     <div className="flex items-center gap-1">
       <span className={`w-3 h-3 rounded-full border ${active
@@ -159,8 +172,27 @@ function ComisionCard({ row }: { row: ComisionRow }) {
           <span className="text-[9px] text-gray-400 uppercase">Cumplimiento</span>
         </div>
 
-        {/* Mes actual — md+ */}
-        <div className="hidden md:flex w-36 flex-col gap-1 items-center shrink-0">
+        {/* % Bono + Monto — md+ */}
+        {pctBonoMostrar > 0 && (
+          <div className="hidden md:flex flex-col items-center gap-0.5 shrink-0 min-w-[80px] relative group">
+            <div className="flex items-center gap-1">
+              <span className="text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                {pctBonoMostrar}%
+              </span>
+              <Info size={10} className="text-gray-300 dark:text-gray-600" />
+            </div>
+            <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
+              ${fmt(montoMostrar)}
+            </span>
+            <span className="text-[9px] text-gray-400 uppercase leading-tight">Bono · Monto</span>
+            <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-900 text-white text-[10px] rounded-xl px-3 py-2 shadow-xl whitespace-nowrap z-50">
+              % bono según escalón · Sueldo mensualizado: ${fmt(sueldoMensualInd)} × {mesesBonoInd} meses
+            </div>
+          </div>
+        )}
+
+        {/* Mes actual — lg+ */}
+        <div className="hidden lg:flex w-36 flex-col gap-1 items-center shrink-0">
           <div className="w-full h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full ${colorPct(mesPct).bar}`}
@@ -176,7 +208,7 @@ function ComisionCard({ row }: { row: ComisionRow }) {
         </div>
 
         {/* Aprobaciones */}
-        <div className="hidden lg:flex items-center gap-2 ml-4">
+        <div className="hidden xl:flex items-center gap-2 ml-4">
           {[
             { key: 'CAP', active: row.aprobacion?.paso_captura },
             { key: 'REV', active: row.aprobacion?.paso_direccion },
@@ -197,7 +229,7 @@ function ComisionCard({ row }: { row: ComisionRow }) {
       {expanded && (
         <div className="px-5 pb-5 space-y-5 animate-in slide-in-from-top-2 duration-200">
           {/* Tarjetas resumen globales */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
             {[
               { label: 'Meta Anual', value: fmt(totalMeta), sub: 'Total esperado', color: 'text-blue-600 dark:text-blue-400' },
               { label: 'Alcance Anual', value: fmt(totalAlcance), sub: 'Total logrado', color: 'text-violet-600 dark:text-violet-400' },
@@ -213,6 +245,12 @@ function ComisionCard({ row }: { row: ComisionRow }) {
                 sub: MESES_CORTOS[mesIdx],
                 color: colorPct(mesPct).text
               },
+              ...(montoMostrar > 0 ? [{
+                label: 'Comisión Total',
+                value: `$${fmt(montoMostrar)}`,
+                sub: `${pctBonoMostrar}% bono · ${mesesBonoInd} meses`,
+                color: 'text-emerald-600 dark:text-emerald-400'
+              }] : []),
             ].map(({ label, value, sub, color }) => (
               <div key={label} className="bg-white/60 dark:bg-white/5 rounded-2xl p-3 border border-gray-100 dark:border-white/10">
                 <p className="text-[10px] font-bold text-gray-400 uppercase">{label}</p>
@@ -306,6 +344,37 @@ function ComisionCard({ row }: { row: ComisionRow }) {
                       </table>
                     </div>
                   </div>
+
+                  {/* Comisión directa: %bono y monto */}
+                  {(ind.porcentajeBono ?? 0) > 0 && (
+                    <div className="rounded-2xl border border-emerald-200 dark:border-emerald-500/20 bg-emerald-50/60 dark:bg-emerald-500/5 p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Comisión Directa</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div>
+                          <p className="text-[10px] text-gray-500 uppercase">% ALCANCE LOGRADO</p>
+                          <p className="text-lg font-mono font-bold text-emerald-600 dark:text-emerald-400">{ind.porcentajeBono}%</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-500 uppercase">Comisión por pagar</p>
+                          <p className="text-lg font-mono font-bold text-emerald-600 dark:text-emerald-400">${fmt(ind.montoBonoComision ?? 0)}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-500 uppercase">Participación Q</p>
+                          <p className="text-lg font-mono font-bold text-gray-700 dark:text-gray-300">{((ind.participacion ?? 0) * 100).toFixed(2)}%</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-gray-500 uppercase">Sueldo mensualizado</p>
+                          <p className="text-lg font-mono font-bold text-gray-700 dark:text-gray-300">${fmt(ind.sueldoMensualizado ?? 0)}</p>
+                        </div>
+                      </div>
+                      <div className="text-[11px] text-gray-500 dark:text-gray-400 font-mono bg-white/60 dark:bg-black/20 rounded-xl p-3 border border-emerald-100 dark:border-emerald-500/10">
+                        {fmt(ind.sueldoMensualizado ?? 0)} × {ind.mesesBono ?? 0} meses × {((ind.participacion ?? 0) * 100).toFixed(2)}% × {ind.porcentajeBono}% = ${fmt(ind.montoBonoComision ?? 0)}
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -334,7 +403,7 @@ export default function ComisionesDirectas() {
       const { data: metasData, error: errMetas } = await supabase
         .from('metas_indicadores')
         .select(`
-          id, colaborador_id, anio, nombre_indicador, tipo_indicador, ponderacion,
+          id, colaborador_id, anio, nombre_indicador, tipo_indicador, ponderacion, esquema_pago_id,
           enero, febrero, marzo, abril, mayo, junio,
           julio, agosto, septiembre, octubre, noviembre, diciembre,
           colaborador:colaborador_id(
@@ -418,6 +487,101 @@ export default function ComisionesDirectas() {
         });
       });
 
+      // 4. Calcular %bono y monto para cada indicador
+      const anosUnicos = [...new Set(metasData.map(m => m.anio))];
+
+      // 4a. Salarios mensuales
+      const { data: salariosData } = await supabase
+        .from('salarios_mensuales')
+        .select('*')
+        .in('colaborador_id', ids)
+        .in('anio', anosUnicos);
+      const salarioMap: Record<string, any> = {};
+      (salariosData || []).forEach(s => { salarioMap[`${s.colaborador_id}-${s.anio}`] = s; });
+
+      // 4b. Config meses_bono
+      const { data: bonosConfig } = await supabase
+        .from('bonos_colaborador_config')
+        .select('*')
+        .in('colaborador_id', ids)
+        .in('anio', anosUnicos);
+      const bonoConfigMap: Record<string, any> = {};
+      (bonosConfig || []).forEach(b => { bonoConfigMap[`${b.colaborador_id}-${b.anio}`] = b; });
+
+      // 4c. Esquemas de pago y escalones
+      const esquemaIds = [...new Set(metasData.map((m: any) => m.esquema_pago_id).filter(Boolean))] as number[];
+      let escalonesPorEsquema: Record<number, any[]> = {};
+      if (esquemaIds.length > 0) {
+        const { data: todosEscalones } = await supabase
+          .from('escalones_bonos')
+          .select('*')
+          .in('esquema_id', esquemaIds)
+          .order('limite_inferior', { ascending: false });
+        (todosEscalones || []).forEach(e => {
+          if (!escalonesPorEsquema[e.esquema_id]) escalonesPorEsquema[e.esquema_id] = [];
+          escalonesPorEsquema[e.esquema_id].push(e);
+        });
+      }
+
+      // 4d. Enriquecer cada indicador con cálculo de comisión directa
+      Object.values(grouped).forEach(row => {
+        const key = `${row.colaborador_id}-${row.anio}`;
+        const salario = salarioMap[key];
+        const config = bonoConfigMap[key];
+        const mesesBono = config?.meses_bono ?? 0;
+        if (mesesBono <= 0 || !salario) return;
+
+        const mesesConSalario = MESES.filter(m => Number((salario as any)[m] || 0) > 0);
+        const salarioTotalAnual = mesesConSalario.reduce((s, m) => s + Number((salario as any)[m] || 0), 0);
+        const sueldoMensualizado = mesesConSalario.length > 0 ? salarioTotalAnual / mesesConSalario.length : 0;
+
+        // Sumar metas anuales del colaborador
+        const metasColab = metasData.filter(m => m.colaborador_id === row.colaborador_id && m.anio === row.anio);
+        let sumaMetasAnual = 0;
+        metasColab.forEach(m => {
+          MESES.forEach(mes => { sumaMetasAnual += Number((m as any)[mes] || 0); });
+        });
+
+        row.indicadores.forEach((ind, idx) => {
+          // Usar solo meses con alcance > 0 (el Q activo) para cumplimiento
+          const mesesConAlcance = MESES.filter(m => (ind.alcance[m] || 0) > 0);
+          const mesesConMeta = mesesConAlcance.length > 0
+            ? mesesConAlcance
+            : MESES.filter(m => (ind.meta[m] || 0) > 0);
+          const metaQ = mesesConMeta.reduce((s, m) => s + (ind.meta[m] || 0), 0);
+          const alcQ = mesesConMeta.reduce((s, m) => s + (ind.alcance[m] || 0), 0);
+          if (metaQ <= 0) return;
+
+          // Suma anual de LAS 4 Q de ESTE indicador (para %participación)
+          const metaAnualIndicador = MESES.reduce((s, m) => s + (ind.meta[m] || 0), 0);
+
+          // Buscar escalones según esquema_pago_id de la meta
+          const metaRow = metasColab[idx];
+          const esquemaId = (metaRow as any)?.esquema_pago_id;
+          let escalones = [
+            { limite_inferior: 0, limite_superior: 89.9, porcentaje_pago: 0 },
+            { limite_inferior: 90, limite_superior: 9999, porcentaje_pago: 100 }
+          ];
+          if (esquemaId && escalonesPorEsquema[esquemaId]) {
+            escalones = escalonesPorEsquema[esquemaId];
+          }
+
+          const cumplimiento = metaQ > 0 ? (alcQ / metaQ) * 100 : 0;
+          const ordenados = [...escalones].sort((a, b) => b.limite_inferior - a.limite_inferior);
+          const match = ordenados.find(e => cumplimiento >= e.limite_inferior);
+          const porcentajeBono = match ? Number(match.porcentaje_pago) : 0;
+          const participacion = metaAnualIndicador > 0 ? metaQ / metaAnualIndicador : 0;
+          const montoBono = mesesBono * sueldoMensualizado * participacion * (porcentajeBono / 100);
+
+          ind.porcentajeBono = porcentajeBono;
+          ind.montoBonoComision = montoBono;
+          ind.mesesBono = mesesBono;
+          ind.participacion = participacion;
+          ind.sueldoMensualizado = sueldoMensualizado;
+          ind.escalones = escalones;
+        });
+      });
+
       setRows(Object.values(grouped));
     } catch (err: any) {
       setError(err.message);
@@ -442,6 +606,7 @@ export default function ComisionesDirectas() {
   const totalMeta = rows.reduce((s, r) => s + r.indicadores.reduce((si, ind) => si + calcTotalMetaIndicador(ind), 0), 0);
   const totalAlcance = rows.reduce((s, r) => s + r.indicadores.reduce((si, ind) => si + calcTotalAlcanceIndicador(ind), 0), 0);
   const totalGlobalPct = pct(totalAlcance, totalMeta);
+  const totalComisionesGlobal = rows.reduce((s, r) => s + r.indicadores.reduce((si, ind) => si + (ind.montoBonoComision ?? 0), 0), 0);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -458,6 +623,7 @@ export default function ComisionesDirectas() {
             { label: 'Meta Total', value: `$${(totalMeta / 1000).toFixed(0)}k`, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
             { label: 'Alcance Total', value: `$${(totalAlcance / 1000).toFixed(0)}k`, color: 'text-violet-600 dark:text-violet-400', bg: 'bg-violet-500/10 border-violet-500/20' },
             { label: 'Cumplimiento', value: `${totalGlobalPct}%`, color: colorPct(totalGlobalPct).text, bg: colorPct(totalGlobalPct).bg },
+            { label: 'Comisiones', value: `$${fmt(totalComisionesGlobal)}`, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
           ].map(({ label, value, color, bg }) => (
             <div key={label} className={`flex flex-col px-4 py-2.5 rounded-2xl border ${bg} min-w-[90px]`}>
               <span className="text-[9px] font-bold text-gray-400 uppercase">{label}</span>
@@ -575,8 +741,14 @@ export default function ComisionesDirectas() {
               <div className="hidden sm:flex w-32 justify-end shrink-0">
                 <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Cumplimiento</span>
               </div>
-              <div className="hidden md:flex w-36 justify-center shrink-0">
+              <div className="hidden md:flex w-32 justify-center shrink-0">
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Bono · Monto</span>
+              </div>
+              <div className="hidden lg:flex w-36 justify-center shrink-0">
                 <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Mes actual</span>
+              </div>
+              <div className="hidden xl:flex items-center gap-2 ml-4 shrink-0">
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Aprob.</span>
               </div>
               <div className="w-8 shrink-0" />
             </div>

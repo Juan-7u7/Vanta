@@ -137,12 +137,13 @@ const styles = StyleSheet.create({
   cellBold: { fontSize: 8, fontWeight: 'bold' },
   cellGreen: { fontSize: 8, fontWeight: 'bold', color: '#059669' },
 
-  colNombre: { width: '28%' },
-  colEsquema: { width: '12%' },
-  colMeta: { width: '15%', textAlign: 'right' },
-  colAlcance: { width: '15%', textAlign: 'right' },
-  colPct: { width: '15%', textAlign: 'right' },
-  colBono: { width: '15%', textAlign: 'right' },
+  colNombre: { width: '22%' },
+  colEsquema: { width: '10%' },
+  colMeta: { width: '13%', textAlign: 'right' },
+  colAlcance: { width: '13%', textAlign: 'right' },
+  colPct: { width: '10%', textAlign: 'right' },
+  colBonoPct: { width: '10%', textAlign: 'right' },
+  colBono: { width: '22%', textAlign: 'right' },
 
   // AJUSTE & OTROS
   highlightRow: { flexDirection: 'row', backgroundColor: '#F0F9FF', padding: 8, marginTop: 4, borderRadius: 6 },
@@ -249,6 +250,7 @@ export const CovasDocument = ({ data, periodo }: { data: any[], periodo: { mes: 
                 <View style={styles.colMeta}><Text style={styles.columnHeader}>Meta</Text></View>
                 <View style={styles.colAlcance}><Text style={styles.columnHeader}>Alcance</Text></View>
                 <View style={styles.colPct}><Text style={styles.columnHeader}>% Cumpl.</Text></View>
+                <View style={styles.colBonoPct}><Text style={styles.columnHeader}>% Bono</Text></View>
                 <View style={styles.colBono}><Text style={styles.columnHeader}>Monto</Text></View>
               </View>
               {col.comisiones.map((c: any, i: number) => (
@@ -260,6 +262,11 @@ export const CovasDocument = ({ data, periodo }: { data: any[], periodo: { mes: 
                   <View style={styles.colPct}>
                     <Text style={[styles.cell, c.cumplimiento >= 100 ? styles.cellGreen : {}]}>
                       {c.cumplimiento.toFixed(1)}%
+                    </Text>
+                  </View>
+                  <View style={styles.colBonoPct}>
+                    <Text style={[styles.cell, (c.porcentajeBono || c.porcentajePago) >= 100 ? styles.cellGreen : {}]}>
+                      {(c.porcentajeBono || c.porcentajePago || 0).toFixed(1)}%
                     </Text>
                   </View>
                   <View style={styles.colBono}><Text style={styles.cellBold}>{formatCurrency(c.montoBono)}</Text></View>

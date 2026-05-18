@@ -1,5 +1,5 @@
 ﻿import { supabase } from '../lib/supabase';
-import { calcularBonoBruto, calcularTotalesMensuales } from '../utils/covasLogicMonthly';
+import { calcularBonoBruto, calcularTotalesMensuales, calcularComisionDirecta } from '../utils/covasLogicMonthly';
 import type { IndicadorEntrada, IndicadorResultado } from '../utils/covasLogicMonthly';
 import { calcularIndicadorQuarter, liquidarQuarter } from '../utils/covasLogicQuarterly';
 
@@ -119,6 +119,32 @@ export async function getColaboradorDataForReport(
       return mesesPeriodo.length ? total / mesesPeriodo.length : 0;
     })();
 
+    // 4b. Sueldo mensualizado (solo meses con salario > 0)
+    const ALL_MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    const mesesConSalario = salarioSafe ? ALL_MONTHS.filter(m => Number((salarioSafe as any)[m] || 0) > 0) : [];
+    const salarioTotalAnual = salarioSafe ? mesesConSalario.reduce((s, m) => s + Number((salarioSafe as any)[m] || 0), 0) : 0;
+    const sueldoMensualizado = mesesConSalario.length > 0 ? salarioTotalAnual / mesesConSalario.length : 0;
+
+    // 4c. Configuración de bono por colaborador (meses_bono)
+    const { data: bonoConfigRow } = await supabase
+      .from('bonos_colaborador_config')
+      .select('meses_bono')
+      .eq('colaborador_id', colaborador_id)
+      .eq('anio', anio)
+      .maybeSingle();
+    const mesesBono = bonoConfigRow?.meses_bono ?? 0;
+
+    // 4d. Suma de todas las metas del año (para %participación en comisión directa)
+    let sumaMetasAnual = 0;
+    if (mesesBono > 0) {
+      const { data: todasMetas } = await supabase
+        .from('metas_indicadores')
+        .select(`enero, febrero, marzo, abril, mayo, junio, julio, agosto, septiembre, octubre, noviembre, diciembre`)
+        .eq('colaborador_id', colaborador_id)
+        .eq('anio', anio);
+      sumaMetasAnual = (todasMetas || []).reduce((acc: number, m: any) => acc + ALL_MONTHS.reduce((s: number, mes: string) => s + Number(m[mes] || 0), 0), 0);
+    }
+
     // 5. Aprobaciones del periodo
     const { data: aprobRows } = await supabase
       .from('pasos_aprobacion')
@@ -213,10 +239,39 @@ export async function getColaboradorDataForReport(
       const res = calcularBonoBruto(i);
       return {
         ...res,
-        bonoObjetivo: i.bonoObjetivo, // necesario para cálculos trimestrales
-        escalones: i.escalones
+        bonoObjetivo: i.bonoObjetivo,
+        escalones: i.escalones,
+        porcentajeBono: 0,
+        montoBonoComision: 0,
+        participacion: 0,
+        mesesBono: 0,
+        sueldoMensualizado: 0,
       } as any;
     });
+
+    // Si hay meses_bono configurado, recalcular con fórmula de comisión directa
+    if (mesesBono > 0 && sumaMetasAnual > 0) {
+      indicadoresEntrada.forEach((i, idx) => {
+        const mInd = indicadoresData[idx];
+        const metaAnualIndicador = mInd ? ALL_MONTHS.reduce((s, m) => s + Number((mInd as any)[m] || 0), 0) : 0;
+        const cd = calcularComisionDirecta({
+          meta: i.meta,
+          alcance: i.alcance,
+          escalones: i.escalones,
+          sueldoMensualizado,
+          mesesBono,
+          sumaMetasAnual: metaAnualIndicador,
+        });
+        (resultados[idx] as any).porcentajeBono = cd.porcentajeBono;
+        (resultados[idx] as any).montoBonoComision = cd.montoBono;
+        (resultados[idx] as any).participacion = cd.participacion;
+        (resultados[idx] as any).mesesBono = mesesBono;
+        (resultados[idx] as any).sueldoMensualizado = sueldoMensualizado;
+        (resultados[idx] as any).montoBono = cd.montoBono;
+        (resultados[idx] as any).porcentajePago = cd.porcentajeBono;
+      });
+    }
+
     const totales = calcularTotalesMensuales(resultados, otrosIngresos.reduce((a,b)=>a+(b.monto||0),0));
 
     return {

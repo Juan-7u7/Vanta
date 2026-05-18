@@ -35,6 +35,9 @@ export default function ColaboradorModal({ isOpen, onClose, onSuccess, initialDa
     fecha_ingreso: new Date().toISOString().split('T')[0]
   });
 
+  const [bonoConfig, setBonoConfig] = useState({ anio: 2026, meses_bono: 0 });
+  const [bonoConfigLoading, setBonoConfigLoading] = useState(false);
+
   useEffect(() => {
     if (isOpen) {
       fetchCatalogs();
@@ -54,6 +57,16 @@ export default function ColaboradorModal({ isOpen, onClose, onSuccess, initialDa
           esta_activo: initialData.esta_activo ?? true,
           fecha_ingreso: initialData.fecha_ingreso || new Date().toISOString().split('T')[0]
         });
+        // Cargar config de bono
+        supabase.from('bonos_colaborador_config')
+          .select('*')
+          .eq('colaborador_id', initialData.id)
+          .eq('anio', 2026)
+          .maybeSingle()
+          .then(({ data }) => {
+            if (data) setBonoConfig({ anio: data.anio, meses_bono: data.meses_bono });
+            else setBonoConfig({ anio: 2026, meses_bono: 0 });
+          });
       } else {
         setFormData({
           matricula: '', nombre: '', apellido_paterno: '', apellido_materno: '',
@@ -61,6 +74,7 @@ export default function ColaboradorModal({ isOpen, onClose, onSuccess, initialDa
           unidad_negocio_id: '', perfil_id: '', jefe_id: '',
           esta_activo: true, fecha_ingreso: new Date().toISOString().split('T')[0]
         });
+        setBonoConfig({ anio: 2026, meses_bono: 0 });
       }
     }
   }, [isOpen, initialData]);
@@ -320,6 +334,77 @@ export default function ColaboradorModal({ isOpen, onClose, onSuccess, initialDa
             </div>
 
           </div>
+
+          {/* Configuración de Bonos */}
+          {initialData && (
+            <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Configuración de Bonos</span>
+              </div>
+              <div className="flex items-end gap-4">
+                <div className="space-y-1.5 flex-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Año</label>
+                  <select
+                    value={bonoConfig.anio}
+                    onChange={e => setBonoConfig({ ...bonoConfig, anio: parseInt(e.target.value) })}
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-[#1a1f2e] border border-gray-200 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all dark:text-white text-sm cursor-pointer appearance-none"
+                  >
+                    {[2024, 2025, 2026].map(y => (
+                      <option key={y} value={y} className="bg-white dark:bg-[#1a1f2e]">{y}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5 flex-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Meses de bono</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={24}
+                    value={bonoConfig.meses_bono}
+                    onChange={e => setBonoConfig({ ...bonoConfig, meses_bono: parseInt(e.target.value) || 0 })}
+                    placeholder="0 = sin comisión directa"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all dark:text-white text-sm"
+                  />
+                </div>
+                <button
+                  type="button"
+                  disabled={bonoConfigLoading || !initialData?.id}
+                  onClick={async () => {
+                    if (!initialData?.id) return;
+                    setBonoConfigLoading(true);
+                    try {
+                      if (bonoConfig.meses_bono > 0) {
+                        await supabase.from('bonos_colaborador_config').upsert({
+                          colaborador_id: initialData.id,
+                          anio: bonoConfig.anio,
+                          meses_bono: bonoConfig.meses_bono,
+                        }, { onConflict: 'colaborador_id, anio' });
+                      } else {
+                        await supabase.from('bonos_colaborador_config')
+                          .delete()
+                          .eq('colaborador_id', initialData.id)
+                          .eq('anio', bonoConfig.anio);
+                      }
+                      alert('Configuración de bono guardada');
+                    } catch (err: any) {
+                      setError(err.message);
+                    } finally {
+                      setBonoConfigLoading(false);
+                    }
+                  }}
+                  className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/20 transition-all text-sm disabled:opacity-60"
+                >
+                  {bonoConfigLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Guardar Bono'}
+                </button>
+              </div>
+              <p className="text-[10px] text-gray-400 mt-2 ml-1">
+                {bonoConfig.meses_bono > 0
+                  ? `Comisión directa activa (${bonoConfig.meses_bono} meses)`
+                  : 'Sin comisión directa configurada (usa 0 para desactivar)'}
+              </p>
+            </div>
+          )}
 
           <div className="mt-8 flex gap-3">
             <button 

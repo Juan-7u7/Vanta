@@ -88,10 +88,9 @@ function buscarEscalonFlexible(cumplimiento: number, escalones: EscalonPago[], c
     const m = escalones.find(e => (e.etiqueta || '').toLowerCase() === cumplimientoTexto.toLowerCase());
     if (m) return Number(m.porcentaje_pago || 0);
   }
-  const ordenados = [...escalones].sort((a, b) => a.limite_inferior - b.limite_inferior);
-  const match = ordenados.find(e => cumplimiento >= e.limite_inferior && cumplimiento <= e.limite_superior);
-  if (match) return Number(match.porcentaje_pago || 0);
-  return Number(ordenados[ordenados.length - 1]?.porcentaje_pago || 0);
+  const ordenados = [...escalones].sort((a, b) => b.limite_inferior - a.limite_inferior);
+  const match = ordenados.find(e => cumplimiento >= e.limite_inferior);
+  return match ? Number(match.porcentaje_pago) : 0;
 }
 
 export function calcularBonoBruto(indicador: IndicadorEntrada): IndicadorResultado {
@@ -180,4 +179,29 @@ export function calcularTotalesMensuales(resultados: IndicadorResultado[], otros
     totalOtrosIngresos,
     totalNetoMensual,
   };
+}
+
+export interface ComisionDirectaParams {
+  meta: number;
+  alcance: number;
+  escalones: EscalonPago[];
+  sueldoMensualizado: number;
+  mesesBono: number;
+  sumaMetasAnual: number;
+}
+
+export interface ComisionDirectaResult {
+  cumplimiento: number;
+  porcentajeBono: number;
+  montoBono: number;
+  participacion: number;
+}
+
+export function calcularComisionDirecta(params: ComisionDirectaParams): ComisionDirectaResult {
+  const cumplimiento = params.meta > 0 ? (params.alcance / params.meta) * 100 : 0;
+  const porcentajeBono = buscarEscalonFlexible(cumplimiento, params.escalones);
+  const sueldoAnualizado = params.mesesBono * params.sueldoMensualizado;
+  const participacion = params.sumaMetasAnual > 0 ? params.meta / params.sumaMetasAnual : 0;
+  const montoBono = sueldoAnualizado * participacion * (porcentajeBono / 100);
+  return { cumplimiento, porcentajeBono, montoBono, participacion };
 }
